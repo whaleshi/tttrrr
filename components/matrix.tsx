@@ -92,6 +92,11 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 
 		// 中奖格子但还没显示中奖效果 - 保持正常样式
 		if (winningCell === index && !showWinner) {
+			// 如果有投注金额，保持绿色边框
+			if (cellAmounts[index] && cellAmounts[index] > 0) {
+				return 'bg-[#191B1F] border-[#2ED075]';
+			}
+			// 如果只是选中但没投注，保持白色边框
 			return selectedCells.includes(index)
 				? 'bg-[#191B1F] border-[#FFF]'
 				: 'bg-[#0D0F13] border-[#25262A] hover:bg-[#161820] hover:border-[#999]';
