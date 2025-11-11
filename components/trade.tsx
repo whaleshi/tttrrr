@@ -19,9 +19,9 @@ type TradeType = 'buy' | 'sell';
 
 
 interface TradeProps {
-	selectedCells: number[];
-	inputAmount: string;
-	setInputAmount: (amount: string) => void;
+	selectedCells?: number[];
+	inputAmount?: string;
+	setInputAmount?: (amount: string) => void;
 	onDeploy?: (amount: string) => void;
 	isPaused?: boolean;
 	info?: any;
@@ -29,7 +29,7 @@ interface TradeProps {
 	initialTab?: string;
 }
 
-export const Trade = ({ selectedCells, inputAmount, setInputAmount, onDeploy, isPaused, info, tokenBalance, initialTab = 'buy' }: TradeProps) => {
+export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => {}, onDeploy, isPaused = false, info, tokenBalance, initialTab = 'buy' }: TradeProps) => {
 	const [isBuy, setIsBuy] = useState(initialTab === 'buy');
 	const [selectedTab, setSelectedTab] = useState(initialTab);
 	const [isSlippageOpen, setIsSlippageOpen] = useState(false);
