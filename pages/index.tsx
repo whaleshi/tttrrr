@@ -8,6 +8,7 @@ import Matrix from "@/components/matrix";
 import Overview from "@/components/overview";
 import { Trade } from "@/components/trade";
 import Rank from "@/components/rank";
+import Rewards from "@/components/rewards";
 
 export default function IndexPage() {
 	const router = useRouter();
@@ -28,12 +29,12 @@ export default function IndexPage() {
 		setCountdown(30);
 		setIsDrawing(true);
 		setShowWinner(false);
-		
+
 		// 模拟抽奖动画时间，然后显示中奖者
 		setTimeout(() => {
 			setShowWinner(true);
 			setIsDrawing(false);
-			
+
 			// 5秒后开始新一轮
 			setTimeout(() => {
 				setShowWinner(false);
@@ -60,7 +61,7 @@ export default function IndexPage() {
 
 		return () => clearInterval(timer);
 	}, [isPaused]);
-	
+
 	return (
 		<DefaultLayout>
 			<div className="flex flex-col h-full bg-[#0D0F13]">
@@ -68,8 +69,8 @@ export default function IndexPage() {
 					<div className="w-full max-w-[640px] lg:max-w-[1200px] flex flex-col lg:flex-row pt-[16px] lg:pt-[40px]">
 						<div className="block lg:hidden"><Overview countdown={countdown} isPaused={isPaused} /></div>
 						<div className="lg:w-[calc(632/1200*100%)] mt-[24px] lg:mt-0">
-							<Matrix 
-								selectedCells={selectedCells} 
+							<Matrix
+								selectedCells={selectedCells}
 								setSelectedCells={setSelectedCells}
 								cellAmounts={cellAmounts}
 								winningCell={winningCell}
@@ -81,9 +82,9 @@ export default function IndexPage() {
 						<div className="flex-1">
 							<div className="hidden lg:block"><Overview countdown={countdown} isPaused={isPaused} /></div>
 							<div className="mt-[24px]">
-								<Trade 
-									selectedCells={selectedCells} 
-									inputAmount={inputAmount} 
+								<Trade
+									selectedCells={selectedCells}
+									inputAmount={inputAmount}
 									setInputAmount={setInputAmount}
 									isPaused={isPaused}
 									onDeploy={(amount) => {
@@ -97,6 +98,9 @@ export default function IndexPage() {
 										setInputAmount(''); // 清空输入
 									}}
 								/>
+							</div>
+							<div className="mt-[24px]">
+								<Rewards />
 							</div>
 							<div className="mt-[24px]">
 								<Rank />

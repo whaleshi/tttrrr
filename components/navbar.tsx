@@ -149,17 +149,12 @@ export const Navbar = () => {
 					<LogoIcon />
 					<LogoTextIcon />
 				</NextLink>
-				<div className="text-[16px] text-[#868789] hidden md:flex items-center gap-[16px] pl-[24px]">
-					<NextLink href="/" className="hover:opacity-80 transition-opacity">首页</NextLink>
-					<button
-						className="hover:opacity-80 transition-opacity cursor-pointer"
-						onClick={onOpen}
-					>
-						创建代币
-					</button>
-					<NextLink href={siteConfig.links.work} className="hover:opacity-80 transition-opacity" target="_blank" rel="noopener noreferrer">运行机制</NextLink>
-					<NextLink href={siteConfig.links.x} className="hover:opacity-80 transition-opacity" target="_blank" rel="noopener noreferrer">X</NextLink>
-					<NextLink href={siteConfig.links.tg} className="hover:opacity-80 transition-opacity" target="_blank" rel="noopener noreferrer">Telegram</NextLink>
+				<div className="text-[16px] hidden md:flex items-center gap-[16px] pl-[24px] font-semibold">
+					<NextLink href="/" className={`hover:opacity-80 transition-opacity ${router.pathname === '/' ? 'text-[#fff]' : 'text-[#868789]'}`}>Home</NextLink>
+					<NextLink href="/points" className={`hover:opacity-80 transition-opacity ${router.pathname === '/points' ? 'text-[#fff]' : 'text-[#868789]'}`}>Points</NextLink>
+					<NextLink href="/stake" className={`hover:opacity-80 transition-opacity ${router.pathname === '/stake' ? 'text-[#fff]' : 'text-[#868789]'}`}>Stake</NextLink>
+					<NextLink href="/explore" className={`hover:opacity-80 transition-opacity ${router.pathname === '/explore' ? 'text-[#fff]' : 'text-[#868789]'}`}>Explore</NextLink>
+					<NextLink href="/about" className={`hover:opacity-80 transition-opacity ${router.pathname === '/about' ? 'text-[#fff]' : 'text-[#868789]'}`}>About</NextLink>
 				</div>
 
 				<NavbarContent justify="end" className="gap-[12px]">

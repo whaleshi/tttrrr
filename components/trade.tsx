@@ -1,7 +1,7 @@
 import { Button, Input } from "@heroui/react"
 import React, { useEffect, useState } from "react";
 import MyAvatar from "@/components/avatarImage";
-import { BNBIcon, SetIcon } from "./icons";
+import { BNBIcon, SetIcon, BlockIcon, RoundIcon } from "./icons";
 import Slippage from "./slippage";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ import { useBalanceContext } from "@/providers/balanceProvider";
 import _bignumber from "bignumber.js";
 import { useSlippageStore } from "@/stores/slippage";
 
-type TradeType = 'buy' | 'sell';
+type TradeType = 'manual' | 'auto';
 
 
 interface TradeProps {
@@ -29,15 +29,29 @@ interface TradeProps {
 	initialTab?: string;
 }
 
-export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => {}, onDeploy, isPaused = false, info, tokenBalance, initialTab = 'buy' }: TradeProps) => {
-	const [isBuy, setIsBuy] = useState(initialTab === 'buy');
+export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, isPaused = false, info, tokenBalance, initialTab = 'manual' }: TradeProps) => {
+	const [isBuy, setIsBuy] = useState(initialTab === 'manual');
 	const [selectedTab, setSelectedTab] = useState(initialTab);
 	const [isSlippageOpen, setIsSlippageOpen] = useState(false);
 	const [outputAmount, setOutputAmount] = useState("");
 	const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
+	const [blockAmount, setBlockAmount] = useState('');
+	const [roundAmount, setRoundAmount] = useState('');
+
+	// 同步blockAmount与selectedCells数量
+	useEffect(() => {
+		if (selectedCells.length > 0) {
+			setBlockAmount(selectedCells.length.toString());
+		}
+	}, [selectedCells.length]);
+
+	// 计算输入框宽度
+	const getInputWidth = (value: string) => {
+		const length = value.length || 1; // 至少1个字符宽度
+		return Math.max(30, length * 12); // 每个字符约12px，初始最小宽度30px
+	};
 	const { balance } = useBalanceContext();
-	const { slippage } = useSlippageStore();
 	const queryClient = useQueryClient();
 
 	const { ready } = usePrivy();
@@ -48,7 +62,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 	const handleTabClick = (tab: TradeType) => {
 		setSelectedTab(tab as TradeType);
-		setIsBuy(tab === 'buy');
+		setIsBuy(tab === 'manual');
 		setInputAmount('');
 		setSelectedAmount(null);
 	};
@@ -105,68 +119,9 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 	const handleAmountSelect = (amount: { label: string; value: number }) => {
 		setSelectedAmount(amount.value);
-		if (selectedTab === 'buy') {
-			setInputAmount(amount.value.toString());
-		} else {
-			if (tokenBalance && _bignumber(tokenBalance).gt(0)) {
-				try {
-					const userBalance = _bignumber(tokenBalance);
-					const percentage = _bignumber(amount.value);
-					const sellAmount = userBalance.times(percentage);
-					console.log('用户余额:', userBalance.toString());
-					// 格式化结果，正确处理小数点后的尾随零
-					const formattedAmount = sellAmount.dp(18, _bignumber.ROUND_DOWN).toFixed();
-					console.log('计算卖出金额:', formattedAmount);
-
-					// 只有当包含小数点时才去除尾随零，避免删除整数末尾的有意义零
-					const finalAmount = formattedAmount.includes('.') ?
-						formattedAmount.replace(/\.?0+$/, '') :
-						formattedAmount;
-
-					setInputAmount(finalAmount);
-				} catch (error) {
-					console.error('計算賣出金額失敗:', error);
-					setInputAmount('0');
-				}
-			} else {
-				// 如果没有余额，设置为0
-				setInputAmount('0');
-			}
-		}
+		setInputAmount(amount.value.toString());
 	};
 
-	const { data: estimatedOutput } = useQuery({
-		queryKey: ['estimateOutput', info?.mint, inputAmount, isBuy],
-		queryFn: async () => {
-			if (!inputAmount || !info?.mint || parseFloat(inputAmount) <= 0) {
-				return '0';
-			}
-
-			try {
-				const provider = new ethers.JsonRpcProvider(DEFAULT_CHAIN_CONFIG.rpcUrl);
-				const readOnlyContract = new ethers.Contract(CONTRACT_CONFIG.FACTORY_CONTRACT, FactoryABI, provider);
-
-				if (isBuy) {
-					// 调用 tryBuy 获取预期代币输出
-					const result = await readOnlyContract.tryBuy(info?.mint, ethers.parseEther(inputAmount));
-					const tokenAmountOut = result[0];
-					return ethers.formatEther(tokenAmountOut);
-				} else {
-					// 调用 trySell 获取预期ETH输出
-					const sellAmount = ethers.parseEther(inputAmount);
-					const result = await readOnlyContract.trySell(info?.mint, sellAmount);
-					return ethers.formatEther(result);
-				}
-			} catch (error) {
-				console.error('预估输出失败:', error);
-				return '0';
-			}
-		},
-		enabled: !!(inputAmount && info?.mint && parseFloat(inputAmount) > 0),
-		refetchInterval: 3000, // 每3秒刷新一次
-		staleTime: 2000,
-		retry: 1,
-	});
 
 	useEffect(() => {
 		setInputAmount("");
@@ -181,15 +136,6 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 		}
 	}, [initialTab]);
 
-	useEffect(() => {
-		if (estimatedOutput) {
-			// 格式化输出，去除多余的小数位
-			const formatted = formatBigNumber(estimatedOutput);
-			setOutputAmount(formatted);
-		} else {
-			setOutputAmount("");
-		}
-	}, [estimatedOutput]);
 
 	const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
 	const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
@@ -235,8 +181,14 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			return;
 		}
 
-		if (selectedCells.length === 0) {
+		// Auto模式下可以通过blockAmount输入数量，Manual模式下必须选择格子
+		if (selectedTab === 'manual' && selectedCells.length === 0) {
 			toast.error("请选择至少一个格子");
+			return;
+		}
+
+		if (selectedTab === 'auto' && selectedCells.length === 0 && (parseInt(blockAmount) || 0) === 0) {
+			toast.error("请选择格子或输入块数量");
 			return;
 		}
 
@@ -249,20 +201,20 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			<div className="w-full">
 				<div className="h-[40px] bg-[#25262A] rounded-[8px] flex mb-[16px]">
 					<div
-						className={`flex-1 rounded-[8px] text-[13px] flex items-center justify-center cursor-pointer transition-all duration-200 ${selectedTab === 'buy'
+						className={`flex-1 rounded-[8px] text-[13px] flex items-center justify-center cursor-pointer transition-all duration-200 ${selectedTab === 'manual'
 							? 'bg-[#303135] text-[#fff]'
 							: 'bg-[#25262A] text-[#868789] hover:bg-[#303135]'
 							}`}
-						onClick={() => handleTabClick('buy')}
+						onClick={() => handleTabClick('manual')}
 					>
 						Manual
 					</div>
 					<div
-						className={`flex-1 rounded-[8px] text-[13px] flex items-center justify-center cursor-pointer transition-all duration-200 ${selectedTab === 'sell'
+						className={`flex-1 rounded-[8px] text-[13px] flex items-center justify-center cursor-pointer transition-all duration-200 ${selectedTab === 'auto'
 							? 'bg-[#303135] text-[#fff]'
 							: 'bg-[#25262A] text-[#868789] hover:bg-[#303135]'
 							}`}
-						onClick={() => handleTabClick('sell')}
+						onClick={() => handleTabClick('auto')}
 					>
 						Auto
 					</div>
@@ -270,13 +222,13 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 				<Input
 					classNames={{
 						inputWrapper: "h-[56px] !border-[#25262A] bg-[rgba(13,15,19,0.65)] !border-[1.5px] rounded-[8px] hover:!border-[#25262A] focus-within:!border-[#25262A]",
-						input: "text-[22px] text-[#FFF] font-semibold placeholder:text-[#94989F] uppercase tracking-[-0.07px] text-right",
+						input: "text-[22px] text-[#FFF] font-semibold placeholder:text-[#868789] uppercase tracking-[-0.07px] text-right",
 					}}
 					name="amount"
 					placeholder="0"
 					variant="bordered"
 					value={inputAmount}
-					isDisabled={isPaused}
+					isDisabled={false}
 					onChange={(e) => {
 						const value = e.target.value;
 						// 只允许数字和小数点
@@ -301,29 +253,109 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 						{buyAmounts.map((amount) => (
 							<div
 								key={amount.label}
-								className={`h-[24px] w-[52px] flex items-center justify-center text-[12px] rounded-[8px] transition-colors ${
-									isPaused 
-										? 'bg-[#25262A] text-[#868789] cursor-not-allowed' 
-										: 'bg-[#303135] text-[#FFF] hover:bg-[#3A3B40] cursor-pointer'
-								}`}
-								onClick={() => !isPaused && handleAmountSelect(amount)}
+								className={`h-[24px] w-[52px] flex items-center justify-center text-[12px] rounded-[8px] transition-colors bg-[#303135] text-[#FFF] hover:bg-[#3A3B40] cursor-pointer`}
+								onClick={() => handleAmountSelect(amount)}
 							>
 								+ {amount.label}
 							</div>
 						))}
 					</div>
 				</div>
-
+				{selectedTab === 'auto' && (
+					<div className="border-dashed border-b-[1px] border-[#25262A]">
+						<div className="flex items-center gap-[6px] mt-[12px] mb-[12px]">
+							<BlockIcon />
+							<span className="text-[14px] text-[#fff]">Blocks</span>
+							<div className="flex-1 w-full"></div>
+							<Input
+								style={{
+									width: `${getInputWidth(blockAmount)}px`,
+									maxWidth: `${getInputWidth(blockAmount)}px`,
+									minWidth: '30px'
+								}}
+								classNames={{
+									base: "!w-auto",
+									mainWrapper: "!w-auto",
+									inputWrapper: "min-h-[30px] h-[30px] !border-[#25262A] bg-[rgba(13,15,19,0.65)] !border-[1.5px] rounded-[8px] hover:!border-[#25262A] focus-within:!border-[#25262A]",
+									input: "text-[16px] text-[#FFF] text-center font-semibold placeholder:text-[#868789] uppercase tracking-[-0.07px]",
+								}}
+								name="blockAmount"
+								placeholder="0"
+								variant="bordered"
+								value={blockAmount}
+								isDisabled={selectedCells.length > 0}
+								onChange={(e) => {
+									const value = e.target.value;
+									// 只允许数字，最大25
+									if (value === '' || (/^\d+$/.test(value) && parseInt(value) >= 0 && parseInt(value) <= 25)) {
+										setBlockAmount(value);
+									}
+								}}
+							/>
+						</div>
+						<div className="flex items-center gap-[6px] mb-[12px]">
+							<RoundIcon />
+							<span className="text-[14px] text-[#fff]">Rounds</span>
+							<div className="flex-1"></div>
+							<Input
+								style={{
+									width: `${getInputWidth(roundAmount)}px`,
+									maxWidth: `${getInputWidth(roundAmount)}px`,
+									minWidth: '30px'
+								}}
+								classNames={{
+									base: "!w-auto",
+									mainWrapper: "!w-auto",
+									inputWrapper: "min-h-[30px] h-[30px] !border-[#25262A] bg-[rgba(13,15,19,0.65)] !border-[1.5px] rounded-[8px] hover:!border-[#25262A] focus-within:!border-[#25262A]",
+									input: "text-[16px] text-[#FFF] text-center font-semibold placeholder:text-[#868789] uppercase tracking-[-0.07px]",
+								}}
+								name="roundAmount"
+								placeholder="0"
+								variant="bordered"
+								value={roundAmount}
+								isDisabled={false}
+								onChange={(e) => {
+									const value = e.target.value;
+									// 只允许数字，最大9999
+									if (value === '' || (/^\d+$/.test(value) && parseInt(value) >= 0 && parseInt(value) <= 9999)) {
+										setRoundAmount(value);
+									}
+								}}
+							/>
+						</div>
+					</div>
+				)}
 				<div className="pt-[12px] pb-[16px] text-[13px] text-[#868789]">
 					<div className="flex items-center justify-between">
 						Blocks
-						<div>
-							<span className="text-[#FFF]">x {selectedCells.length}</span>
+						<div className="w-[70%] text-right">
+							{selectedTab === 'auto' ? (
+								<span className="text-[#FFF]">
+									{selectedCells.length > 0
+										? selectedCells.sort((a, b) => a - b).map(cellIndex => `#${cellIndex + 1}`).join(', ')
+										: (parseInt(blockAmount) || 0) === 0 ? 'Random' : `Random x${parseInt(blockAmount)}`
+									}
+								</span>
+							) : (
+								<span className="text-[#FFF]">x {selectedCells.length}</span>
+							)}
 						</div>
 					</div>
-					<div className="flex items-center justify-between mt-[8px]">
-						Total<span className="text-[#FFF]">{inputAmount ? (parseFloat(inputAmount) * selectedCells.length).toFixed(2) : 0} ORE</span>
-					</div>
+					{selectedTab === 'auto' && (
+						<>
+							<div className="flex items-center justify-between mt-[8px]">
+								Total per round<span className="text-[#FFF]">{inputAmount ? (parseFloat(inputAmount) * (selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)).toFixed(2) : 0} BNB</span>
+							</div>
+							<div className="flex items-center justify-between mt-[8px]">
+								Total<span className="text-[#FFF]">{inputAmount && roundAmount ? (parseFloat(inputAmount) * (selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0) * parseInt(roundAmount || '1')).toFixed(2) : 0} BNB</span>
+							</div>
+						</>
+					)}
+					{selectedTab === 'manual' && (
+						<div className="flex items-center justify-between mt-[8px]">
+							Total<span className="text-[#FFF]">{inputAmount ? (parseFloat(inputAmount) * selectedCells.length).toFixed(2) : 0} BNB</span>
+						</div>
+					)}
 				</div>
 				<Button
 					fullWidth
@@ -332,7 +364,11 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 					isLoading={isLoading}
 					isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || isPaused}
 				>
-					Deploy {inputAmount ? inputAmount : 0} ORE
+					Deploy {
+						selectedTab === 'auto'
+							? (inputAmount && roundAmount ? (parseFloat(inputAmount) * (selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0) * parseInt(roundAmount || '1')).toFixed(2) : 0)
+							: (inputAmount ? (parseFloat(inputAmount) * selectedCells.length).toFixed(2) : 0)
+					} BNB
 				</Button>
 			</div>
 		</div>
