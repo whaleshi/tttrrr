@@ -1,4 +1,3 @@
-import CreateForm from "@/components/form";
 import { AccorIcon, BackIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useRouter } from "next/router";

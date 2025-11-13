@@ -1,4 +1,4 @@
-import { Navbar as HeroUINavbar, NavbarContent, Modal, ModalContent, ModalHeader, ModalBody, Button, useDisclosure } from "@heroui/react";
+import { Navbar as HeroUINavbar, NavbarContent, Button, useDisclosure, Drawer, DrawerContent, DrawerHeader, DrawerBody } from "@heroui/react";
 import NextLink from "next/link";
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router"
@@ -8,26 +8,17 @@ import { usePrivy } from "@privy-io/react-auth";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
 import { useAuthStore } from "@/stores/auth";
 import { shortenAddress, useIsMobile } from "@/utils";
-import { getCoinList } from "@/service/api";
-import { useQuery } from "@tanstack/react-query";
-import { TokenListSkeleton } from "./skeleton";
 
 import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon } from "@/components/icons";
-import { TokenItem } from "./tokenItem";
-import CreateForm from "./form";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
 
 
 export const Navbar = () => {
 	const router = useRouter();
-	const { isOpen, onOpen, onOpenChange } = useDisclosure();
-	const { isOpen: isSecondModalOpen, onOpen: onSecondModalOpen, onOpenChange: onSecondModalOpenChange } = useDisclosure();
-
-	const [searchValue, setSearchValue] = useState("");
-	const [debouncedSearch, setDebouncedSearch] = useState("");
-	const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
-	const searchRef = useRef<HTMLDivElement>(null);
+	const { isOpen: isWalletDrawerOpen, onOpen: onWalletDrawerOpen, onOpenChange: onWalletDrawerOpenChange } = useDisclosure();
+	const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
+	const walletRef = useRef<HTMLDivElement>(null);
 
 	const { authenticated, logout } = usePrivy();
 	const { toLogin } = usePrivyLogin();
@@ -42,24 +33,15 @@ export const Navbar = () => {
 		toLogin();
 	}
 
-	const toLogout = async () => {
-		clearAuthState();
-		try { await logout(); } catch { }
-		onSecondModalOpenChange();
-		router.replace('/');
-	}
-
 	// 监听路由变化，关闭弹窗
 	useEffect(() => {
 		const handleRouteChange = () => {
-			// 路由变化时关闭创建代币弹窗
-			if (isOpen) {
-				onOpenChange();
+			// 同时关闭钱包抽屉
+			if (isWalletDrawerOpen) {
+				onWalletDrawerOpenChange();
 			}
-			// 同时关闭钱包弹窗
-			if (isSecondModalOpen) {
-				onSecondModalOpenChange();
-			}
+			// 关闭钱包下拉菜单
+			setIsWalletDropdownOpen(false);
 		};
 
 		router.events.on('routeChangeStart', handleRouteChange);
@@ -67,43 +49,19 @@ export const Navbar = () => {
 		return () => {
 			router.events.off('routeChangeStart', handleRouteChange);
 		};
-	}, [router.events, isOpen, isSecondModalOpen, onOpenChange, onSecondModalOpenChange]);
+	}, [router.events, isWalletDrawerOpen, onWalletDrawerOpenChange]);
 
-
-	// 防抖处理搜索关键词
+	// 监听登录状态变化，重置下拉菜单状态
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			setDebouncedSearch(searchValue);
-		}, 300); // 300ms 防抖延迟 (比搜索页面短一些，提供更快响应)
+		setIsWalletDropdownOpen(false);
+	}, [isLoggedIn]);
 
-		return () => clearTimeout(timer);
-	}, [searchValue]);
-
-	// 搜索API调用
-	const { data: searchResults, isLoading: searchLoading } = useQuery({
-		queryKey: ["navbarSearchCoinList", debouncedSearch],
-		queryFn: async () => {
-			if (!debouncedSearch.trim()) {
-				return [];
-			}
-			const res: any = await getCoinList({
-				keyword: debouncedSearch.trim(),
-				page: 1,
-				page_size: 10 // 下拉框显示少一些结果
-			});
-			return res?.data?.list ?? [];
-		},
-		enabled: !!debouncedSearch.trim(),
-		staleTime: 30000, // 30秒内认为数据是新鲜的
-		gcTime: 300000, // 5分钟垃圾回收时间
-		retry: 1,
-	});
 
 	// 处理点击外部关闭下拉框
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
-			if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-				setIsSearchDropdownOpen(false);
+			if (walletRef.current && !walletRef.current.contains(event.target as Node)) {
+				setIsWalletDropdownOpen(false);
 			}
 		};
 
@@ -113,32 +71,13 @@ export const Navbar = () => {
 		};
 	}, []);
 
-	const handleSearchChange = (value: string) => {
-		setSearchValue(value);
-		// 有输入内容时显示下拉框，无内容时隐藏
-		setIsSearchDropdownOpen(value.length > 0);
-	};
-
-	const handleSearchFocus = () => {
-		// 聚焦时如果有内容就显示下拉框
-		if (searchValue.length > 0) {
-			setIsSearchDropdownOpen(true);
-		}
-	};
-
-	// 处理搜索结果点击，关闭下拉框并清空搜索
-	const handleSearchResultClick = () => {
-		setIsSearchDropdownOpen(false);
-		setSearchValue("");
-		setDebouncedSearch("");
-	};
 
 	const handleWalletClick = () => {
-		// 使用hook检查屏幕尺寸，PC上打开弹窗，H5上跳转页面
+		// 使用hook检查屏幕尺寸，PC上打开下拉菜单，H5上打开抽屉
 		if (isMobile) {
-			router.push('/user');
+			onWalletDrawerOpen();
 		} else {
-			onSecondModalOpen();
+			setIsWalletDropdownOpen(!isWalletDropdownOpen);
 		}
 	};
 
@@ -158,58 +97,43 @@ export const Navbar = () => {
 				</div>
 
 				<NavbarContent justify="end" className="gap-[12px]">
+					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat">
+						<LogoIcon className="w-[18px] h-[18px]" />ORI<span className="text-[#868789]">$268.32</span>
+					</Button>
 					{
-						isLoggedIn ? <Button className="h-[36px] bg-[#191B1F] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A]" variant="flat" onPress={handleWalletClick}>
-							<WalletIcon />{shortenAddress(address!)}
-						</Button> : <Button className="h-[36px] bg-[#191B1F] text-[13px] text-[#fff] rounded-[12px] border-[1px] border-[#25262A]" variant="flat" onPress={newLogin}>
-							连接钱包
+						isLoggedIn ? (
+							<div className="relative" ref={walletRef}>
+								<Button className="h-[36px] bg-[#191B1F] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] min-h-[36px]" variant="flat" onPress={handleWalletClick}>
+									<WalletIcon />{shortenAddress(address!)}
+								</Button>
+								{isWalletDropdownOpen && (
+									<div className="absolute top-full right-0 mt-[8px] w-[375px] bg-[#191B1F] border border-[#25262A] rounded-[12px] p-[16px] z-50">
+										<div className="text-[16px] text-[#fff] font-semibold mb-[16px]">My Wallet</div>
+										<WalletBox />
+									</div>
+								)}
+							</div>
+						) : <Button className="h-[36px] bg-[#FFF] px-[12px] text-[13px] text-[#0D0F13] rounded-[18px] border-[1px] border-[#FFF] gap-[4px] min-h-[36px]" variant="flat" onPress={newLogin}>
+							Connect
 						</Button>
 					}
-
-					{router.pathname === '/user' ? (
-						<MenuCloseIcon className="cursor-pointer block md:hidden" onClick={() => { router.back(); }} />
-					) : (
-						<MenuIcon className="cursor-pointer block md:hidden" onClick={() => { router.push('/user'); }} />
-					)}
 				</NavbarContent>
 			</HeroUINavbar>
-			<Modal isOpen={isOpen} onOpenChange={onOpenChange} hideCloseButton isDismissable={false}>
-				<ModalContent className="max-h-[80vh] overflow-y-auto">
+			<Drawer isOpen={isWalletDrawerOpen} onOpenChange={onWalletDrawerOpenChange} placement="bottom" hideCloseButton>
+				<DrawerContent>
 					{(onClose) => (
 						<>
-							<ModalHeader className="text-center relative p-0 pt-[8px]">
-								<div className="h-[48px] flex items-center justify-center w-full">立即创建</div>
+							<DrawerHeader className="text-center relative p-0 pt-[8px]">
+								<div className="h-[48px] flex items-center justify-center w-full text-[#fff]">My Wallet</div>
 								<CloseIcon className="absolute right-[16px] top-[20px] cursor-pointer" onClick={onClose} />
-							</ModalHeader>
-							<ModalBody className="px-[0px] pb-[0px]">
-								<CreateForm />
-							</ModalBody>
-						</>
-					)}
-				</ModalContent>
-			</Modal>
-			<Modal isOpen={isSecondModalOpen} onOpenChange={onSecondModalOpenChange} hideCloseButton placement="center"
-				style={{
-					borderRadius: "24px",
-					border: "2px solid #FFF",
-					background: "linear-gradient(180deg, #FFFDEB 0%, #FFF 70%)"
-				}}
-			>
-				<ModalContent className="max-h-[80vh] overflow-y-auto">
-					{(onClose) => (
-						<>
-							<ModalHeader className="text-center relative p-0 pt-[8px]">
-								<div className="h-[48px] flex items-center justify-center w-full">我的钱包</div>
-								<CloseIcon className="absolute right-[16px] top-[20px] cursor-pointer" onClick={onClose} />
-							</ModalHeader>
-							<ModalBody className="px-[16px] pb-[20px]">
+							</DrawerHeader>
+							<DrawerBody className="px-[16px] pb-[50px]">
 								<WalletBox />
-								<Button fullWidth className="h-[44px] bg-[#EBEBEF] text-[15px] text-[#24232A] rounded-[16px] mt-[6px]" onPress={toLogout}>断开连接</Button>
-							</ModalBody>
+							</DrawerBody>
 						</>
 					)}
-				</ModalContent>
-			</Modal>
+				</DrawerContent>
+			</Drawer>
 		</>
 	);
 };

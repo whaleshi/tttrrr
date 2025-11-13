@@ -54,13 +54,10 @@ export default function App({ Component, pageProps }: AppProps) {
 		// 延迟预加载，避免影响初始页面加载性能
 		const timer = setTimeout(() => {
 			// 预加载关键页面
-			router.prefetch('/create');
-			router.prefetch('/user');
-			router.prefetch('/search');
-
-			// 预加载动态路由的一般模式
-			// 注意：具体的token地址无法预先知道，所以这里只能预加载路由组件
-			router.prefetch('/token/[addr]');
+			router.prefetch('/points');
+			router.prefetch('/stake');
+			router.prefetch('/explore');
+			router.prefetch('/about');
 		}, 2000); // 2秒后开始预加载
 
 		return () => clearTimeout(timer);
@@ -70,14 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
 		<>
 			<Head>
 				{/* 预加载关键图片 */}
-				<link rel="preload" href="/images/logo.png" as="image" />
-				<link rel="preload" href="/images/bnb.png" as="image" />
-				<link rel="preload" href="/images/nothing.png" as="image" />
-				<link rel="preload" href="/images/default.png" as="image" />
-				<link rel="preload" href="/images/banner.png" as="image" />
-				<link rel="preload" href="/images/banner1.png" as="image" />
-				<link rel="preload" href="/images/bannerH5.png" as="image" />
-				<link rel="preload" href="/images/banner1H5.png" as="image" />
+				<link rel="preload" href="/images/loading.gif" as="image" />
 			</Head>
 			<PrivyProviders>
 				<QueryProvider>

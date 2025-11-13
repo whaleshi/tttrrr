@@ -2,7 +2,6 @@ import { Button, Input } from "@heroui/react"
 import React, { useEffect, useState } from "react";
 import MyAvatar from "@/components/avatarImage";
 import { BNBIcon, SetIcon, BlockIcon, RoundIcon } from "./icons";
-import Slippage from "./slippage";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from 'sonner';
 import FactoryABI from "@/constant/TokenManager.abi.json";
