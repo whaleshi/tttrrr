@@ -9,9 +9,10 @@ import usePrivyLogin from "@/hooks/usePrivyLogin";
 import { useAuthStore } from "@/stores/auth";
 import { shortenAddress, useIsMobile } from "@/utils";
 
-import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon } from "@/components/icons";
+import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, ToastSuccessIcon, WalletIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
+import { toast } from "sonner";
 
 
 export const Navbar = () => {
@@ -81,6 +82,61 @@ export const Navbar = () => {
 		}
 	};
 
+	const test = () => {
+		// const toastId = toast.success("复制成功", {
+		// 	cancel: {
+		// 		label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(toastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
+		// 		onClick: () => toast.dismiss(toastId)
+		// 	},
+		// });
+		// const toastId = toast.success(
+		// 	'Transaction confirmed',
+		// 	{
+		// 		description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline text-[13px] text-[#868789] -mt-[10px]">View on Bscscan {">"}</span>,
+		// 		duration: 5000,
+		// 		cancel: {
+		// 			label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(toastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
+		// 			onClick: () => toast.dismiss(toastId)
+		// 		},
+		// 	}
+		// );
+		// const toastId = toast.error(
+		// 	'Transaction confirmed',
+		// 	{
+		// 		description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline text-[13px] text-[#868789] -mt-[10px]">View on Bscscan {">"}</span>,
+		// 		duration: 5000,
+		// 		cancel: {
+		// 			label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(toastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
+		// 			onClick: () => toast.dismiss(toastId)
+		// 		},
+		// 	}
+		// );
+		const toastId = toast.loading("Waiting for signature...", {
+			cancel: {
+				label: '',
+				onClick: () => toast.dismiss(toastId)
+			},
+		});
+		
+		// 5秒后自动关闭并显示成功toast
+		setTimeout(() => {
+			toast.dismiss(toastId);
+			
+			// 显示成功toast
+			const successToastId = toast.success(
+				'Transaction confirmed',
+				{
+					description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline text-[13px] text-[#868789] -mt-[10px]">View on Bscscan {">"}</span>,
+					duration: 5000,
+					cancel: {
+						label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(successToastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
+						onClick: () => toast.dismiss(successToastId)
+					},
+				}
+			);
+		}, 5000);
+	}
+
 	return (
 		<>
 			<HeroUINavbar maxWidth="full" position="static" className="fixed top-0 left-0 right-0 z-50 bg-[#0D0F13] border-b-[1px] border-[#25262A]" classNames={{ wrapper: "px-4 h-[56px] md:h-[64px]" }}>
@@ -97,7 +153,7 @@ export const Navbar = () => {
 				</div>
 
 				<NavbarContent justify="end" className="gap-[12px]">
-					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat">
+					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat" onPress={test}>
 						<LogoIcon className="w-[18px] h-[18px]" />ORI<span className="text-[#868789]">$268.32</span>
 					</Button>
 					{

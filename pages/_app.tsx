@@ -14,6 +14,7 @@ import NProgress from 'nprogress';
 import { fontSans } from "@/config/fonts";
 import "@/styles/globals.css";
 import "nprogress/nprogress.css";
+import { ToastErrorIcon, ToastLoadingIcon, ToastSuccessIcon } from "@/components/icons";
 
 export default function App({ Component, pageProps }: AppProps) {
 	const router = useRouter();
@@ -52,13 +53,20 @@ export default function App({ Component, pageProps }: AppProps) {
 	// 预加载关键页面
 	useEffect(() => {
 		// 延迟预加载，避免影响初始页面加载性能
-		const timer = setTimeout(() => {
-			// 预加载关键页面
-			router.prefetch('/points');
-			router.prefetch('/stake');
-			router.prefetch('/explore');
-			router.prefetch('/about');
-		}, 2000); // 2秒后开始预加载
+		const timer = setTimeout(async () => {
+			try {
+				// 预加载关键页面
+				await Promise.all([
+					router.prefetch('/points'),
+					router.prefetch('/stake'),
+					router.prefetch('/explore'),
+					router.prefetch('/about')
+				]);
+				console.log('页面预加载完成');
+			} catch (error) {
+				console.warn('页面预加载失败:', error);
+			}
+		}, 1000); // 1秒后开始预加载
 
 		return () => clearTimeout(timer);
 	}, [router]);
@@ -73,7 +81,22 @@ export default function App({ Component, pageProps }: AppProps) {
 				<QueryProvider>
 					<BalanceProvider>
 						<HeroUIProvider navigate={router.push}>
-							<Toaster richColors position="top-center" />
+							<Toaster
+								richColors
+								position="top-center"
+								icons={{
+									success: <ToastSuccessIcon className="w-[30px] h-[30px]" />,
+									error: <ToastErrorIcon className="w-[30px] h-[30px]" />,
+									loading: <ToastLoadingIcon className="w-[30px] h-[30px]" />
+								}}
+								toastOptions={{
+									classNames: {
+										success: 'toast-success',
+										error: 'toast-error',
+										loading: 'toast-loading',
+									}
+								}}
+							/>
 							<NextThemesProvider attribute="class" defaultTheme="dark">
 								<Component {...pageProps} />
 							</NextThemesProvider>
