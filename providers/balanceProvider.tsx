@@ -54,7 +54,7 @@ export function BalanceProvider({ children }: { children: ReactNode }) {
 
 			try {
 				const ethBalance = await provider.getBalance(currentAddress);
-				console.log(ethBalance)
+				// console.log(ethBalance)
 				const formatted = ethers.formatEther(ethBalance);
 				setBalance(formatted);
 			} catch (error) {

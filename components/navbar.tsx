@@ -9,10 +9,10 @@ import usePrivyLogin from "@/hooks/usePrivyLogin";
 import { useAuthStore } from "@/stores/auth";
 import { shortenAddress, useIsMobile } from "@/utils";
 
-import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, ToastSuccessIcon, WalletIcon } from "@/components/icons";
+import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
-import { toast } from "sonner";
+import { customToast } from "./customToast";
 
 
 export const Navbar = () => {
@@ -83,58 +83,12 @@ export const Navbar = () => {
 	};
 
 	const test = () => {
-		// const toastId = toast.success("复制成功", {
-		// 	cancel: {
-		// 		label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(toastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
-		// 		onClick: () => toast.dismiss(toastId)
-		// 	},
-		// });
-		// const toastId = toast.success(
-		// 	'Transaction confirmed',
-		// 	{
-		// 		description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline text-[13px] text-[#868789] -mt-[10px]">View on Bscscan {">"}</span>,
-		// 		duration: 5000,
-		// 		cancel: {
-		// 			label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(toastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
-		// 			onClick: () => toast.dismiss(toastId)
-		// 		},
-		// 	}
-		// );
-		// const toastId = toast.error(
-		// 	'Transaction confirmed',
-		// 	{
-		// 		description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline text-[13px] text-[#868789] -mt-[10px]">View on Bscscan {">"}</span>,
-		// 		duration: 5000,
-		// 		cancel: {
-		// 			label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(toastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
-		// 			onClick: () => toast.dismiss(toastId)
-		// 		},
-		// 	}
-		// );
-		const toastId = toast.loading("Waiting for signature...", {
-			cancel: {
-				label: '',
-				onClick: () => toast.dismiss(toastId)
-			},
+		// 使用封装的 customToast
+		customToast({
+			title: 'Transaction Confirmed',
+			// description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+			type: 'success'
 		});
-		
-		// 5秒后自动关闭并显示成功toast
-		setTimeout(() => {
-			toast.dismiss(toastId);
-			
-			// 显示成功toast
-			const successToastId = toast.success(
-				'Transaction confirmed',
-				{
-					description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline text-[13px] text-[#868789] -mt-[10px]">View on Bscscan {">"}</span>,
-					duration: 5000,
-					cancel: {
-						label: <div className="flex-1 flex justify-end"><Button onPress={() => toast.dismiss(successToastId)} isIconOnly className="w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"><CloseIcon className="w-[16px] h-[16px]" /></Button></div>,
-						onClick: () => toast.dismiss(successToastId)
-					},
-				}
-			);
-		}, 5000);
 	}
 
 	return (

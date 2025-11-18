@@ -84,11 +84,11 @@ export default function App({ Component, pageProps }: AppProps) {
 							<Toaster
 								richColors
 								position="top-center"
-								icons={{
-									success: <ToastSuccessIcon className="w-[30px] h-[30px]" />,
-									error: <ToastErrorIcon className="w-[30px] h-[30px]" />,
-									loading: <ToastLoadingIcon className="w-[30px] h-[30px]" />
-								}}
+								// icons={{
+								// 	success: <ToastSuccessIcon className="w-[30px] h-[30px]" />,
+								// 	error: <ToastErrorIcon className="w-[30px] h-[30px]" />,
+								// 	loading: <ToastLoadingIcon className="w-[30px] h-[30px]" />
+								// }}
 								toastOptions={{
 									classNames: {
 										success: 'toast-success',

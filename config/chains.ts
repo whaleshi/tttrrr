@@ -15,6 +15,7 @@ export const CHAINS_CONFIG = {
             explorerUrl: "https://testnet.bscscan.com",
             rpcUrl: "https://delicate-old-breeze.bsc-testnet.quiknode.pro/4e8edc72f64856f8e8fa3377a81c9f3a1f6b5dee/",
             factoryContract: "0xc855D67921359dc2852656A264f07F86c39320d1",
+            oreContract: "0x77df61FD009922C09e8805f8Fe93AF4c9aEf6dEB",
         },
         [56]: {
             name: "BNB Smart Chain",
@@ -22,6 +23,7 @@ export const CHAINS_CONFIG = {
             explorerUrl: "https://bscscan.com",
             rpcUrl: "https://silent-few-meme.bsc.quiknode.pro/ee75800d48bd6244538a996a18a836a986e0add9/",
             factoryContract: "0x2e611CCBc67B007a894b4276De89663df442fE56",
+            oreContract: "",
         },
     },
 } as const;
@@ -34,6 +36,7 @@ export const DEFAULT_CHAIN_CONFIG = CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID 
 export const CONTRACT_CONFIG = {
     // 工厂合约地址 - 用于创建新代币
     FACTORY_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].factoryContract,
+    ORE_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].oreContract,
 } as const;
 
 // Mint/Refund 相关配置

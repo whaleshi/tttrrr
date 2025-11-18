@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
 import { PeopleIcon } from "./icons";
+import { useEchoChannel } from "@/hooks/useEchoChannel";
+import { getRoundInfo } from "@/service/api";
+import { useQuery } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/auth";
+import { ethers } from "ethers";
 
 interface MatrixProps {
 	selectedCells: number[];
@@ -8,14 +13,70 @@ interface MatrixProps {
 	winningCell: number | null;
 	isDrawing: boolean;
 	showWinner: boolean;
+	roundId: number | null;
 }
 
-export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, winningCell, isDrawing, showWinner }: MatrixProps) {
+export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, winningCell, isDrawing, showWinner, roundId }: MatrixProps) {
 	const [fadingCells, setFadingCells] = useState<number[]>([]);
 	const [cellCounts, setCellCounts] = useState<{ [key: number]: number }>({});
+	const { address } = useAuthStore();
+
+	// 使用 useQuery 获取轮次信息 - 1秒一次
+	const { data: roundInfoData } = useQuery({
+		queryKey: ['roundInfo', roundId, address],
+		queryFn: async () => {
+			const result = await getRoundInfo({
+				roundId,
+				miner: address
+			});
+			return result?.data?.global;
+		},
+		refetchInterval: 1000, // 1秒一次
+		enabled: !!roundId // 只在 roundId 存在时启用
+	});
+
+	// 监听 API 查询结果
+	useEffect(() => {
+		if (roundInfoData) {
+			console.log('Matrix组件 - API轮次信息:', roundInfoData);
+		}
+	}, [roundInfoData]);
+
+	// 监听部署事件
+	useEchoChannel(
+		`round.${roundId}`, // 频道名
+		'round.data.updated', // 事件名
+		(data: any) => {
+			console.log('收到部署事件:', data);
+			// 处理实时部署数据，更新格子状态
+			if (data.mask && roundId === data.roundId) {
+				// 解析 mask 获取部署的格子
+				const deployedSquares: number[] = [];
+				for (let i = 0; i < 25; i++) {
+					if (data.mask & (1 << i)) {
+						deployedSquares.push(i);
+					}
+				}
+
+				// 更新格子计数
+				setCellCounts(prev => {
+					const newCounts = { ...prev };
+					deployedSquares.forEach(square => {
+						newCounts[square] = (newCounts[square] || 0) + 1;
+					});
+					return newCounts;
+				});
+
+				// 添加闪烁效果
+				setFadingCells(deployedSquares);
+				setTimeout(() => setFadingCells([]), 1000);
+			}
+		}
+	);
 
 	// 初始化格子数字
 	useEffect(() => {
+		console.log(roundId, '-----=======')
 		const initialCounts: { [key: number]: number } = {};
 		for (let i = 0; i < 25; i++) {
 			initialCounts[i] = 0;
@@ -54,7 +115,7 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 		if (isDrawing && winningCell !== null) {
 			// 重置淡化状态
 			setFadingCells([]);
-			
+
 			// 创建其他24个格子的随机顺序（排除中奖格子）
 			const otherCells = Array.from({ length: 25 }, (_, i) => i).filter(i => i !== winningCell);
 			const shuffledCells = [...otherCells].sort(() => Math.random() - 0.5);
@@ -133,7 +194,7 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 						<div className="flex items-center justify-between">
 							<div className="text-[10px] lg:text-[15px] text-[#D4BB81]">#{i + 1}</div>
 							<div className="flex items-center gap-[1px] lg:gap-[4px]">
-								<div className="text-[10px] lg:text-[15px] text-[#868789]">{cellCounts[i] || 0}</div>
+								<div className="text-[10px] lg:text-[15px] text-[#868789]">{roundInfoData?.bit_statistics[i]?.count || 0}</div>
 								<PeopleIcon className="w-[8px] h-[8px] lg:h-[14px] lg:w-[14px]" />
 							</div>
 						</div>
@@ -142,7 +203,7 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 								{cellAmounts[i].toFixed(2)}
 							</div>
 						)}
-						<div className="text-[11px] lg:text-[17px] text-[#fff] text-right">{(cellCounts[i] * 0.00012).toFixed(4)}</div>
+						<div className="text-[11px] lg:text-[17px] text-[#fff] text-right">{ethers.formatEther(roundInfoData?.bit_statistics[i]?.amount || 0)}</div>
 					</div>
 				))}
 			</div>
