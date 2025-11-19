@@ -3,8 +3,6 @@ import React, { useEffect, useState } from "react";
 import MyAvatar from "@/components/avatarImage";
 import { BNBIcon, SetIcon, BlockIcon, RoundIcon } from "./icons";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
-import { toast } from 'sonner';
-import FactoryABI from "@/constant/TokenManager.abi.json";
 import OreProtocolABI from "@/constant/OreProtocol.json";
 import { DEFAULT_CHAIN_CONFIG, CONTRACT_CONFIG } from "@/config/chains";
 import { ethers } from "ethers";
@@ -13,7 +11,9 @@ import { useAuthStore } from "@/stores/auth";
 import { formatBigNumber } from "@/utils/formatBigNumber";
 import { useBalanceContext } from "@/providers/balanceProvider";
 import _bignumber from "bignumber.js";
+const BigNumber = _bignumber;
 import { useSlippageStore } from "@/stores/slippage";
+import { customToast, customToastPersistent, dismissToast } from "./customToast";
 
 type TradeType = 'manual' | 'auto';
 
@@ -23,14 +23,13 @@ interface TradeProps {
 	inputAmount?: string;
 	setInputAmount?: (amount: string) => void;
 	onDeploy?: (amount: string) => void;
-	isPaused?: boolean;
 	info?: any;
 	tokenBalance?: any;
 	initialTab?: string;
 	roundId?: number | null;
 }
 
-export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, isPaused = false, info, tokenBalance, initialTab = 'manual', roundId }: TradeProps) => {
+export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, info, tokenBalance, initialTab = 'manual', roundId }: TradeProps) => {
 	const [isBuy, setIsBuy] = useState(initialTab === 'manual');
 	const [selectedTab, setSelectedTab] = useState(initialTab);
 	const [isSlippageOpen, setIsSlippageOpen] = useState(false);
@@ -68,49 +67,6 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 		setSelectedAmount(null);
 	};
 
-	// 验证输入
-	const validateInput = (): string | null => {
-		if (!isConnected) {
-			return '请先连接钱包';
-		}
-
-		if (!inputAmount || inputAmount.trim() === '') {
-			return '请输入交易金额';
-		}
-
-		const amount = parseFloat(inputAmount);
-		if (isNaN(amount) || amount <= 0) {
-			return '请输入有效的数字金额';
-		}
-
-		if (selectedTab === 'buy') {
-			// 买入验证
-			if (!balance || balance === 0) {
-				return 'BNB余额不足';
-			}
-
-			if (_bignumber(inputAmount).gt(balance)) {
-				return `BNB余额不足，当前余额: ${formatBigNumber(balance)} BNB`;
-			}
-
-			// 预留gas费用检查
-			const gasReserve = 0.001;
-			if (_bignumber(inputAmount).plus(gasReserve).gt(balance)) {
-				return '请预留足够的BNB作为手续费';
-			}
-		} else {
-			// 卖出验证
-			if (!tokenBalance || parseFloat(tokenBalance) === 0) {
-				return '代币余额不足';
-			}
-
-			if (_bignumber(inputAmount).gt(tokenBalance)) {
-				return `代币余额不足，当前余额: ${formatBigNumber(tokenBalance)} ${info?.symbol?.toUpperCase() || 'Token'}`;
-			}
-		}
-
-		return null;
-	};
 
 	const buyAmounts = [
 		{ label: "0.2", value: 0.2 },
@@ -166,37 +122,61 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 	// 部署格子的函数
 	const deploySquares = async (selectedSquares: number[], amountPerSquare: string) => {
 		if (!signer || !provider) {
-			toast.error('钱包未连接');
+			customToast({
+				title: '钱包未连接',
+				description: '请先连接您的钱包',
+				type: 'error'
+			});
 			return;
 		}
+		setIsLoading(true);
+		// 创建合约实例
+		const oreProtocolContract = new ethers.Contract(
+			CONTRACT_CONFIG.ORE_CONTRACT,
+			OreProtocolABI.abi,
+			signer
+		);
+
+		// 计算 mask
+		let mask = 0;
+		selectedSquares.forEach(index => {
+			mask |= (1 << index);
+		});
+
+		const amountPerSquareWei = ethers.parseEther(amountPerSquare);
+
+		// 计算总费用
+		const squareCount = selectedSquares.length;
+		const totalDeploy = amountPerSquareWei * BigInt(squareCount);
+
+		let loadingToastId: any = null;
 
 		try {
-			setIsLoading(true);
-
-			// 创建合约实例
-			const oreProtocolContract = new ethers.Contract(
-				CONTRACT_CONFIG.ORE_CONTRACT,
-				OreProtocolABI.abi,
-				signer
-			);
-
-			// 计算 mask
-			let mask = 0;
-			selectedSquares.forEach(index => {
-				mask |= (1 << index);
-			});
-
-			const amountPerSquareWei = ethers.parseEther(amountPerSquare);
-
-			// 计算总费用
-			const squareCount = selectedSquares.length;
-			const totalDeploy = amountPerSquareWei * BigInt(squareCount);
-
 			// 获取检查点费用
 			const config = await oreProtocolContract.config();
 			const checkpointFee = config.checkpointFee || 0;
 			console.log(checkpointFee, '---')
 			const totalRequired = totalDeploy + BigInt(checkpointFee);
+
+			// 检查余额是否足够
+			const totalRequiredFormatted = ethers.formatEther(totalRequired);
+			if (_bignumber(totalRequiredFormatted).gt(balance)) {
+				customToast({
+					title: '余额不足',
+					description: `需要 ${totalRequiredFormatted} BNB，当前余额 ${formatBigNumber(balance)} BNB`,
+					type: 'error'
+				});
+				setIsLoading(false);
+				return;
+			}
+
+
+
+			// 显示开始部署的loading提示
+			loadingToastId = customToastPersistent({
+				title: 'Waiting for signature...',
+				type: 'loading'
+			});
 
 			console.log('选择的格子:', selectedSquares);
 			console.log('Mask:', mask);
@@ -226,15 +206,168 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 				gasLimit: gasLimit
 			});
 
-			toast.success(`交易已发送: ${tx.hash}`);
+			// 关闭 loading toast (如果已创建)
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
 
-			const receipt = await tx.wait();
-			toast.success('部署成功！');
-			console.log('交易确认:', receipt);
+			customToast({
+				title: 'Transaction confirmed',
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				type: 'success'
+			});
+
+			tx.wait().then((receipt: any) => {
+				console.log(receipt);
+			}).catch((error: any) => {
+				console.error(error);
+			});
+
+
 
 		} catch (error) {
 			console.error('部署格子失败:', error);
-			toast.error(`部署失败: ${error}`);
+
+			// 关闭 loading toast (如果已创建)
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: '部署失败',
+				description: `错误详情: ${error}`,
+				type: 'error'
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	// 注册自动化投注的函数
+	const registerAutomation = async (selectedSquares: number[], amountPerSquare: string, rounds: string) => {
+		if (!signer || !provider) {
+			customToast({
+				title: '钱包未连接',
+				description: '请先连接您的钱包',
+				type: 'error'
+			});
+			return;
+		}
+
+		// 创建合约实例
+		const oreProtocolContract = new ethers.Contract(
+			CONTRACT_CONFIG.ORE_CONTRACT,
+			OreProtocolABI.abi,
+			signer
+		);
+
+		// 计算 mask
+		let mask = 0;
+		selectedSquares.forEach(index => {
+			mask |= (1 << index);
+		});
+
+		const amountPerSquareWei = ethers.parseEther(amountPerSquare);
+
+		try {
+			// 获取检查点费用
+			const config = await oreProtocolContract.config();
+			const checkpointFee = config.checkpointFee || 0;
+
+			// Bot executor
+			const botAddress = "0x05375917dd12783156b1e29923b58fb6cae90513";
+
+			const automation = {
+				owner: address,
+				executor: botAddress,
+				balance: 0, // 会自动加上 msg.value
+				mask: mask,
+				amountPerSquare: amountPerSquareWei,
+				feePerCall: ethers.parseEther("0.001"), // 给 Bot 的费用
+				randomizeMask: false,
+				active: true
+			};
+
+			// 预存轮次费用
+			const roundsToFund = parseInt(rounds);
+			const costPerRound =
+				automation.amountPerSquare * BigInt(selectedSquares.length) + // 总投注
+				BigInt(checkpointFee) +                     // checkpoint 费用
+				automation.feePerCall;              // Bot 费用
+			const totalFunding = costPerRound * BigInt(roundsToFund);
+
+			// 检查余额是否足够
+			const totalRequiredFormatted = ethers.formatEther(totalFunding);
+			if (_bignumber(totalRequiredFormatted).gt(balance)) {
+				customToast({
+					title: '余额不足',
+					description: `需要 ${totalRequiredFormatted} BNB，当前余额 ${formatBigNumber(balance)} BNB`,
+					type: 'error'
+				});
+				return;
+			}
+
+			setIsLoading(true);
+
+			// 显示开始注册的loading提示
+			const loadingToastId = customToastPersistent({
+				title: '正在注册自动化...',
+				type: 'loading'
+			});
+
+			console.log('注册自动化参数:', automation);
+			console.log('总预存金额:', ethers.formatEther(totalFunding), 'BNB');
+
+			// 估算 gas
+			const estimatedGas = await oreProtocolContract.registerAutomation.estimateGas(
+				automation,
+				{
+					value: totalFunding
+				}
+			);
+
+			// 增加 20% 的 gas buffer
+			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
+
+			console.log('估算 gas:', estimatedGas.toString());
+			console.log('设置 gas limit:', gasLimit.toString());
+
+			// 调用合约
+			const tx = await oreProtocolContract.registerAutomation(automation, {
+				value: totalFunding,
+				gasLimit: gasLimit
+			});
+
+			// 关闭 loading toast (如果已创建)
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: 'Automation registered',
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				type: 'success'
+			});
+
+			tx.wait().then((receipt: any) => {
+				console.log(receipt);
+			}).catch((error: any) => {
+				console.error(error);
+			});
+
+		} catch (error) {
+			console.error('注册自动化失败:', error);
+
+			// 关闭 loading toast (如果已创建)
+			// if (loadingToastId) {
+			// 	dismissToast(loadingToastId);
+			// }
+
+			customToast({
+				title: '注册失败',
+				description: `错误详情: ${error}`,
+				type: 'error'
+			});
 		} finally {
 			setIsLoading(false);
 		}
@@ -255,23 +388,41 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 		// setIsLoading(true);
 		if (!amount || parseFloat(amount) <= 0) {
-			toast.error("请输入有效金额");
+			customToast({
+				title: '输入错误',
+				description: '请输入有效金额',
+				type: 'error'
+			});
 			return;
 		}
 
 		// Auto模式下可以通过blockAmount输入数量，Manual模式下必须选择格子
 		if (selectedTab === 'manual' && selectedCells.length === 0) {
-			toast.error("请选择至少一个格子");
+			customToast({
+				title: '选择错误',
+				description: '请选择至少一个格子',
+				type: 'error'
+			});
 			return;
 		}
 
 		if (selectedTab === 'auto' && selectedCells.length === 0 && (parseInt(blockAmount) || 0) === 0) {
-			toast.error("请选择格子或输入块数量");
+			customToast({
+				title: '操作错误',
+				description: '请选择格子或输入块数量',
+				type: 'error'
+			});
 			return;
 		}
 
-		// 部署格子到合约
-		await deploySquares(selectedCells, amount);
+		// 根据选择的模式调用不同的方法
+		if (selectedTab === 'manual') {
+			// 手动模式：部署格子到合约
+			await deploySquares(selectedCells, amount);
+		} else if (selectedTab === 'auto') {
+			// 自动模式：注册自动化投注
+			await registerAutomation(selectedCells, amount, roundAmount || '1');
+		}
 		// onDeploy?.(amount);
 	};
 
@@ -423,16 +574,16 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 					{selectedTab === 'auto' && (
 						<>
 							<div className="flex items-center justify-between mt-[8px]">
-								Total per round<span className="text-[#FFF]">{inputAmount ? (parseFloat(inputAmount) * (selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)).toFixed(2) : 0} BNB</span>
+								Total per round<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).dp(8).toString() : '0'} BNB</span>
 							</div>
 							<div className="flex items-center justify-between mt-[8px]">
-								Total<span className="text-[#FFF]">{inputAmount && roundAmount ? (parseFloat(inputAmount) * (selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0) * parseInt(roundAmount || '1')).toFixed(2) : 0} BNB</span>
+								Total<span className="text-[#FFF]">{inputAmount && roundAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).multipliedBy(parseInt(roundAmount) || 1).dp(8).toString() : '0'} BNB</span>
 							</div>
 						</>
 					)}
 					{selectedTab === 'manual' && (
 						<div className="flex items-center justify-between mt-[8px]">
-							Total<span className="text-[#FFF]">{inputAmount ? (parseFloat(inputAmount) * selectedCells.length).toFixed(2) : 0} BNB</span>
+							Total<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length).dp(8).toString() : '0'} BNB</span>
 						</div>
 					)}
 				</div>
@@ -441,12 +592,21 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 					className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
 					onPress={() => { handleClick(info?.mint, inputAmount) }}
 					isLoading={isLoading}
-					isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || isPaused}
+					isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0}
 				>
 					Deploy {
 						selectedTab === 'auto'
-							? (inputAmount && roundAmount ? (parseFloat(inputAmount) * (selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0) * parseInt(roundAmount || '1')).toFixed(2) : 0)
-							: (inputAmount ? (parseFloat(inputAmount) * selectedCells.length).toFixed(2) : 0)
+							? (inputAmount && roundAmount ?
+								BigNumber(inputAmount)
+									.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
+									.multipliedBy(parseInt(roundAmount) || 1)
+									.dp(8).toString()
+								: '0')
+							: (inputAmount ?
+								BigNumber(inputAmount)
+									.multipliedBy(selectedCells.length)
+									.dp(8).toString()
+								: '0')
 					} BNB
 				</Button>
 			</div>

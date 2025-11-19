@@ -10,6 +10,9 @@ import PrivyProviders from '@/providers/privyProvider'
 import { BalanceProvider } from '@/providers/balanceProvider'
 import { Toaster } from 'sonner';
 import NProgress from 'nprogress';
+import { WagmiProvider } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { config } from '@/wagmiConfig';
 
 import { fontSans } from "@/config/fonts";
 import "@/styles/globals.css";
@@ -77,33 +80,35 @@ export default function App({ Component, pageProps }: AppProps) {
 				{/* 预加载关键图片 */}
 				<link rel="preload" href="/images/loading.gif" as="image" />
 			</Head>
-			<PrivyProviders>
-				<QueryProvider>
-					<BalanceProvider>
-						<HeroUIProvider navigate={router.push}>
-							<Toaster
-								richColors
-								position="top-center"
-								// icons={{
-								// 	success: <ToastSuccessIcon className="w-[30px] h-[30px]" />,
-								// 	error: <ToastErrorIcon className="w-[30px] h-[30px]" />,
-								// 	loading: <ToastLoadingIcon className="w-[30px] h-[30px]" />
-								// }}
-								toastOptions={{
-									classNames: {
-										success: 'toast-success',
-										error: 'toast-error',
-										loading: 'toast-loading',
-									}
-								}}
-							/>
-							<NextThemesProvider attribute="class" defaultTheme="dark">
-								<Component {...pageProps} />
-							</NextThemesProvider>
-						</HeroUIProvider>
-					</BalanceProvider>
-				</QueryProvider>
-			</PrivyProviders>
+			<WagmiProvider config={config}>
+				<PrivyProviders>
+					<QueryProvider>
+						<BalanceProvider>
+							<HeroUIProvider navigate={router.push}>
+								<Toaster
+									richColors
+									position="top-center"
+									// icons={{
+									// 	success: <ToastSuccessIcon className="w-[30px] h-[30px]" />,
+									// 	error: <ToastErrorIcon className="w-[30px] h-[30px]" />,
+									// 	loading: <ToastLoadingIcon className="w-[30px] h-[30px]" />
+									// }}
+									toastOptions={{
+										classNames: {
+											success: 'toast-success',
+											error: 'toast-error',
+											loading: 'toast-loading',
+										}
+									}}
+								/>
+								<NextThemesProvider attribute="class" defaultTheme="dark">
+									<Component {...pageProps} />
+								</NextThemesProvider>
+							</HeroUIProvider>
+						</BalanceProvider>
+					</QueryProvider>
+				</PrivyProviders>
+			</WagmiProvider>
 		</>
 	);
 }

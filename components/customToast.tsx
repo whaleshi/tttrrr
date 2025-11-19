@@ -14,6 +14,11 @@ interface ToastProps {
     label: string;
     onClick: () => void;
   };
+  persistent?: boolean;
+  link?: {
+    url: string;
+    text: string;
+  };
 }
 
 interface CustomToastOptions {
@@ -24,15 +29,22 @@ interface CustomToastOptions {
     label: string;
     onClick: () => void;
   };
+  persistent?: boolean;
+  link?: {
+    url: string;
+    text: string;
+  };
 }
 
 /** A fully custom toast that still maintains the animations and interactions. */
 function Toast(props: ToastProps) {
-  const { title, description, type = 'success', id } = props;
+  const { title, description, type = 'success', id, persistent = false } = props;
   const [progress, setProgress] = useState(100);
 
-  // 5秒倒计时效果
+  // 5秒倒计时效果 (仅在非持久化模式下)
   useEffect(() => {
+    if (persistent) return; // 如果是持久化toast，不启动倒计时
+
     const duration = 5000; // 5秒
     const interval = 100; // 每100ms更新一次
     const totalSteps = duration / interval; // 总步数：50步
@@ -52,7 +64,7 @@ function Toast(props: ToastProps) {
     }, interval);
 
     return () => clearInterval(timer);
-  }, [id]);
+  }, [id, persistent]);
 
   // 根据类型设置样式
   const getToastStyle = () => {
@@ -95,43 +107,45 @@ function Toast(props: ToastProps) {
         </div>
       </div>
 
-      {/* Right side: Button + Close */}
-      <div className="flex items-center gap-[8px] flex-shrink-0">
-        <div className="relative w-[36px] h-[36px]">
-          {/* 外圈倒计时 */}
-          <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-            <circle
-              cx="18"
-              cy="18"
-              r="16"
-              fill="none"
-              stroke="#404040"
-              strokeWidth="2"
-              className="opacity-50"
-            />
-            <circle
-              cx="18"
-              cy="18"
-              r="16"
-              fill="none"
-              stroke="#868789"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeDasharray={100.53} // 2 * π * 16 ≈ 100.53
-              strokeDashoffset={100.53 * ((100 - progress) / 100)}
-              className="transition-all duration-100 ease-linear"
-            />
-          </svg>
-          {/* 关闭按钮 */}
-          <Button
-            onPress={() => sonnerToast.dismiss(id)}
-            isIconOnly
-            className="absolute top-[2px] left-[2px] w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"
-          >
-            <CloseIcon className="w-[16px] h-[16px]" />
-          </Button>
+      {/* Right side: Button + Close (hide for loading) */}
+      {type !== 'loading' && (
+        <div className="flex items-center gap-[8px] flex-shrink-0">
+          <div className="relative w-[36px] h-[36px]">
+            {/* 外圈倒计时 */}
+            <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="none"
+                stroke="#404040"
+                strokeWidth="2"
+                className="opacity-50"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="16"
+                fill="none"
+                stroke="#868789"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray={100.53} // 2 * π * 16 ≈ 100.53
+                strokeDashoffset={100.53 * ((100 - progress) / 100)}
+                className="transition-all duration-100 ease-linear"
+              />
+            </svg>
+            {/* 关闭按钮 */}
+            <Button
+              onPress={() => sonnerToast.dismiss(id)}
+              isIconOnly
+              className="absolute top-[2px] left-[2px] w-[32px] h-[32px] min-w-[32px] bg-[#2A2A2A] border border-[#404040] rounded-full"
+            >
+              <CloseIcon className="w-[16px] h-[16px]" />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -149,6 +163,27 @@ export function customToast(options: CustomToastOptions) {
   ), {
     duration: Infinity // 禁用 sonner 自动关闭，由我们自己控制
   });
+}
+
+/** Custom toast function that persists until manually dismissed */
+export function customToastPersistent(options: CustomToastOptions) {
+  return sonnerToast.custom((id) => (
+    <Toast
+      id={id}
+      title={options.title}
+      description={options.description}
+      type={options.type}
+      button={options.button}
+      persistent={true}
+    />
+  ), {
+    duration: Infinity // 完全禁用自动关闭
+  });
+}
+
+/** Function to manually dismiss a toast */
+export function dismissToast(toastId: string | number) {
+  sonnerToast.dismiss(toastId);
 }
 
 export default Toast;

@@ -41,8 +41,8 @@ export default function Rewards() {
 		// console.log('矿工数据:', miner);
 		const rewardsData = {
 			ethAmount: ethers.formatEther(rewards.ethAmount),
-			oriDirect: ethers.formatUnits(rewards.oriDirect, 11), // ORI 是 11 位小数
-			oriRefined: ethers.formatUnits(rewards.oriRefined, 11)
+			oriDirect: ethers.formatUnits(rewards.oriDirect),
+			oriRefined: ethers.formatUnits(rewards.oriRefined)
 		};
 
 		// console.log('用户奖励:', rewardsData);

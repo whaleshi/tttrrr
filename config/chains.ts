@@ -15,15 +15,15 @@ export const CHAINS_CONFIG = {
             explorerUrl: "https://testnet.bscscan.com",
             rpcUrl: "https://delicate-old-breeze.bsc-testnet.quiknode.pro/4e8edc72f64856f8e8fa3377a81c9f3a1f6b5dee/",
             // rpcUrl: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
-            factoryContract: "0xc855D67921359dc2852656A264f07F86c39320d1",
-            oreContract: "0x77df61FD009922C09e8805f8Fe93AF4c9aEf6dEB",
+            readOreContract: "0xC4607e263FD16cd929AF3b4F2d869c29EB68F479",
+            oreContract: "0xdA344124e9442C1800B83D45ed5af7e0F3F5d59e",
         },
         [56]: {
             name: "BNB Smart Chain",
             symbol: "BNB",
             explorerUrl: "https://bscscan.com",
             rpcUrl: "https://silent-few-meme.bsc.quiknode.pro/ee75800d48bd6244538a996a18a836a986e0add9/",
-            factoryContract: "0x2e611CCBc67B007a894b4276De89663df442fE56",
+            readOreContract: "0x2e611CCBc67B007a894b4276De89663df442fE56",
             oreContract: "",
         },
     },
@@ -36,7 +36,7 @@ export const DEFAULT_CHAIN_CONFIG = CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID 
 // 合约地址配置
 export const CONTRACT_CONFIG = {
     // 工厂合约地址 - 用于创建新代币
-    FACTORY_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].factoryContract,
+    READ_ORE_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].readOreContract,
     ORE_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].oreContract,
 } as const;
 

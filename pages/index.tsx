@@ -2,7 +2,7 @@ import { Image, Button } from "@heroui/react"
 import DefaultLayout from "@/layouts/default";
 import { useRouter } from "next/router";
 import NextImage from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { siteConfig } from "@/config/site";
 import Matrix from "@/components/matrix";
 import Overview from "@/components/overview";
@@ -13,18 +13,19 @@ import { ethers } from "ethers";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useAuthStore } from "@/stores/auth";
 import OreProtocolABI from "@/constant/OreProtocol.json";
-import { CONTRACT_CONFIG } from "@/config/chains";
-import { useQuery } from "@tanstack/react-query";
+import ReadOreProtocolABI from "@/constant/OreProtocolView.json";
+import { CONTRACT_CONFIG, MULTICALL3_ADDRESS, MULTICALL3_ABI } from "@/config/chains";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useReadContracts } from 'wagmi';
+import { useEchoChannel } from "@/hooks/useEchoChannel";
+import { getEventInfo } from "@/service/api";
 
 export default function IndexPage() {
 	const router = useRouter();
+	const queryClient = useQueryClient();
 	const [selectedCells, setSelectedCells] = useState<number[]>([]);
 	const [inputAmount, setInputAmount] = useState('');
 	const [cellAmounts, setCellAmounts] = useState<{ [key: number]: number }>({});
-	const [countdown, setCountdown] = useState(0);
-	const [isCheckingResults, setIsCheckingResults] = useState(false);
-	const [hasDrawn, setHasDrawn] = useState(false);
-	const [isPaused, setIsPaused] = useState(false);
 	const [winningCell, setWinningCell] = useState<number | null>(null);
 	const [isDrawing, setIsDrawing] = useState(false);
 	const [showWinner, setShowWinner] = useState(false);
@@ -32,6 +33,9 @@ export default function IndexPage() {
 	const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
 	const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
 	const [oreProtocolContract, setOreProtocolContract] = useState<ethers.Contract | null>(null);
+	const [readOreProtocolContract, setReadOreProtocolContract] = useState<ethers.Contract | null>(null);
+	const [multicallContract, setMulticallContract] = useState<ethers.Contract | null>(null);
+	const [isGameActive, setIsGameActive] = useState(false);
 	const { ready, authenticated, user } = usePrivy();
 	const { wallets } = useWallets();
 	// 使用自定义认证状态的地址，并找到对应的钱包对象
@@ -58,7 +62,23 @@ export default function IndexPage() {
 						ethersSigner
 					);
 					setOreProtocolContract(oreContract);
-					console.log('合约对象:', oreContract);
+
+					// 创建只读合约实例用于查询
+					const readOreContract = new ethers.Contract(
+						CONTRACT_CONFIG.READ_ORE_CONTRACT,
+						ReadOreProtocolABI.abi,
+						ethersProvider
+					);
+					setReadOreProtocolContract(readOreContract);
+
+					// 创建 MULTICALL3 合约实例
+					const multicall3Contract = new ethers.Contract(
+						MULTICALL3_ADDRESS,
+						MULTICALL3_ABI,
+						ethersProvider
+					);
+					setMulticallContract(multicall3Contract);
+					// console.log('合约对象:', oreContract);
 
 				} catch (error) {
 					console.error("Failed to initialize provider:", error);
@@ -71,204 +91,200 @@ export default function IndexPage() {
 		}
 	}, [wallet, isConnected]);
 
-	// 获取轮次信息
-	const fetchRoundInfo = async () => {
-		if (!oreProtocolContract || !provider) return;
+	// 获取轮次信息 - 每1秒请求一次 (使用 wagmi useReadContracts)
+	const { data: roundInfo, error: roundInfoError } = useReadContracts({
+		contracts: [
+			{
+				address: CONTRACT_CONFIG.READ_ORE_CONTRACT as `0x${string}`,
+				abi: ReadOreProtocolABI.abi,
+				functionName: 'getTreasuryState',
+			},
+			{
+				address: CONTRACT_CONFIG.READ_ORE_CONTRACT as `0x${string}`,
+				abi: ReadOreProtocolABI.abi,
+				functionName: 'getGameState',
+			},
+			{
+				address: CONTRACT_CONFIG.READ_ORE_CONTRACT as `0x${string}`,
+				abi: ReadOreProtocolABI.abi,
+				functionName: 'getCurrentRoundInfo',
+			},
+		],
+		query: {
+			refetchInterval: 1000, // 每1秒刷新一次
+			refetchIntervalInBackground: true,
+			select: (data) => {
+				if (!data || data.length < 3) return null;
+
+				const [treasuryResult, gameStateResult, currentRoundResult] = data;
+
+				return {
+					treasuryOre: treasuryResult.status === 'success' && treasuryResult.result
+						? ethers.formatUnits((treasuryResult.result as any)[5])
+						: null,
+					gameState: gameStateResult.status === 'success' && gameStateResult.result
+						? Number((gameStateResult.result as any)[0])
+						: null,
+					currentRoundId: currentRoundResult.status === 'success' && currentRoundResult.result
+						? Number((currentRoundResult.result as any)[0])
+						: null
+				};
+			}
+		}
+	});
+	// 处理 wagmi 返回的数据并打印日志
+	useEffect(() => {
+		if (roundInfo) {
+			console.log('处理后的数据:', roundInfo);
+			console.log('getTreasuryState:', roundInfo.treasuryOre);
+			console.log('getGameState:', roundInfo.gameState);
+			console.log('getCurrentRoundInfo:', roundInfo.currentRoundId);
+		}
+
+		if (roundInfoError) {
+			console.error('获取合约信息失败:', roundInfoError);
+		}
+	}, [roundInfo, roundInfoError]);
+
+	// 获取矿工方格信息 - 当有 currentRoundId 和用户地址时调用
+	// const { data: minerSquares } = useReadContracts({
+	// 	contracts: roundInfo?.currentRoundId && address ? [{
+	// 		address: CONTRACT_CONFIG.READ_ORE_CONTRACT as `0x${string}`,
+	// 		abi: ReadOreProtocolABI.abi,
+	// 		functionName: 'getMinerSquares',
+	// 		args: [roundInfo.currentRoundId, address],
+	// 	}] : [],
+	// 	query: {
+	// 		enabled: !!roundInfo?.currentRoundId && !!address,
+	// 		refetchInterval: 1000,
+	// 		refetchIntervalInBackground: true,
+	// 		select: (data) => {
+	// 			if (!data || data.length === 0) return null;
+	// 			const result = data[0];
+	// 			if (result.status === 'success' && result.result) {
+	// 				console.log('getMinerSquares:', result.result);
+	// 				return result.result;
+	// 			}
+	// 			return null;
+	// 		}
+	// 	}
+	// });
+	// console.log(minerSquares)
+	// 获取事件信息 - 有 gameState 后每3秒请求一次
+	const { data: eventInfoData } = useQuery({
+		queryKey: ['eventInfo', roundInfo?.gameState],
+		queryFn: async () => {
+			const result = await getEventInfo();
+			const data = result?.data;
+
+			// 在接口请求里计算是否游戏中并设置状态
+			if (data) {
+				setRoundId(roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id);
+				console.log('设置roundId为:', roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id);
+			}
+
+			return data;
+		},
+		enabled: roundInfo?.gameState !== undefined && roundInfo?.gameState !== null,
+		refetchInterval: 3000,
+		staleTime: 0, // 数据立即过期
+		refetchOnMount: true, // 挂载时重新请求
+		refetchOnWindowFocus: true, // 窗口获得焦点时重新请求
+		refetchOnReconnect: true // 重新连接时重新请求
+	});
+
+
+
+	// 开奖事件处理函数
+	const onResetMessage = useCallback((eventData: any) => {
+		const time = new Date().toLocaleTimeString();
+		console.log('🎯', time, '收到轮次重置事件（开奖）:', eventData);
 
 		try {
-			// 获取当前区块号
-			const blockNumber = await provider.getBlockNumber();
+			// 解析 JSON 数据
+			const parsedData = typeof eventData.data === 'string'
+				? JSON.parse(eventData.data)
+				: eventData.data;
 
-			const board = await oreProtocolContract.board();
-			const currentRoundId = board.currentRoundId;
-			const round = await oreProtocolContract.rounds(currentRoundId);
+			console.log('解析后的开奖数据:', parsedData);
+
+			// 处理开奖逻辑
+			if (parsedData?.winning_square !== undefined) {
+				const winningSquare = Number(parsedData.winning_square);
+				console.log('实时开奖事件 - 中奖格子:', winningSquare);
+
+				// 立即触发eventInfo重新获取
+				console.log('🔄 开奖事件，重新获取eventInfo');
+				queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 
 
-			// 获取轮次数据
-			const roundData = await oreProtocolContract.getRoundData(currentRoundId);
-			console.log('getRoundData:', roundData);
+				// 开始抽奖动画
+				setWinningCell(winningSquare);
+				setIsDrawing(true);
+				setShowWinner(false);
 
-			// 获取国库状态
-			const treasuryState = await oreProtocolContract.getTreasuryState();
-			console.log('getTreasuryState:', ethers.formatUnits(treasuryState.motherlodeOre, 11));
+				// 模拟抽奖动画时间，然后显示中奖者
+				setTimeout(() => {
+					setShowWinner(true);
+					setIsDrawing(false);
 
-			// 从 board 获取配置信息
-			const roundLength = Number(board.roundLength);        // 轮次长度（区块数）
-			const intermission = Number(board.intermission);      // 间歇期（区块数）
-			const checkpointGrace = Number(board.checkpointGrace); // Checkpoint 宽限期（区块数）
-			const BLOCK_TIME = 0.75; // BSC 区块时间约0.75秒
+					// 5秒后开始新一轮
+					setTimeout(() => {
+						setShowWinner(false);
+						setWinningCell(null);
+						setCellAmounts({}); // 清空投注金额
 
-			console.log('轮次长度:', roundLength, '区块');
-			console.log('间歇期:', intermission, '区块');
-			console.log('Checkpoint宽限期:', checkpointGrace, '区块');
-
-			// 计算倒计时
-			let secondsRemaining = 0;
-			let countdownType = '';
-
-			if (blockNumber >= Number(round.startBlock) && blockNumber <= Number(round.endBlock)) {
-				// 下注倒计时
-				const blocksRemaining = Number(round.endBlock) - blockNumber;
-				secondsRemaining = blocksRemaining * BLOCK_TIME;
-				countdownType = '下注倒计时';
-			} else if (blockNumber > Number(round.endBlock) && blockNumber < (Number(round.endBlock) + intermission)) {
-				// Reset 倒计时
-				const resetBlock = Number(round.endBlock) + intermission;
-				const blocksRemaining = resetBlock - blockNumber;
-				secondsRemaining = blocksRemaining * BLOCK_TIME;
-				countdownType = '等待 Reset';
+						// 再次触发eventInfo重新获取，确保获取最新轮次信息
+						console.log('🔄 准备新轮次，重新获取eventInfo');
+						queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
+					}, 5000);
+				}, 3600); // 24个格子 * 150ms
 			}
-			// checkpoint 中奖之后执行
-			console.log('当前轮:', currentRoundId);
-			console.log('当前区块:', blockNumber);
-			console.log('开始区块:', Number(round.startBlock));
-			console.log('结束区块:', Number(round.endBlock));
-			console.log('倒计时类型:', countdownType);
-			console.log('剩余秒数:', secondsRemaining);
+		} catch (error) {
+			console.error('解析开奖事件数据失败:', error);
+		}
+	}, [queryClient]);
 
-			// 更新倒计时状态 - 确保倒计时是整数
-			setRoundId(currentRoundId);
-			setCountdown(secondsRemaining > 0 ? Math.ceil(secondsRemaining) : 0);
+
+	// 监听轮次重置事件（开奖事件）
+	useEchoChannel('round.reset', '.round.data.reset', onResetMessage);
+
+	// 轮次开始事件处理函数
+	const onStartedMessage = useCallback((eventData: any) => {
+		const time = new Date().toLocaleTimeString();
+		console.log('🚀', time, '收到轮次开始事件（倒计时开始）:', eventData);
+
+		try {
+			// 解析 JSON 数据
+			const parsedData = typeof eventData.data === 'string'
+				? JSON.parse(eventData.data)
+				: eventData.data;
+
+			console.log('解析后的轮次开始数据:', parsedData);
+			// setIsGameActive(true);
+			// 处理轮次开始逻辑 - 根据实际数据结构
+			if (parsedData?.timestamp) {
+				const startTimestamp = Number(parsedData.timestamp);
+				console.log('轮次开始时间戳:', startTimestamp);
+				// 触发eventInfo重新获取
+				console.log('🔄 轮次开始，重新获取eventInfo');
+				queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
+			}
 
 		} catch (error) {
-			console.error('获取合约信息失败:', error);
+			console.error('解析轮次开始事件数据失败:', error);
 		}
-	};
+	}, [queryClient]);
 
-
-	// 父组件也可以获取 Matrix 组件的 roundInfo 数据
-	const { data: roundInfoData } = useQuery({
-		queryKey: ['roundInfo', roundId, address], // 使用和 Matrix 组件相同的 queryKey
-		queryFn: () => null, // 提供一个空的 queryFn
-		enabled: false // 父组件不主动查询，只获取 Matrix 组件查询的结果
-	});
-
-	// 根据条件决定是否需要调用 fetchRoundInfo
-	const hasValidData = roundInfoData && (roundInfoData as any)?.total_amount > 0;
-	const shouldUseFetchRoundInfo = !hasValidData && countdown <= 0;
-
-	// 使用 useQuery 每秒调用 fetchRoundInfo（当没有有效数据且倒计时结束时）
-	const { data: fetchRoundData } = useQuery({
-		queryKey: ['fetchRoundInfo', oreProtocolContract?.target],
-		queryFn: async () => {
-			if (!oreProtocolContract) return null;
-			await fetchRoundInfo();
-			return { timestamp: Date.now() }; // 返回一个标识，表示已执行
-		},
-		refetchInterval: shouldUseFetchRoundInfo ? 1000 : false, // 只在需要时每1秒查询一次
-		enabled: !!oreProtocolContract && shouldUseFetchRoundInfo
-	});
-
-	// 初始化时获取轮次信息
-	useEffect(() => {
-		if (!oreProtocolContract) return;
-
-		// 立即调用一次
-		fetchRoundInfo();
-	}, [oreProtocolContract]);
-
-	const handleLotteryStart = () => {
-		// 选择最终中奖者并开始抽奖动画
-		const finalWinner = Math.floor(Math.random() * 25);
-		setWinningCell(finalWinner);
-		setIsPaused(true); // 暂停倒计时
-		setCountdown(30);
-		setIsDrawing(true);
-		setShowWinner(false);
-
-		// 模拟抽奖动画时间，然后显示中奖者
-		setTimeout(() => {
-			setShowWinner(true);
-			setIsDrawing(false);
-
-			// 5秒后开始新一轮
-			setTimeout(() => {
-				setShowWinner(false);
-				setWinningCell(null);
-				setIsPaused(false); // 恢复倒计时
-				setCellAmounts({}); // 清空投注金额
-			}, 5000);
-		}, 3600); // 24个格子 * 150ms
-	};
-
-	// 动态倒计时逻辑 - 每秒递减，倒计时结束后开始检查开奖结果
-	useEffect(() => {
-		if (countdown <= 0) return;
-
-		const timer = setInterval(() => {
-			setCountdown((prev: number) => {
-				if (prev <= 1) {
-					// 倒计时结束，延迟一点再开始检查开奖结果，确保倒计时完全结束
-					setTimeout(() => {
-						setIsCheckingResults(true);
-					}, 500);
-					return 0;
-				}
-				return prev - 1;
-			});
-		}, 1000);
-
-		return () => clearInterval(timer);
-	}, [countdown]);
-
-	// 使用 useQuery 检查开奖结果 - 每1秒查询一次
-	const { data: drawResult } = useQuery({
-		queryKey: ['checkDrawResults', roundId],
-		queryFn: async () => {
-			if (!oreProtocolContract || !roundId) return null;
-
-			try {
-				const roundData = await oreProtocolContract.getRoundData(roundId);
-				console.log('检查开奖结果:', roundData);
-
-				if (roundData.randomnessFulfilled) {
-					const winningSquare = Number(roundData.winningSquare);
-					console.log('开奖了！合约返回的中奖格子:', winningSquare);
-
-					// 标记已开奖，停止所有查询
-					setHasDrawn(true);
-
-
-					// 开始抽奖动画
-					setWinningCell(winningSquare);
-					setIsDrawing(true);
-					setShowWinner(false);
-
-					// 模拟抽奖动画时间，然后显示中奖者
-					setTimeout(() => {
-						setShowWinner(true);
-						setIsDrawing(false);
-
-						// 5秒后开始新一轮
-						setTimeout(() => {
-							setShowWinner(false);
-							setWinningCell(null);
-							setIsCheckingResults(false);
-							setHasDrawn(false); // 重置开奖状态
-							setCellAmounts({}); // 清空投注金额
-							fetchRoundInfo(); // 获取新轮次信息
-						}, 5000);
-					}, 3600); // 24个格子 * 150ms
-
-					return { drawn: true, winningSquare };
-				}
-
-				return { drawn: false };
-			} catch (error) {
-				console.error('检查开奖结果失败:', error);
-				return null;
-			}
-		},
-		refetchInterval: isCheckingResults && hasValidData ? 1000 : false, // 只在检查状态且有有效数据时每1秒查询一次
-		enabled: !!isCheckingResults && !!roundId && !!oreProtocolContract && !hasDrawn
-	});
+	// 监听轮次开始事件（倒计时开始）
+	useEchoChannel('round.new_round', '.round.data.started', onStartedMessage);
 
 	return (
 		<DefaultLayout>
 			<div className="flex flex-col h-full bg-[#0D0F13]">
 				<section className="flex flex-col items-center justify-center gap-4 px-[14px]">
 					<div className="w-full max-w-[640px] lg:max-w-[1200px] flex flex-col lg:flex-row pt-[16px] lg:pt-[40px]">
-						<div className="block lg:hidden"><Overview countdown={countdown} isPaused={isPaused} /></div>
+						<div className="block lg:hidden"><Overview roundInfo={roundInfo} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
 						<div className="lg:w-[calc(632/1200*100%)] mt-[24px] lg:mt-0">
 							<Matrix
 								selectedCells={selectedCells}
@@ -282,13 +298,12 @@ export default function IndexPage() {
 						</div>
 						<div className="w-0 lg:w-[calc(32/1200*100%)]"></div>
 						<div className="flex-1">
-							<div className="hidden lg:block"><Overview countdown={countdown} isPaused={isPaused} /></div>
+							<div className="hidden lg:block"><Overview roundInfo={roundInfo} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
 							<div className="mt-[24px]">
 								<Trade
 									selectedCells={selectedCells}
 									inputAmount={inputAmount}
 									setInputAmount={setInputAmount}
-									isPaused={isPaused}
 									roundId={roundId}
 									onDeploy={(amount) => {
 										// 给每个选中的格子都加上输入的金额
