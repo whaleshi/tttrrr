@@ -301,25 +301,29 @@ export default function Rewards() {
 						isLoading={isLoading}
 					/>
 				)}
-				<Button
-					fullWidth
-					variant="bordered"
-					className="h-[44px] border-[#EFC462] text-[15px] text-[#EFC462] mt-[15px]"
-					radius="full"
-					onPress={handleClaimClick}
-					isLoading={isClaimLoading}
-				>
-					Claim
-				</Button>
-				<div
-					className={`text-[14px] text-center mt-[16px] transition-colors ${isClaimLoading
-						? 'text-[#4a4a4a] cursor-not-allowed'
-						: 'text-[#868789] cursor-pointer hover:text-[#fff]'
-						}`}
-					onClick={isClaimLoading ? undefined : handleClaimEthOnly}
-				>
-					Claim only BNB
-				</div>
+				{(parseFloat(rewardsData?.oriDirect || '0') > 0 || parseFloat(rewardsData?.oriRefined || '0') > 0) && (
+					<Button
+						fullWidth
+						variant="bordered"
+						className="h-[44px] border-[#EFC462] text-[15px] text-[#EFC462] mt-[15px]"
+						radius="full"
+						onPress={handleClaimClick}
+						isLoading={isClaimLoading}
+					>
+						Claim
+					</Button>
+				)}
+				{parseFloat(rewardsData?.ethAmount || '0') > 0 && (
+					<div
+						className={`text-[14px] text-center mt-[16px] transition-colors ${isClaimLoading
+							? 'text-[#4a4a4a] cursor-not-allowed'
+							: 'text-[#868789] cursor-pointer hover:text-[#fff]'
+							}`}
+						onClick={isClaimLoading ? undefined : handleClaimEthOnly}
+					>
+						Claim only BNB
+					</div>
+				)}
 			</div>
 
 			{/* Claim Rewards 确认弹窗 */}
