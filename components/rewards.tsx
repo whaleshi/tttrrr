@@ -90,9 +90,9 @@ export default function Rewards() {
 		// const miner = await contract.getMinerRoundInfo(45, address);
 		// console.log('矿工数据:', miner);
 		const rewardsData = {
-			ethAmount: ethers.formatEther(rewards.ethAmount),
-			oriDirect: ethers.formatUnits(rewards.oriDirect),
-			oriRefined: ethers.formatUnits(rewards.oriRefined)
+			ethAmount: ethers.formatEther(rewards.ethAmount || 0),
+			oriDirect: ethers.formatUnits(rewards.oriDirect || 0, 18),
+			oriRefined: ethers.formatUnits(rewards.oriRefined || 0, 18)
 		};
 
 		console.log('用户奖励:', rewardsData);
