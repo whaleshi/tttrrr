@@ -95,7 +95,7 @@ export const Navbar = () => {
 		<>
 			<HeroUINavbar maxWidth="full" position="static" className="fixed top-0 left-0 right-0 z-50 bg-[#0D0F13] border-b-[1px] border-[#25262A]" classNames={{ wrapper: "px-4 h-[56px] md:h-[64px]" }}>
 				<NextLink className="flex justify-start items-center gap-[8px] logo-container" href="/">
-					<LogoIcon />
+					<LogoIcon className="w-[36px]" />
 					<LogoTextIcon />
 				</NextLink>
 				<div className="text-[16px] hidden md:flex items-center gap-[16px] pl-[24px] font-semibold">

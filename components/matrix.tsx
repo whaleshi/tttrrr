@@ -34,7 +34,7 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 		refetchInterval: 3000, // 1秒一次
 		enabled: !!roundId // 只在 roundId 存在时启用
 	});
-
+	console.log('组件 - 轮次信息:', roundInfoData, roundId);
 	// 初始化格子数字
 	useEffect(() => {
 		console.log(roundId, '-----=======')

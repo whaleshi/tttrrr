@@ -67,7 +67,8 @@ export default function Overview({ roundInfo, timestamp, shouldShowCountdown }: 
 		queryFn: () => null,
 		enabled: false
 	});
-	// console.log('Overview组件 - 轮次信息:', roundInfoData);
+	console.log('Overview组件 - 轮次信息:', roundInfoData, roundInfo?.currentRoundId);
+	console.log(1111)
 	return (
 		<div className="grid grid-cols-2 gap-2">
 			<div className="bg-[rgba(239,196,98,0.10)] border-[2px] border-[#EFC462] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
