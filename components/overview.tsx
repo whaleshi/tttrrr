@@ -74,7 +74,7 @@ export default function Overview({ roundInfo, timestamp, shouldShowCountdown }: 
 			<div className="bg-[rgba(239,196,98,0.10)] border-[2px] border-[#EFC462] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 				<div className="flex items-center gap-[4px] font-semibold">
 					<LogoIcon className="w-[16px] h-[16px]" />
-					<div className="text-[16px]">{roundInfo?.treasuryOre}</div>
+					<div className="text-[16px]">{roundInfo?.treasuryOre || '0'}</div>
 				</div>
 				<div className="text-[#868789] text-[12px]">Motherlode{roundInfo?.currentRoundId}</div>
 			</div>
