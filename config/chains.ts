@@ -17,6 +17,7 @@ export const CHAINS_CONFIG = {
             // rpcUrl: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
             readOreContract: "0xFDA4438D980DCc8B96c44AFB461d363Fa6184CC0",
             oreContract: "0x8Ba8B7d54a6be64c43aA4D335C868Def77073504",
+            ori: "0xfb7148534c76ecfc4ccd1d004a4689194466c1c6",
         },
         [56]: {
             name: "BNB Smart Chain",
@@ -25,6 +26,7 @@ export const CHAINS_CONFIG = {
             rpcUrl: "https://silent-few-meme.bsc.quiknode.pro/ee75800d48bd6244538a996a18a836a986e0add9/",
             readOreContract: "0x2e611CCBc67B007a894b4276De89663df442fE56",
             oreContract: "",
+            ori: "",
         },
     },
 } as const;

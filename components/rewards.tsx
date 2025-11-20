@@ -54,13 +54,16 @@ import { ethers } from "ethers";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useAuthStore } from "@/stores/auth";
 import OreProtocolABI from "@/constant/OreProtocol.json";
-import { CONTRACT_CONFIG } from "@/config/chains";
-import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
+import { CONTRACT_CONFIG, DEFAULT_CHAIN_CONFIG } from "@/config/chains";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import _bignumber from "bignumber.js";
+import { customToast, customToastPersistent, dismissToast } from "./customToast";
+const BigNumber = _bignumber;
 
 export default function Rewards() {
 	const [isClaimLoading, setIsClaimLoading] = useState(false);
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
+	const queryClient = useQueryClient();
 
 	const { ready } = usePrivy();
 	const { wallets } = useWallets();
@@ -83,19 +86,13 @@ export default function Rewards() {
 			OreProtocolABI.abi,
 			signer
 		);
-		// console.log(1111)
-		// 调用 getUserRewards
 		const rewards = await contract.getUserRewards(address);
-		// console.log('原始奖励数据:', rewards);
-		// const miner = await contract.getMinerRoundInfo(45, address);
-		// console.log('矿工数据:', miner);
 		const rewardsData = {
-			ethAmount: ethers.formatEther(BigInt(rewards.ethAmount || 0)),
-			oriDirect: ethers.formatUnits(BigInt(rewards.oriDirect || 0)),
-			oriRefined: ethers.formatUnits(BigInt(rewards.oriRefined || 0))
+			ethAmount: BigNumber(ethers.formatEther(BigInt(rewards.ethAmount || 0))).dp(6).toString(),
+			oriDirect: BigNumber(ethers.formatUnits(BigInt(rewards.oriDirect || 0))).dp(6).toString(),
+			oriRefined: BigNumber(ethers.formatUnits(BigInt(rewards.oriRefined || 0))).dp(6).toString()
 		};
 
-		console.log('用户奖励:', rewardsData);
 		return rewardsData;
 	};
 
@@ -120,13 +117,140 @@ export default function Rewards() {
 
 	// 确认领取奖励
 	const handleConfirmClaim = async () => {
+		let loadingToastId: any = null;
+
 		try {
 			setIsClaimLoading(true);
-			// 这里可以添加 claim 逻辑
-			toast.success('领取功能待实现');
+
+			if (!wallet || !isConnected || !address || !CONTRACT_CONFIG.ORE_CONTRACT) {
+				customToast({
+					title: '钱包未连接',
+					description: '请先连接您的钱包',
+					type: 'error'
+				});
+				return;
+			}
+
+			// 显示 loading toast
+			loadingToastId = customToastPersistent({
+				title: 'Waiting for signature...',
+				type: 'loading'
+			});
+
+			const ethereumProvider = await wallet.getEthereumProvider();
+			const provider = new ethers.BrowserProvider(ethereumProvider);
+			const signer = await provider.getSigner();
+
+			const contract = new ethers.Contract(
+				CONTRACT_CONFIG.ORE_CONTRACT,
+				OreProtocolABI.abi,
+				signer
+			);
+
+			// 调用 claimAll 方法，传入当前用户地址作为接收地址
+			const tx = await contract.claimAll(address);
+
+
+
+			// 同步等待交易确认
+			const receipt = await tx.wait();
+			console.log('领取成功:', receipt);
+			// 关闭 loading toast
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+			// 立即刷新用户奖励数据
+			queryClient.invalidateQueries({ queryKey: ['userRewards', address] });
+
+			customToast({
+				title: '奖励领取成功！',
+				type: 'success'
+			});
+
 		} catch (error) {
 			console.error('领取失败:', error);
-			toast.error(`领取失败: ${error}`);
+
+			// 关闭 loading toast (如果已创建)
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: '领取失败',
+				description: `错误详情: ${error}`,
+				type: 'error'
+			});
+		} finally {
+			setIsClaimLoading(false);
+		}
+	};
+
+	// 仅领取 BNB 奖励
+	const handleClaimEthOnly = async () => {
+		let loadingToastId: any = null;
+
+		try {
+			setIsClaimLoading(true);
+
+			if (!wallet || !isConnected || !address || !CONTRACT_CONFIG.ORE_CONTRACT) {
+				customToast({
+					title: '钱包未连接',
+					description: '请先连接您的钱包',
+					type: 'error'
+				});
+				return;
+			}
+
+			// 显示 loading toast
+			loadingToastId = customToastPersistent({
+				title: 'Waiting for signature...',
+				type: 'loading'
+			});
+
+			const ethereumProvider = await wallet.getEthereumProvider();
+			const provider = new ethers.BrowserProvider(ethereumProvider);
+			const signer = await provider.getSigner();
+
+			const contract = new ethers.Contract(
+				CONTRACT_CONFIG.ORE_CONTRACT,
+				OreProtocolABI.abi,
+				signer
+			);
+
+			// 调用 claimEth 方法，传入当前用户地址作为接收地址
+			const tx = await contract.claimEth(address);
+
+
+
+
+			// 同步等待交易确认
+			const receipt = await tx.wait();
+			console.log('BNB领取成功:', receipt);
+			// 关闭 loading toast
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+			// 立即刷新用户奖励数据
+			queryClient.invalidateQueries({ queryKey: ['userRewards', address] });
+
+			customToast({
+				title: 'BNB奖励领取成功！',
+				type: 'success'
+			});
+
+		} catch (error) {
+			console.error('BNB领取失败:', error);
+
+			// 关闭 loading toast (如果已创建)
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: 'BNB领取失败',
+				description: `错误详情: ${error}`,
+				type: 'error'
+			});
 		} finally {
 			setIsClaimLoading(false);
 		}
@@ -187,7 +311,15 @@ export default function Rewards() {
 				>
 					Claim
 				</Button>
-				<div className="text-[14px] text-[#868789] text-center mt-[16px] cursor-pointer">Claim only BNB</div>
+				<div
+					className={`text-[14px] text-center mt-[16px] transition-colors ${isClaimLoading
+						? 'text-[#4a4a4a] cursor-not-allowed'
+						: 'text-[#868789] cursor-pointer hover:text-[#fff]'
+						}`}
+					onClick={isClaimLoading ? undefined : handleClaimEthOnly}
+				>
+					Claim only BNB
+				</div>
 			</div>
 
 			{/* Claim Rewards 确认弹窗 */}

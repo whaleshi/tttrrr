@@ -5,6 +5,6 @@ export const getRoundInfo = (params) => post(getApiBaseUrl() + "/ori/round", par
 
 export const getEventInfo = (params) => post(getApiBaseUrl() + "/ori/latest/events", params);
 
-
+export const getRoundWinInfo = (params) => post(getApiBaseUrl() + "/ori/round_winners/round", params);
 
 

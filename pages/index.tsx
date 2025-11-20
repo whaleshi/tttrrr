@@ -177,10 +177,21 @@ export default function IndexPage() {
 			const result = await getEventInfo();
 			const data = result?.data;
 
+
+			// if (data) { setRoundId(roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id); console.log('设置roundId为:', roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id); }
+
 			// 在接口请求里计算是否游戏中并设置状态
 			if (data) {
-				setRoundId(roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id);
-				console.log('设置roundId为:', roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id);
+				// 如果 round_id 和 reset_event_round_id 一样，取 reset_event_round_id；不一样取最大的
+				let targetRoundId;
+				if (data?.round_id === data?.reset_event_round_id) {
+					targetRoundId = data?.reset_event_round_id + 1;
+				} else {
+					targetRoundId = Math.max(data?.round_id || 0, data?.reset_event_round_id || 0);
+				}
+
+				setRoundId(targetRoundId);
+				console.log('round_id:', data?.round_id, 'reset_event_round_id:', data?.reset_event_round_id, '最终设置roundId为:', targetRoundId);
 			}
 
 			return data;
@@ -210,6 +221,7 @@ export default function IndexPage() {
 
 			// 处理开奖逻辑
 			if (parsedData?.winning_square !== undefined) {
+				queryClient.invalidateQueries({ queryKey: ['roundWinInfo'] });
 				const winningSquare = Number(parsedData.winning_square);
 				console.log('实时开奖事件 - 中奖格子:', winningSquare);
 
@@ -321,7 +333,7 @@ export default function IndexPage() {
 								<Rewards />
 							</div>
 							<div className="mt-[24px]">
-								<Rank />
+								<Rank roundId={roundId as number} />
 							</div>
 						</div>
 					</div>
