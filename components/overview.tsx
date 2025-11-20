@@ -91,7 +91,7 @@ export default function Overview({ roundInfo, timestamp, shouldShowCountdown }: 
 					<BNBIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">
 						{roundInfoData?.global?.total_amount && Number(roundInfoData?.global?.total_amount) > 0
-							? (ethers.formatEther(roundInfoData?.global?.total_amount || "0"))
+							? (ethers.formatEther(BigInt(roundInfoData?.global?.total_amount || "0")))
 							: '0.00'
 						}
 					</div>
@@ -103,7 +103,7 @@ export default function Overview({ roundInfo, timestamp, shouldShowCountdown }: 
 					<BNBIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">
 						{roundInfoData?.user?.total_amount && Number(roundInfoData?.user?.total_amount) > 0
-							? (ethers.formatEther(roundInfoData?.user?.total_amount || "0"))
+							? (ethers.formatEther(BigInt(roundInfoData?.user?.total_amount || "0")))
 							: '0.00'
 						}
 					</div>
