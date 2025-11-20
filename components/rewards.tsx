@@ -95,7 +95,7 @@ export default function Rewards() {
 			oriRefined: ethers.formatUnits(rewards.oriRefined)
 		};
 
-		// console.log('用户奖励:', rewardsData);
+		console.log('用户奖励:', rewardsData);
 		return rewardsData;
 	};
 
@@ -106,7 +106,10 @@ export default function Rewards() {
 		refetchInterval: 10000, // 每 10 秒刷新一次
 		refetchIntervalInBackground: true, // 后台也继续刷新
 		retry: 2,
-		staleTime: 5000, // 5 秒内的数据被认为是新鲜的
+		staleTime: 0, // 数据立即过期
+		refetchOnMount: true, // 挂载时重新请求
+		refetchOnWindowFocus: true, // 窗口获得焦点时重新请求
+		refetchOnReconnect: true // 重新连接时重新请求
 	});
 
 	// 打开确认弹窗
@@ -130,10 +133,10 @@ export default function Rewards() {
 	};
 
 	// 检查是否所有奖励值都大于0
-	const hasRewards = rewardsData && 
-		parseFloat(rewardsData.ethAmount || '0') > 0 &&
-		parseFloat(rewardsData.oriDirect || '0') > 0 &&
-		parseFloat(rewardsData.oriRefined || '0') > 0;
+	const hasRewards = rewardsData &&
+		parseFloat(rewardsData?.ethAmount || '0') > 0 ||
+		parseFloat(rewardsData?.oriDirect || '0') > 0 ||
+		parseFloat(rewardsData?.oriRefined || '0') > 0;
 
 	// 如果没有奖励或正在加载，返回空
 	if (isLoading || !hasRewards) {
