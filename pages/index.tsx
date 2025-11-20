@@ -196,7 +196,6 @@ export default function IndexPage() {
 
 			return data;
 		},
-		enabled: roundInfo?.gameState !== undefined && roundInfo?.gameState !== null,
 		refetchInterval: 3000,
 		staleTime: 0, // 数据立即过期
 		refetchOnMount: true, // 挂载时重新请求

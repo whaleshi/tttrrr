@@ -147,8 +147,17 @@ export default function Rewards() {
 				signer
 			);
 
+			// 估算 gas
+			const estimatedGas = await contract.claimAll.estimateGas(address);
+			
+			// 增加 20% 的 gas buffer
+			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
+			
+			console.log('claimAll 估算 gas:', estimatedGas.toString());
+			console.log('claimAll 设置 gas limit:', gasLimit.toString());
+
 			// 调用 claimAll 方法，传入当前用户地址作为接收地址
-			const tx = await contract.claimAll(address);
+			const tx = await contract.claimAll(address, { gasLimit: gasLimit });
 
 
 
@@ -217,8 +226,17 @@ export default function Rewards() {
 				signer
 			);
 
+			// 估算 gas
+			const estimatedGas = await contract.claimEth.estimateGas(address);
+			
+			// 增加 20% 的 gas buffer
+			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
+			
+			console.log('claimEth 估算 gas:', estimatedGas.toString());
+			console.log('claimEth 设置 gas limit:', gasLimit.toString());
+
 			// 调用 claimEth 方法，传入当前用户地址作为接收地址
-			const tx = await contract.claimEth(address);
+			const tx = await contract.claimEth(address, { gasLimit: gasLimit });
 
 
 
