@@ -23,13 +23,12 @@ interface TradeProps {
 	inputAmount?: string;
 	setInputAmount?: (amount: string) => void;
 	onDeploy?: (amount: string) => void;
-	info?: any;
 	tokenBalance?: any;
 	initialTab?: string;
 	roundId?: number | null;
 }
 
-export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, info, tokenBalance, initialTab = 'manual', roundId }: TradeProps) => {
+export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, tokenBalance, initialTab = 'manual', roundId }: TradeProps) => {
 	const [isBuy, setIsBuy] = useState(initialTab === 'manual');
 	const [selectedTab, setSelectedTab] = useState(initialTab);
 	const [isSlippageOpen, setIsSlippageOpen] = useState(false);
@@ -244,7 +243,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 	};
 
 	// 注册自动化投注的函数
-	const registerAutomation = async (selectedSquares: number[], amountPerSquare: string, rounds: string) => {
+	const registerAutomation = async (selectedSquares: number[], amountPerSquare: string, rounds: string, blockCount?: string) => {
 		if (!signer || !provider) {
 			customToast({
 				title: '钱包未连接',
@@ -261,37 +260,47 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			signer
 		);
 
-		// 计算 mask
+		// 计算 mask 和 randomizeMask
 		let mask = 0;
-		selectedSquares.forEach(index => {
-			mask |= (1 << index);
-		});
+		let randomizeMask = false;
+
+		if (selectedSquares.length > 0) {
+			// 有选中的格子，计算具体的mask
+			selectedSquares.forEach(index => {
+				mask |= (1 << index);
+			});
+			randomizeMask = false;
+		} else if (blockCount && parseInt(blockCount) > 0) {
+			// 没有选中格子但有blockAmount，mask传数量，设置随机模式
+			mask = parseInt(blockCount);
+			randomizeMask = true;
+		}
 
 		const amountPerSquareWei = ethers.parseEther(amountPerSquare);
+
+		let loadingToastId: any = null;
 
 		try {
 			// 获取检查点费用
 			const config = await oreProtocolContract.config();
 			const checkpointFee = config.checkpointFee || 0;
 
-			// Bot executor
-			const botAddress = "0x05375917dd12783156b1e29923b58fb6cae90513";
-
 			const automation = {
 				owner: address,
-				executor: botAddress,
 				balance: 0, // 会自动加上 msg.value
 				mask: mask,
 				amountPerSquare: amountPerSquareWei,
 				feePerCall: ethers.parseEther("0.001"), // 给 Bot 的费用
-				randomizeMask: false,
+				randomizeMask: randomizeMask,
 				active: true
 			};
 
 			// 预存轮次费用
 			const roundsToFund = parseInt(rounds);
+			// 计算实际的格子数量
+			const actualSquareCount = selectedSquares.length > 0 ? selectedSquares.length : (blockCount ? parseInt(blockCount) : 0);
 			const costPerRound =
-				automation.amountPerSquare * BigInt(selectedSquares.length) + // 总投注
+				automation.amountPerSquare * BigInt(actualSquareCount) + // 总投注
 				BigInt(checkpointFee) +                     // checkpoint 费用
 				automation.feePerCall;              // Bot 费用
 			const totalFunding = costPerRound * BigInt(roundsToFund);
@@ -310,8 +319,8 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			setIsLoading(true);
 
 			// 显示开始注册的loading提示
-			const loadingToastId = customToastPersistent({
-				title: '正在注册自动化...',
+			loadingToastId = customToastPersistent({
+				title: 'Waiting for signature...',
 				type: 'loading'
 			});
 
@@ -350,6 +359,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			});
 
 			tx.wait().then((receipt: any) => {
+				queryClient.invalidateQueries({ queryKey: ['automation'] });
 				console.log(receipt);
 			}).catch((error: any) => {
 				console.error(error);
@@ -359,9 +369,9 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			console.error('注册自动化失败:', error);
 
 			// 关闭 loading toast (如果已创建)
-			// if (loadingToastId) {
-			// 	dismissToast(loadingToastId);
-			// }
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
 
 			customToast({
 				title: '注册失败',
@@ -373,7 +383,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 		}
 	};
 
-	const handleClick = async (tokenAddress: string, amount: string) => {
+	const handleClick = async (amount: string) => {
 		// 验证输入
 		// const validationError = validateInput();
 		// if (validationError) {
@@ -421,7 +431,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			await deploySquares(selectedCells, amount);
 		} else if (selectedTab === 'auto') {
 			// 自动模式：注册自动化投注
-			await registerAutomation(selectedCells, amount, roundAmount || '1');
+			await registerAutomation(selectedCells, amount, roundAmount || '1', blockAmount);
 		}
 		// onDeploy?.(amount);
 	};
@@ -590,7 +600,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 				<Button
 					fullWidth
 					className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
-					onPress={() => { handleClick(info?.mint, inputAmount) }}
+					onPress={() => { handleClick(inputAmount) }}
 					isLoading={isLoading}
 					isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0}
 				>

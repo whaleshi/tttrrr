@@ -6,11 +6,12 @@ import { ethers } from "ethers";
 
 interface OverviewProps {
 	roundInfo: any;
+	roundId?: number;
 	timestamp?: any;
 	shouldShowCountdown?: boolean;
 }
 
-export default function Overview({ roundInfo, timestamp, shouldShowCountdown }: OverviewProps) {
+export default function Overview({ roundInfo, roundId, timestamp, shouldShowCountdown }: OverviewProps) {
 	const [realTimeCountdown, setRealTimeCountdown] = useState(0);
 	const queryClient = useQueryClient();
 	const { address } = useAuthStore();
@@ -63,7 +64,7 @@ export default function Overview({ roundInfo, timestamp, shouldShowCountdown }: 
 	};
 
 	const { data: roundInfoData } = useQuery<any>({
-		queryKey: ['roundInfo', roundInfo?.currentRoundId, address],
+		queryKey: ['roundInfo', roundId, address],
 		queryFn: () => null,
 		enabled: false
 	});

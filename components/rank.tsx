@@ -30,7 +30,6 @@ export default function Rank({ roundId }: RankProps) {
 		refetchOnWindowFocus: true, // 窗口获得焦点时重新请求
 		refetchOnReconnect: true // 重新连接时重新请求
 	});
-	console.log('轮次获胜信息:', roundWinData?.list);
 
 	// 如果没有获胜者数据或列表为空，不显示组件
 	if (!roundWinData?.list || roundWinData.list.length === 0) {

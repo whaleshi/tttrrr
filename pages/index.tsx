@@ -7,6 +7,7 @@ import { siteConfig } from "@/config/site";
 import Matrix from "@/components/matrix";
 import Overview from "@/components/overview";
 import { Trade } from "@/components/trade";
+import { Auto } from "@/components/auto";
 import Rank from "@/components/rank";
 import Rewards from "@/components/rewards";
 import { ethers } from "ethers";
@@ -18,7 +19,7 @@ import { CONTRACT_CONFIG, MULTICALL3_ADDRESS, MULTICALL3_ABI } from "@/config/ch
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useReadContracts } from 'wagmi';
 import { useEchoChannel } from "@/hooks/useEchoChannel";
-import { getEventInfo } from "@/service/api";
+import { getEventInfo, getAutomation } from "@/service/api";
 
 export default function IndexPage() {
 	const router = useRouter();
@@ -146,31 +147,6 @@ export default function IndexPage() {
 		}
 	}, [roundInfo, roundInfoError]);
 
-	// 获取矿工方格信息 - 当有 currentRoundId 和用户地址时调用
-	// const { data: minerSquares } = useReadContracts({
-	// 	contracts: roundInfo?.currentRoundId && address ? [{
-	// 		address: CONTRACT_CONFIG.READ_ORE_CONTRACT as `0x${string}`,
-	// 		abi: ReadOreProtocolABI.abi,
-	// 		functionName: 'getMinerSquares',
-	// 		args: [roundInfo.currentRoundId, address],
-	// 	}] : [],
-	// 	query: {
-	// 		enabled: !!roundInfo?.currentRoundId && !!address,
-	// 		refetchInterval: 1000,
-	// 		refetchIntervalInBackground: true,
-	// 		select: (data) => {
-	// 			if (!data || data.length === 0) return null;
-	// 			const result = data[0];
-	// 			if (result.status === 'success' && result.result) {
-	// 				console.log('getMinerSquares:', result.result);
-	// 				return result.result;
-	// 			}
-	// 			return null;
-	// 		}
-	// 	}
-	// });
-	// console.log(minerSquares)
-	// 获取事件信息 - 有 gameState 后每3秒请求一次
 	const { data: eventInfoData } = useQuery({
 		queryKey: ['eventInfo', roundInfo?.gameState],
 		queryFn: async () => {
@@ -203,6 +179,24 @@ export default function IndexPage() {
 		refetchOnReconnect: true // 重新连接时重新请求
 	});
 
+	// 获取自动化配置信息 - 每10秒刷新一次
+	const { data: automationData } = useQuery({
+		queryKey: ['automation', address],
+		queryFn: async () => {
+			const result = await getAutomation({
+				user: address
+			});
+			return result?.data;
+		},
+		enabled: !!address, // 只有地址存在时才执行
+		refetchInterval: 10000, // 每 10 秒刷新一次
+		refetchIntervalInBackground: true, // 后台也继续刷新
+		retry: 2,
+		staleTime: 0, // 数据立即过期
+		refetchOnMount: true, // 挂载时重新请求
+		refetchOnWindowFocus: true, // 窗口获得焦点时重新请求
+		refetchOnReconnect: true // 重新连接时重新请求
+	});
 
 
 	// 开奖事件处理函数
@@ -228,6 +222,10 @@ export default function IndexPage() {
 				console.log('🔄 开奖事件，重新获取eventInfo');
 				queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 
+				// 立即触发自动化配置重新获取
+				console.log('🔄 开奖事件，重新获取自动化配置');
+				queryClient.invalidateQueries({ queryKey: ['automation'] });
+
 
 				// 开始抽奖动画
 				setWinningCell(winningSquare);
@@ -248,6 +246,10 @@ export default function IndexPage() {
 						// 再次触发eventInfo重新获取，确保获取最新轮次信息
 						console.log('🔄 准备新轮次，重新获取eventInfo');
 						queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
+
+						// 再次触发自动化配置重新获取
+						console.log('🔄 准备新轮次，重新获取自动化配置');
+						queryClient.invalidateQueries({ queryKey: ['automation'] });
 					}, 5000);
 				}, 3600); // 24个格子 * 150ms
 			}
@@ -293,9 +295,18 @@ export default function IndexPage() {
 	return (
 		<DefaultLayout>
 			<div className="flex flex-col h-full bg-[#0D0F13]">
+				{/* 左下角调试信息悬浮块 */}
+				<div className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-[#EFC462] to-[#F4D03F] text-black rounded-xl p-4 shadow-2xl border-2 border-[#EFC462] animate-pulse">
+					<div className="flex flex-col gap-2">
+						<div className="font-bold text-sm">🎮 DEBUG INFO</div>
+						<div className="font-semibold">Game State: <span className="text-lg font-black">{roundInfo?.gameState ?? '⏳'}</span></div>
+						<div className="font-semibold">Round ID: <span className="text-lg font-black">{roundInfo?.currentRoundId ?? '⏳'}</span></div>
+					</div>
+				</div>
+
 				<section className="flex flex-col items-center justify-center gap-4 px-[14px]">
 					<div className="w-full max-w-[640px] lg:max-w-[1200px] flex flex-col lg:flex-row pt-[16px] lg:pt-[40px]">
-						<div className="block lg:hidden"><Overview roundInfo={roundInfo} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
+						<div className="block lg:hidden"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
 						<div className="lg:w-[calc(632/1200*100%)] mt-[24px] lg:mt-0">
 							<Matrix
 								selectedCells={selectedCells}
@@ -309,24 +320,27 @@ export default function IndexPage() {
 						</div>
 						<div className="w-0 lg:w-[calc(32/1200*100%)]"></div>
 						<div className="flex-1">
-							<div className="hidden lg:block"><Overview roundInfo={roundInfo} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
+							<div className="hidden lg:block"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
 							<div className="mt-[24px]">
-								<Trade
-									selectedCells={selectedCells}
-									inputAmount={inputAmount}
-									setInputAmount={setInputAmount}
-									roundId={roundId}
-									onDeploy={(amount) => {
-										// 给每个选中的格子都加上输入的金额
-										const inputAmount = parseFloat(amount);
-										const newAmounts = { ...cellAmounts };
-										selectedCells.forEach(cellIndex => {
-											newAmounts[cellIndex] = (newAmounts[cellIndex] || 0) + inputAmount;
-										});
-										setCellAmounts(newAmounts);
-										setInputAmount(''); // 清空输入
-									}}
-								/>
+								{
+									automationData?.id ? <Auto /> : <Trade
+										selectedCells={selectedCells}
+										inputAmount={inputAmount}
+										setInputAmount={setInputAmount}
+										roundId={roundId}
+										onDeploy={(amount) => {
+											// 给每个选中的格子都加上输入的金额
+											const inputAmount = parseFloat(amount);
+											const newAmounts = { ...cellAmounts };
+											selectedCells.forEach(cellIndex => {
+												newAmounts[cellIndex] = (newAmounts[cellIndex] || 0) + inputAmount;
+											});
+											setCellAmounts(newAmounts);
+											setInputAmount(''); // 清空输入
+										}}
+									/>
+								}
+
 							</div>
 							<div className="mt-[24px]">
 								<Rewards />
