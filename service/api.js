@@ -9,4 +9,6 @@ export const getRoundWinInfo = (params) => post(getApiBaseUrl() + "/ori/round_wi
 
 export const getAutomation = (params) => post(getApiBaseUrl() + "/ori/automation/user", params);
 
-export const getExploreInfo = (params) => _post(getApiBaseUrl() + "/ori/explore", params);
+export const getExploreInfo = (params) => post(getApiBaseUrl() + "/ori/explore", params);
+
+export const resetEventList = (params) => post(getApiBaseUrl() + "/ori/reset_event/list", params);
