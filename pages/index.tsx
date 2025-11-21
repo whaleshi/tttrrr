@@ -345,7 +345,7 @@ export default function IndexPage() {
 							<div className="mt-[24px]">
 								<Rewards />
 							</div>
-							<div className="mt-[24px]">
+							<div className="my-[24px]">
 								<Rank roundId={roundId as number} />
 							</div>
 						</div>

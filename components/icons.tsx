@@ -212,3 +212,17 @@ export const ToastLoadingIcon = (props: IconSvgProps) => (
 		<path d="M27 16C27 9.92487 22.0751 5 16 5" stroke="white" strokeWidth="2.5" />
 	</svg>
 )
+
+export const SelectIcon = (props: IconSvgProps) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
+		<rect x="2" y="2" width="12" height="12" rx="6" fill="#868789" />
+		<path d="M5.08466 7.71399L7.41778 10.0471L11.0471 6.41781" stroke="black" strokeWidth="1.5" />
+	</svg>
+)
+
+export const DeSelectIcon = (props: IconSvgProps) => (
+	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
+		<rect x="2" y="2" width="12" height="12" rx="6" fill="#868789" />
+		<path d="M4.5 8H11.5" stroke="black" strokeWidth="1.5" />
+	</svg>
+)

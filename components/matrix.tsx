@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PeopleIcon } from "./icons";
+import { PeopleIcon, SelectIcon, DeSelectIcon } from "./icons";
 import { useEchoChannel } from "@/hooks/useEchoChannel";
 import { getRoundInfo } from "@/service/api";
 import { useQuery } from "@tanstack/react-query";
@@ -173,7 +173,7 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 					</div>
 				))}
 			</div>
-			<div className="w-full mt-[16px] flex justify-start">
+			<div className="w-full mt-[16px] flex justify-center">
 				<button
 					onClick={() => {
 						// 如果已经全选，则取消全选；否则全选
@@ -183,25 +183,9 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 							setSelectedCells(Array.from({ length: 25 }, (_, i) => i));
 						}
 					}}
-					className="flex items-center gap-[8px] hover:brightness-150 transition-all cursor-pointer"
+					className="flex items-center gap-[8px] hover:brightness-150 transition-all cursor-pointer border-[1px] border-[#25262A] py-[8px] px-[16px] rounded-full"
 				>
-					{selectedCells.length === 25 ? (
-						// Deselect all icon (outline squares)
-						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-							<rect x="1" y="1" width="6" height="6" stroke="#868789" strokeWidth="1" fill="none" rx="1" />
-							<rect x="9" y="1" width="6" height="6" stroke="#868789" strokeWidth="1" fill="none" rx="1" />
-							<rect x="1" y="9" width="6" height="6" stroke="#868789" strokeWidth="1" fill="none" rx="1" />
-							<rect x="9" y="9" width="6" height="6" stroke="#868789" strokeWidth="1" fill="none" rx="1" />
-						</svg>
-					) : (
-						// Select all icon (filled squares)
-						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-							<rect x="1" y="1" width="6" height="6" fill="#868789" rx="1" />
-							<rect x="9" y="1" width="6" height="6" fill="#868789" rx="1" />
-							<rect x="1" y="9" width="6" height="6" fill="#868789" rx="1" />
-							<rect x="9" y="9" width="6" height="6" fill="#868789" rx="1" />
-						</svg>
-					)}
+					{selectedCells.length === 25 ? (<DeSelectIcon />) : (<SelectIcon />)}
 					<span className="text-[14px] text-[#868789]">
 						{selectedCells.length === 25 ? 'Deselect all' : 'Select all'}
 					</span>

@@ -69,7 +69,7 @@ export default function Footer() {
 
 	return (
 		<footer className="fixed bottom-0 left-0 right-0 bg-[#1A1C20] border-t border-[#25262A] z-50 lg:hidden">
-			<div className="flex items-center justify-around h-[52px]">
+			<div className="flex items-center justify-around h-[70px]">
 				{footerItems.map((item) => {
 					const isActive = router.pathname === item.path;
 					return (
@@ -90,7 +90,6 @@ export default function Footer() {
 					);
 				})}
 			</div>
-			<div className="h-[18px]"></div>
 		</footer>
 	);
 }
