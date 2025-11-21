@@ -63,129 +63,6 @@ export const Auto = ({ info }: AutoProps) => {
 		}
 	}, [wallet, isConnected]);
 
-	// 部署格子的函数
-	const deploySquares = async (selectedSquares: number[], amountPerSquare: string) => {
-		if (!signer || !provider) {
-			customToast({
-				title: '钱包未连接',
-				description: '请先连接您的钱包',
-				type: 'error'
-			});
-			return;
-		}
-		setIsLoading(true);
-		// 创建合约实例
-		const oreProtocolContract = new ethers.Contract(
-			CONTRACT_CONFIG.ORE_CONTRACT,
-			OreProtocolABI.abi,
-			signer
-		);
-
-		// 计算 mask
-		let mask = 0;
-		selectedSquares.forEach(index => {
-			mask |= (1 << index);
-		});
-
-		const amountPerSquareWei = ethers.parseEther(amountPerSquare);
-
-		// 计算总费用
-		const squareCount = selectedSquares.length;
-		const totalDeploy = amountPerSquareWei * BigInt(squareCount);
-
-		let loadingToastId: any = null;
-
-		try {
-			// 获取检查点费用
-			const config = await oreProtocolContract.config();
-			const checkpointFee = config.checkpointFee || 0;
-			console.log(checkpointFee, '---')
-			const totalRequired = totalDeploy + BigInt(checkpointFee);
-
-			// 检查余额是否足够
-			const totalRequiredFormatted = ethers.formatEther(totalRequired);
-			if (_bignumber(totalRequiredFormatted).gt(balance)) {
-				customToast({
-					title: '余额不足',
-					description: `需要 ${totalRequiredFormatted} BNB，当前余额 ${formatBigNumber(balance)} BNB`,
-					type: 'error'
-				});
-				setIsLoading(false);
-				return;
-			}
-
-
-
-			// 显示开始部署的loading提示
-			loadingToastId = customToastPersistent({
-				title: 'Waiting for signature...',
-				type: 'loading'
-			});
-
-			console.log('选择的格子:', selectedSquares);
-			console.log('Mask:', mask);
-			console.log('每格金额:', amountPerSquare, 'ETH');
-			console.log('总部署金额:', ethers.formatEther(totalDeploy), 'ETH');
-			console.log('检查点费用:', ethers.formatEther(checkpointFee), 'ETH');
-			console.log('总需要金额:', ethers.formatEther(totalRequired), 'ETH');
-
-			// 估算 gas
-			const estimatedGas = await oreProtocolContract.deployManual.estimateGas(
-				mask,
-				amountPerSquareWei,
-				{
-					value: totalRequired
-				}
-			);
-
-			// 增加 20% 的 gas buffer
-			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
-
-			console.log('估算 gas:', estimatedGas.toString());
-			console.log('设置 gas limit:', gasLimit.toString());
-
-			// 调用合约
-			const tx = await oreProtocolContract.deployManual(mask, amountPerSquareWei, {
-				value: totalRequired,
-				gasLimit: gasLimit
-			});
-
-			// 关闭 loading toast (如果已创建)
-			if (loadingToastId) {
-				dismissToast(loadingToastId);
-			}
-
-			customToast({
-				title: 'Transaction confirmed',
-				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
-				type: 'success'
-			});
-
-			tx.wait().then((receipt: any) => {
-				console.log(receipt);
-			}).catch((error: any) => {
-				console.error(error);
-			});
-
-
-
-		} catch (error) {
-			console.error('部署格子失败:', error);
-
-			// 关闭 loading toast (如果已创建)
-			if (loadingToastId) {
-				dismissToast(loadingToastId);
-			}
-
-			customToast({
-				title: '部署失败',
-				description: `错误详情: ${error}`,
-				type: 'error'
-			});
-		} finally {
-			setIsLoading(false);
-		}
-	};
 
 	// 停止自动化挖矿功能
 	const stopAutomation = async () => {
@@ -216,16 +93,16 @@ export const Auto = ({ info }: AutoProps) => {
 			});
 
 			// 估算gas
-			const estimatedGas = await oreProtocolContract.stopAutomation.estimateGas();
-			
+			const estimatedGas = await oreProtocolContract.stopAutomation.estimateGas(address);
+
 			// 增加20%的gas buffer
 			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
-			
+
 			console.log('stopAutomation 估算 gas:', estimatedGas.toString());
 			console.log('stopAutomation 设置 gas limit:', gasLimit.toString());
 
 			// 调用stopAutomation方法
-			const tx = await oreProtocolContract.stopAutomation({ gasLimit: gasLimit });
+			const tx = await oreProtocolContract.stopAutomation(address, { gasLimit: gasLimit });
 			await tx.wait();
 
 			// 关闭loading toast

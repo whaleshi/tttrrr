@@ -92,7 +92,7 @@ export const MiningTable = ({ title = "Mining", description = "Recent mining act
 									<div className="w-[70px] lg:flex-[0.8] shrink-0 text-[#fff] break-words text-right">{row?.num_winners}</div>
 									<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
 										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-										<span className="text-[#fff] truncate">{row?.total_ore_mined ? BigNumber(ethers.formatEther(BigInt(row.total_ore_mined))).dp(6).toString() : '0'}</span>
+										<span className="text-[#fff] truncate">{row?.total_deploy ? BigNumber(ethers.formatEther(BigInt(row.total_deploy))).dp(6).toString() : '0'}</span>
 									</div>
 									<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
 										<BNBIcon className="w-[14px] h-[14px] shrink-0" />

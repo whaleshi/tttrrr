@@ -12,3 +12,7 @@ export const getAutomation = (params) => post(getApiBaseUrl() + "/ori/automation
 export const getExploreInfo = (params) => post(getApiBaseUrl() + "/ori/explore", params);
 
 export const resetEventList = (params) => post(getApiBaseUrl() + "/ori/reset_event/list", params);
+
+export const getPointsList = (params) => post(getApiBaseUrl() + "/ori/points/list", params);
+
+export const getUserPoints = (params) => post(getApiBaseUrl() + "/ori/points/user", params);

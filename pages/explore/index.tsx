@@ -25,7 +25,7 @@ export default function ExplorePage() {
 				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">Earn a share of protocol revenue.</div>
 
 				{/* Stats Grid */}
-				<div className="w-full grid grid-cols-2 lg:grid-cols-4 gap-2 mb-[32px]">
+				<div className="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 mb-[32px]">
 					{/* Max Supply */}
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
@@ -59,6 +59,15 @@ export default function ExplorePage() {
 							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.protocol_rev_7d?.value) || 0).toLocaleString()}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">Protocol Rev(7d)</div>
+					</div>
+
+					{/* Unrefined BURY */}
+					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center col-span-2 lg:col-span-1">
+						<div className="flex items-center gap-[4px] font-semibold">
+							<LogoIcon className="w-[16px] h-[16px]" />
+							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.unrefined_bury?.value) || 2896320).toLocaleString()}</div>
+						</div>
+						<div className="text-[#868789] text-[12px]">Unrefined ORI</div>
 					</div>
 				</div>
 
