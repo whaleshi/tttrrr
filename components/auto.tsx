@@ -149,14 +149,14 @@ export const Auto = ({ info }: AutoProps) => {
 					<div className="flex items-center justify-between">
 						Blocks
 						<div className="w-[70%] text-right">
-							<span className="text-[#FFF]">x 0</span>
+							<span className="text-[#FFF]">x {info?.extend_data?.blocks}</span>
 						</div>
 					</div>
 					<div className="flex items-center justify-between mt-[8px]">
-						Round remaining<span className="text-[#FFF]">1</span>
+						Round remaining<span className="text-[#FFF]">{info?.extend_data?.round_remaining}</span>
 					</div>
 					<div className="flex items-center justify-between mt-[8px]">
-						Total per round<span className="text-[#FFF]">1 BNB</span>
+						Total per round<span className="text-[#FFF]">{info?.extend_data?.total_per_round ? BigNumber(ethers.formatEther(BigInt(info.extend_data.total_per_round))).dp(6).toString() : '0'} BNB</span>
 					</div>
 				</div>
 				<Button

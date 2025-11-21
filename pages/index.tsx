@@ -323,7 +323,7 @@ export default function IndexPage() {
 							<div className="hidden lg:block"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
 							<div className="mt-[24px]">
 								{
-									automationData?.id ? <Auto /> : <Trade
+									automationData?.id ? <Auto info={automationData} /> : <Trade
 										selectedCells={selectedCells}
 										inputAmount={inputAmount}
 										setInputAmount={setInputAmount}
