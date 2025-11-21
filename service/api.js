@@ -8,3 +8,5 @@ export const getEventInfo = (params) => post(getApiBaseUrl() + "/ori/latest/even
 export const getRoundWinInfo = (params) => post(getApiBaseUrl() + "/ori/round_winners/round", params);
 
 export const getAutomation = (params) => post(getApiBaseUrl() + "/ori/automation/user", params);
+
+export const getExploreInfo = (params) => _post(getApiBaseUrl() + "/ori/explore", params);

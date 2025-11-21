@@ -75,14 +75,14 @@ export default function Overview({ roundInfo, roundId, timestamp, shouldShowCoun
 					<LogoIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">{roundInfo?.treasuryOre || '0'}</div>
 				</div>
-				<div className="text-[#868789] text-[12px]">Motherlode{roundInfo?.currentRoundId}</div>
+				<div className="text-[#868789] text-[12px]">Motherlode</div>
 			</div>
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 				<div className="flex items-center gap-[4px] font-semibold">
 					<div className="text-[16px]">{formatCountdown(realTimeCountdown)}</div>
 				</div>
 				<div className="text-[#868789] text-[12px]">
-					{shouldShowCountdown ? 'Time remaining' : 'Waiting...'}{roundInfo?.gameState}
+					{shouldShowCountdown ? 'Time remaining' : 'Waiting...'}
 				</div>
 			</div>
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">

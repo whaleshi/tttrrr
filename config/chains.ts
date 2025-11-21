@@ -15,8 +15,8 @@ export const CHAINS_CONFIG = {
             explorerUrl: "https://testnet.bscscan.com",
             rpcUrl: "https://delicate-old-breeze.bsc-testnet.quiknode.pro/4e8edc72f64856f8e8fa3377a81c9f3a1f6b5dee/",
             // rpcUrl: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
-            readOreContract: "0x08280ae8d23016f907ECAdAC9CB154b232dE2Ff2",
-            oreContract: "0x8Ba8B7d54a6be64c43aA4D335C868Def77073504",
+            readOreContract: "0x1935Cc4386a86DD326F1F6281Aa82d4673C0b5B2",
+            oreContract: "0xbE285D7880A27e66A070FE3312b4595B46E7c3DB",
             ori: "0x6b7ffbbe555f1fa201f14df9dfbd62850e2d654c",
         },
         [56]: {

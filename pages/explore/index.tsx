@@ -1,5 +1,7 @@
 import { LogoIcon, BNBIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
+import { useQuery } from '@tanstack/react-query';
+import { getExploreInfo } from '@/service/api';
 
 export default function ExplorePage() {
 	const miningData = [
@@ -14,6 +16,18 @@ export default function ExplorePage() {
 		{ round: "#35,683", block: "#12", buryWinner: "0xAB...CDEF", winners: "688", deployed: "24,520,466", vaulted: "60,466", winnings: "260,466", motherlode: "-", time: "1 min ago" },
 		{ round: "#35,683", block: "#12", buryWinner: "0xAB...CDEF", winners: "688", deployed: "24,520,466", vaulted: "60,466", winnings: "260,466", motherlode: "-", time: "1 min ago" },
 	];
+
+
+	const { data: ExploreInfoData } = useQuery({
+		queryKey: ['exploreInfo'],
+		queryFn: async () => {
+			const result = await getExploreInfo({});
+			return result?.data;
+		},
+		refetchInterval: 3000, // 1秒一次
+	});
+
+
 
 	return (
 		<DefaultLayout>

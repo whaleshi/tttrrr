@@ -187,6 +187,78 @@ export const Auto = ({ info }: AutoProps) => {
 		}
 	};
 
+	// 停止自动化挖矿功能
+	const stopAutomation = async () => {
+		if (!signer || !provider) {
+			customToast({
+				title: '钱包未连接',
+				description: '请先连接您的钱包',
+				type: 'error'
+			});
+			return;
+		}
+
+		setIsLoading(true);
+		let loadingToastId: any = null;
+
+		try {
+			// 创建合约实例
+			const oreProtocolContract = new ethers.Contract(
+				CONTRACT_CONFIG.ORE_CONTRACT,
+				OreProtocolABI.abi,
+				signer
+			);
+
+			// 显示loading提示
+			loadingToastId = customToastPersistent({
+				title: 'Stopping automation...',
+				type: 'loading'
+			});
+
+			// 估算gas
+			const estimatedGas = await oreProtocolContract.stopAutomation.estimateGas();
+			
+			// 增加20%的gas buffer
+			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
+			
+			console.log('stopAutomation 估算 gas:', estimatedGas.toString());
+			console.log('stopAutomation 设置 gas limit:', gasLimit.toString());
+
+			// 调用stopAutomation方法
+			const tx = await oreProtocolContract.stopAutomation({ gasLimit: gasLimit });
+			await tx.wait();
+
+			// 关闭loading toast
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: '自动化已停止！',
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				type: 'success'
+			});
+
+			// 立即刷新自动化配置数据
+			queryClient.invalidateQueries({ queryKey: ['automation'] });
+
+		} catch (error) {
+			console.error('停止自动化失败:', error);
+
+			// 关闭loading toast
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: '停止失败',
+				description: `错误详情: ${error}`,
+				type: 'error'
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
 	return (
 		<div className="w-full bg-[#191B1F] rounded-[8px] p-[12px]">
@@ -213,7 +285,7 @@ export const Auto = ({ info }: AutoProps) => {
 				<Button
 					fullWidth
 					className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
-					onPress={() => { }}
+					onPress={stopAutomation}
 					isLoading={isLoading}
 					isDisabled={isLoading}
 				>
