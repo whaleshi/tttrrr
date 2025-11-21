@@ -152,10 +152,11 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 		try {
 			// 获取检查点费用
-			const config = await oreProtocolContract.config();
-			const checkpointFee = config.checkpointFee || 0;
-			console.log(checkpointFee, '---')
-			const totalRequired = totalDeploy + BigInt(checkpointFee);
+			// const config = await oreProtocolContract.config();
+			// const checkpointFee = config.checkpointFee || 0;
+			// console.log(checkpointFee, '---')
+			const totalRequired = totalDeploy;
+			// + BigInt(checkpointFee);
 
 			// 检查余额是否足够
 			const totalRequiredFormatted = ethers.formatEther(totalRequired);
@@ -181,7 +182,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			console.log('Mask:', mask);
 			console.log('每格金额:', amountPerSquare, 'ETH');
 			console.log('总部署金额:', ethers.formatEther(totalDeploy), 'ETH');
-			console.log('检查点费用:', ethers.formatEther(checkpointFee), 'ETH');
+			// console.log('检查点费用:', ethers.formatEther(checkpointFee), 'ETH');
 			console.log('总需要金额:', ethers.formatEther(totalRequired), 'ETH');
 
 			// 估算 gas
@@ -290,7 +291,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 				balance: 0, // 会自动加上 msg.value
 				mask: mask,
 				amountPerSquare: amountPerSquareWei,
-				feePerCall: ethers.parseEther("0.001"), // 给 Bot 的费用
+				// feePerCall: ethers.parseEther("0.001"), // 给 Bot 的费用
 				randomizeMask: randomizeMask,
 				active: true
 			};
@@ -299,10 +300,10 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			const roundsToFund = parseInt(rounds);
 			// 计算实际的格子数量
 			const actualSquareCount = selectedSquares.length > 0 ? selectedSquares.length : (blockCount ? parseInt(blockCount) : 0);
-			const costPerRound =
-				automation.amountPerSquare * BigInt(actualSquareCount) + // 总投注
-				BigInt(checkpointFee) +                     // checkpoint 费用
-				automation.feePerCall;              // Bot 费用
+			const costPerRound = automation.amountPerSquare * BigInt(actualSquareCount);
+			// + // 总投注
+			// BigInt(checkpointFee) +                     // checkpoint 费用
+			// automation.feePerCall;              // Bot 费用
 			const totalFunding = costPerRound * BigInt(roundsToFund);
 
 			// 检查余额是否足够

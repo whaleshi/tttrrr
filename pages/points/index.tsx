@@ -5,6 +5,7 @@ import { getPointsList, getUserPoints } from '@/service/api';
 import { useState } from 'react';
 import _bignumber from 'bignumber.js';
 import { useAuthStore } from '@/stores/auth';
+import { ethers } from 'ethers';
 const BigNumber = _bignumber;
 
 export default function PointsPage() {
@@ -81,10 +82,11 @@ export default function PointsPage() {
 						) : pointsListData?.list?.length > 0 ? (
 							pointsListData.list.map((record: any, index: any) => (
 								<div key={index} className="grid grid-cols-4 gap-[12px] h-[38px] items-center">
+									{/* BigNumber(ethers.formatEther(BigInt(record?.bet_amount))).dp(4).toString() */}
 									<div className="text-[14px] text-[#fff]">{record?.timestamp ? new Date(record.timestamp * 1000).toLocaleDateString() : '-'}</div>
-									<div className="text-[14px] text-[#fff]">{record?.stake_amount ? BigNumber(record.stake_amount).dp(4).toString() + ' ORE' : '-'}</div>
+									<div className="text-[14px] text-[#fff]">{record?.bet_amount ? 1 + ' BNB' : '-'}</div>
 									<div className="text-[14px] text-[#fff]">{record?.usd_value ? '$' + BigNumber(record.usd_value).dp(2).toString() : '-'}</div>
-									<div className="text-[14px] text-[#fff] text-right">{record?.points_earned ? BigNumber(record.points_earned).dp(2).toString() : '0.00'}</div>
+									<div className="text-[14px] text-[#fff] text-right">{record?.points_reward ? BigNumber(record.points_reward).dp(2).toString() : '0.00'}</div>
 								</div>
 							))
 						) : (

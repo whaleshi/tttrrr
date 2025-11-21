@@ -6,6 +6,7 @@ import _bignumber from 'bignumber.js';
 import { MiningTable } from '@/components/miningTable';
 import { MotherlodesTable } from '@/components/motherlodesTable';
 import { BuybacksTable } from '@/components/buybacksTable';
+import { ethers } from 'ethers';
 const BigNumber = _bignumber;
 
 export default function ExplorePage() {
@@ -47,7 +48,10 @@ export default function ExplorePage() {
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
 							<BNBIcon className="w-[16px] h-[16px]" />
-							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.buried_7d?.value) || 0).toLocaleString()}</div>
+							<div className="text-[16px] text-[#fff]">{exploreInfoData?.buried_7d?.value ? (() => {
+								const formatted = BigNumber(ethers.formatEther(BigInt(exploreInfoData.buried_7d.value))).dp(6);
+								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
+							})() : '0'}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">Buried (7d)</div>
 					</div>
@@ -56,7 +60,10 @@ export default function ExplorePage() {
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
 							<BNBIcon className="w-[16px] h-[16px]" />
-							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.protocol_rev_7d?.value) || 0).toLocaleString()}</div>
+							<div className="text-[16px] text-[#fff]">{exploreInfoData?.protocol_rev_7d?.value ? (() => {
+								const formatted = BigNumber(ethers.formatEther(BigInt(exploreInfoData.protocol_rev_7d.value))).dp(6);
+								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
+							})() : '0'}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">Protocol Rev(7d)</div>
 					</div>
