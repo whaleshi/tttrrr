@@ -9,7 +9,7 @@ export default function PrivyProviders({ children }: { children: React.ReactNode
 			appId={privyId as string}
 			config={{
 				"appearance": {
-					accentColor: "#FFE900",
+					accentColor: "#EFC462",
 					theme: "light",
 					"showWalletLoginFirst": true,
 					logo: "https://newgame.mypinata.cloud/ipfs/bafkreidox34egiq2qwaartr3txvverebhrckhhu7s4yxmmtrlvp5z2hdvy",

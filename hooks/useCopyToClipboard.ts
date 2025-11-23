@@ -1,9 +1,12 @@
 "use client";
 
+import { customToast } from "@/components/customToast";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 export default function useClipboard(timeout = 1500) {
+    const { t } = useTranslation();
     const [isCopied, setIsCopied] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const timerRef = useRef<number | null>(null);
@@ -38,14 +41,20 @@ export default function useClipboard(timeout = 1500) {
                     if (!successful) throw new Error("Copy command failed");
                 }
                 setIsCopied(true);
-                toast.success("复制成功");
+                customToast({
+                    title: t("Common.copySuccess"),
+                    type: "success",
+                });
                 clearTimer();
                 timerRef.current = window.setTimeout(() => setIsCopied(false), timeout);
                 return true;
             } catch (e: any) {
                 setError(e?.message || "Copy failed");
                 setIsCopied(false);
-                toast.error("复制失败");
+                customToast({
+                    title: t("Common.copyFailed"),
+                    type: "error",
+                });
                 return false;
             }
         },

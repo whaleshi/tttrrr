@@ -4,6 +4,7 @@ import { resetEventList } from '@/service/api';
 import { ethers } from 'ethers';
 import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
+import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
 
 interface BuybacksTableProps {
@@ -12,6 +13,7 @@ interface BuybacksTableProps {
 }
 
 export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybacks transactions" }: BuybacksTableProps) => {
+	const { t } = useTranslation();
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 10;
 	const queryClient = useQueryClient();
@@ -55,18 +57,18 @@ export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybac
 
 	return (
 		<div className="w-full">
-			<div className="text-[28px] font-bold text-[#fff] mb-[8px]">{title}</div>
-			<div className="text-[14px] text-[#868789] mb-[16px]">{description}</div>
+			<div className="text-[28px] font-bold text-[#fff] mb-[8px]">{t('Explore.buybacks')}</div>
+			<div className="text-[14px] text-[#868789] mb-[16px]">{t('Explore.buybacksTransactions')}</div>
 
 			{/* Horizontal Scrollable Table */}
 			<div className="w-full overflow-x-auto lg:overflow-x-visible">
 				<div className="min-w-[500px] lg:min-w-full">
 					{/* Table Header */}
 					<div className="flex border-b border-dashed border-[#25262A] h-[38px] items-center text-[12px] text-[#868789] px-[12px]">
-						<div className="flex-1 text-left">Time</div>
-						<div className="flex-1 text-right">BNB Spent</div>
-						<div className="flex-1 text-right">ORI Buried</div>
-						<div className="flex-1 text-right">Staking yield</div>
+						<div className="flex-1 text-left">{t('Explore.time')}</div>
+						<div className="flex-1 text-right">{t('Explore.bnbSpent')}</div>
+						<div className="flex-1 text-right">{t('Explore.oriBuried')}</div>
+						<div className="flex-1 text-right">{t('Explore.stakingYield')}</div>
 					</div>
 
 					{/* Table Rows */}
@@ -96,7 +98,7 @@ export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybac
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
 									<img src="/images/nothing.png" alt="No data" className="w-[80px] h-[80px] opacity-50" />
-									<span>No data available</span>
+									<span>{t('Explore.noRecordsFound')}</span>
 								</div>
 							</div>
 						)}

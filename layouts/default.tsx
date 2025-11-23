@@ -11,7 +11,7 @@ export default function DefaultLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<div className="relative flex flex-col h-screen bg-[#0D0F13]">
+		<div className="relative flex flex-col h-screen bg-[#0D0F13] page-transition">
 			<Head />
 			<Navbar />
 			<main className="mx-auto w-full flex-grow pt-[56px] md:pt-[64px] pb-[70px] lg:pb-0">

@@ -94,7 +94,7 @@ export const Gold1Icon = (props: IconSvgProps) => (
 export const LogoIcon = (props: IconSvgProps) => (
 
 	<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-		<g clip-path="url(#clip0_2562_611)">
+		<g clipPath="url(#clip0_2562_611)">
 			<mask id="mask0_2562_611" maskUnits="userSpaceOnUse" x="-10" y="-10" width="100" height="100">
 				<path d="M90 90H-10V-10H90V90ZM40 10C23.4315 10 10 23.4315 10 40C10 56.5685 23.4315 70 40 70C56.5685 70 70 56.5685 70 40C70 23.4315 56.5685 10 40 10ZM40 24C48.8366 24 56 31.1634 56 40C56 48.8366 48.8366 56 40 56C31.1634 56 24 48.8366 24 40C24 31.1634 31.1634 24 40 24Z" fill="#444444" />
 			</mask>
@@ -109,24 +109,24 @@ export const LogoIcon = (props: IconSvgProps) => (
 		</g>
 		<defs>
 			<linearGradient id="paint0_linear_2562_611" x1="57.4995" y1="17" x2="57.4995" y2="70" gradientUnits="userSpaceOnUse">
-				<stop stop-color="#FFB218" stop-opacity="0" />
-				<stop offset="1" stop-color="#FFB218" />
+				<stop stopColor="#FFB218" stopOpacity="0" />
+				<stop offset="1" stopColor="#FFB218" />
 			</linearGradient>
 			<linearGradient id="paint1_linear_2562_611" x1="23.5334" y1="16.2492" x2="73.9386" y2="32.6268" gradientUnits="userSpaceOnUse">
-				<stop stop-color="#FFB218" stop-opacity="0" />
-				<stop offset="1" stop-color="#FFB218" />
+				<stop stopColor="#FFB218" stopOpacity="0" />
+				<stop offset="1" stopColor="#FFB218" />
 			</linearGradient>
 			<linearGradient id="paint2_linear_2562_611" x1="12.3228" y1="48.3211" x2="43.4755" y2="5.44316" gradientUnits="userSpaceOnUse">
-				<stop stop-color="#FFB218" stop-opacity="0" />
-				<stop offset="1" stop-color="#FFB218" />
+				<stop stopColor="#FFB218" stopOpacity="0" />
+				<stop offset="1" stopColor="#FFB218" />
 			</linearGradient>
 			<linearGradient id="paint3_linear_2562_611" x1="39.3606" y1="68.8937" x2="8.20795" y2="26.0158" gradientUnits="userSpaceOnUse">
-				<stop stop-color="#FFB218" stop-opacity="0" />
-				<stop offset="1" stop-color="#FFB218" />
+				<stop stopColor="#FFB218" stopOpacity="0" />
+				<stop offset="1" stopColor="#FFB218" />
 			</linearGradient>
 			<linearGradient id="paint4_linear_2562_611" x1="67.2816" y1="49.5359" x2="16.8756" y2="65.9138" gradientUnits="userSpaceOnUse">
-				<stop stop-color="#FFB218" stop-opacity="0" />
-				<stop offset="1" stop-color="#FFB218" />
+				<stop stopColor="#FFB218" stopOpacity="0" />
+				<stop offset="1" stopColor="#FFB218" />
 			</linearGradient>
 			<clipPath id="clip0_2562_611">
 				<rect width="80" height="80" fill="white" />
@@ -137,7 +137,7 @@ export const LogoIcon = (props: IconSvgProps) => (
 
 export const LogoTextIcon = (props: IconSvgProps) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="36" height="14" viewBox="0 0 36 14" fill="none" {...props}>
-		<path fill-rule="evenodd" clip-rule="evenodd" d="M12.0916 1.07692H13.1908V2.15385H14.2901V11.8462H13.1908V12.9231H12.0916V14H2.19847V12.9231H1.09924V11.8462H0V2.15385H1.09924V1.07692H2.19847V0H12.0916V1.07692ZM4.39695 4.30769H3.29771V9.69231H4.39695V10.7692H9.89313V9.69231H10.9924V4.30769H9.89313V3.23077H4.39695V4.30769Z" fill="white" />
+		<path fillRule="evenodd" clipRule="evenodd" d="M12.0916 1.07692H13.1908V2.15385H14.2901V11.8462H13.1908V12.9231H12.0916V14H2.19847V12.9231H1.09924V11.8462H0V2.15385H1.09924V1.07692H2.19847V0H12.0916V1.07692ZM4.39695 4.30769H3.29771V9.69231H4.39695V10.7692H9.89313V9.69231H10.9924V4.30769H9.89313V3.23077H4.39695V4.30769Z" fill="white" />
 		<path d="M28.5802 1.07692H29.6794V2.15385H30.7786V6.46154H29.6794V7.53846H28.5802V8.61539H26.5245L28.9427 10.7692H30.7786V14H27.668L21.6222 8.61539H19.7863V14H16.4885V6.73077H17.5878V5.38462H27.4809V3.23077H16.4885V0H28.5802V1.07692Z" fill="white" />
 		<path d="M34.9008 1.07692H36V14H33.8015V12.9231H32.7023V0H34.9008V1.07692Z" fill="white" />
 	</svg>

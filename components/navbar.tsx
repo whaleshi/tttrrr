@@ -18,7 +18,7 @@ import { customToast } from "./customToast";
 
 export const Navbar = () => {
 	const router = useRouter();
-	const { i18n } = useTranslation();
+	const { t, i18n } = useTranslation();
 	const { isOpen: isWalletDrawerOpen, onOpen: onWalletDrawerOpen, onOpenChange: onWalletDrawerOpenChange } = useDisclosure();
 	const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
 	const [lang, setLang] = useState('zh');
@@ -104,17 +104,28 @@ export const Navbar = () => {
 
 	return (
 		<>
-			<HeroUINavbar maxWidth="full" position="static" className="fixed top-0 left-0 right-0 z-50 bg-[#0D0F13] border-b-[1px] border-[#25262A]" classNames={{ wrapper: "px-4 h-[56px] md:h-[64px]" }}>
-				<NextLink className="flex justify-start items-center gap-[8px] logo-container" href="/">
-					<LogoIcon className="w-[36px]" />
+			<HeroUINavbar maxWidth="full" position="static" className="fixed top-0 left-0 right-0 z-50 bg-[#0D0F13] border-b-[1px] border-[#25262A]" classNames={{ wrapper: "gap-[6px] px-4 h-[56px] lg:h-[64px]" }}>
+				<NextLink className="flex justify-start items-center gap-[4px] logo-container" href="/">
+					<LogoIcon className="w-[36px] h-[36px]" />
 					<LogoTextIcon />
 				</NextLink>
-				<div className="text-[16px] hidden md:flex items-center gap-[16px] pl-[24px] font-semibold">
-					<NextLink href="/" className={`hover:opacity-80 transition-opacity ${router.pathname === '/' ? 'text-[#fff]' : 'text-[#868789]'}`}>Home</NextLink>
-					<NextLink href="/points" className={`hover:opacity-80 transition-opacity ${router.pathname === '/points' ? 'text-[#fff]' : 'text-[#868789]'}`}>Points</NextLink>
-					<NextLink href="/stake" className={`hover:opacity-80 transition-opacity ${router.pathname === '/stake' ? 'text-[#fff]' : 'text-[#868789]'}`}>Stake</NextLink>
-					<NextLink href="/explore" className={`hover:opacity-80 transition-opacity ${router.pathname === '/explore' ? 'text-[#fff]' : 'text-[#868789]'}`}>Explore</NextLink>
-					<NextLink href="/about" className={`hover:opacity-80 transition-opacity ${router.pathname === '/about' ? 'text-[#fff]' : 'text-[#868789]'}`}>About</NextLink>
+				<div className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden">$268.32</div>
+				<div className="text-[16px] hidden lg:flex items-center gap-[16px] pl-[24px] font-semibold">
+					{[
+						{ href: '/', label: t('Header.home') },
+						{ href: '/points', label: t('Header.points') },
+						{ href: '/stake', label: t('Header.stake') },
+						{ href: '/explore', label: t('Header.explore') },
+						{ href: '/about', label: t('Header.about') }
+					].map(({ href, label }) => (
+						<NextLink
+							key={href}
+							href={href}
+							className={`hover:opacity-80 transition-opacity ${router.pathname === href ? 'text-[#fff]' : 'text-[#868789]'}`}
+						>
+							{label}
+						</NextLink>
+					))}
 				</div>
 
 				<NavbarContent justify="end" className="gap-[12px]">
@@ -129,13 +140,13 @@ export const Navbar = () => {
 								</Button>
 								{isWalletDropdownOpen && (
 									<div className="absolute top-full right-0 mt-[8px] w-[375px] bg-[#191B1F] border border-[#25262A] rounded-[12px] p-[16px] z-50">
-										<div className="text-[16px] text-[#fff] font-semibold mb-[16px]">My Wallet</div>
+										<div className="text-[16px] text-[#fff] font-semibold mb-[16px]">{t('Common.myWallet')}</div>
 										<WalletBox />
 									</div>
 								)}
 							</div>
 						) : <Button className="h-[36px] bg-[#FFF] px-[12px] text-[13px] text-[#0D0F13] rounded-[18px] border-[1px] border-[#FFF] gap-[4px] min-h-[36px]" variant="flat" onPress={newLogin}>
-							Connect
+							{t('Header.connectWallet')}
 						</Button>
 					}
 					<LangIcon
@@ -150,7 +161,7 @@ export const Navbar = () => {
 					{(onClose) => (
 						<>
 							<DrawerHeader className="text-center relative p-0 pt-[8px]">
-								<div className="h-[48px] flex items-center justify-center w-full text-[#fff]">My Wallet</div>
+								<div className="h-[48px] flex items-center justify-center w-full text-[#fff]">{t('Common.myWallet')}</div>
 								<CloseIcon className="absolute right-[16px] top-[20px] cursor-pointer" onClick={onClose} />
 							</DrawerHeader>
 							<DrawerBody className="px-[16px] pb-[50px]">

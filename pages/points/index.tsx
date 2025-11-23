@@ -6,24 +6,16 @@ import { useState } from 'react';
 import _bignumber from 'bignumber.js';
 import { useAuthStore } from '@/stores/auth';
 import { ethers } from 'ethers';
+import { useTranslation } from "react-i18next";
+import { usePrivy } from "@privy-io/react-auth";
 const BigNumber = _bignumber;
 
 export default function PointsPage() {
+	const { t } = useTranslation();
+	const { ready } = usePrivy();
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 20;
 	const { address } = useAuthStore();
-
-	// 获取用户积分总数
-	const { data: userPointsData } = useQuery({
-		queryKey: ['userPoints', address],
-		queryFn: async () => {
-			if (!address) return null;
-			const result = await getUserPoints({ miner: address });
-			return result?.data;
-		},
-		refetchInterval: 30000,
-		enabled: !!address,
-	});
 
 	// 获取积分记录列表
 	const { data: pointsListData, isLoading } = useQuery({
@@ -41,34 +33,40 @@ export default function PointsPage() {
 		enabled: !!address,
 	});
 
+	if (!ready) {
+		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
+			<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
+		</div>;
+	}
+
 	return (
 		<DefaultLayout>
 			<section className="flex flex-col items-center justify-center w-full px-[14px] max-w-[600px] mx-auto">
-				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">Points</div>
-				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">Earn points, get first-release Memes!</div>
+				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">{t('Points.title')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">{t('Points.subtitle')}</div>
 
 				{/* My Points Card */}
 				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[88px] mb-[24px] flex items-center px-[16px]">
 					<div className="flex items-center gap-[12px]">
 						<PointsIcon className="w-[40px] h-[40px]" />
 						<div>
-							<div className="text-[12px] text-[#868789] mb-[4px]">My Points</div>
-							<div className="text-[24px] font-bold text-[#fff]">{userPointsData?.total_points ? BigNumber(userPointsData.total_points).dp(2).toString() : '0.00'}</div>
+							<div className="text-[12px] text-[#868789] mb-[4px]">{t('Points.myPoints')}</div>
+							<div className="text-[24px] font-bold text-[#fff]">{pointsListData?.user_points?.total_points ? BigNumber(pointsListData?.user_points?.total_points).dp(2).toString() : '0.00'}</div>
 						</div>
 					</div>
 				</div>
 
 				{/* Records Section */}
 				<div className="w-full">
-					<div className="text-[20px] font-semibold text-[#fff] mb-[8px]">Records</div>
-					<div className="text-[12px] text-[#868789] mb-[12px]">Earn 1 point for every 1 USD bet.</div>
+					<div className="text-[20px] font-semibold text-[#fff] mb-[8px]">{t('Points.records')}</div>
+					<div className="text-[12px] text-[#868789] mb-[12px]">{t('Points.recordsDescription')}</div>
 
 					{/* Table Header */}
 					<div className="grid grid-cols-4 gap-[12px] border-b border-dashed border-[#25262A] h-[38px] items-center">
-						<div className="text-[14px] text-[#868789]">Time</div>
-						<div className="text-[14px] text-[#868789]">Stake</div>
-						<div className="text-[14px] text-[#868789]">Value</div>
-						<div className="text-[14px] text-[#868789] text-right">Earn point</div>
+						<div className="text-[14px] text-[#868789]">{t('Points.time')}</div>
+						<div className="text-[14px] text-[#868789]">{t('Points.inputAmount')}</div>
+						<div className="text-[14px] text-[#868789]">{t('Points.inputAmount')}</div>
+						<div className="text-[14px] text-[#868789] text-right">{t('Points.earnPoint')}</div>
 					</div>
 
 					{/* Table Rows */}

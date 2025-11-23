@@ -36,7 +36,6 @@ export default function IndexPage() {
 	const [oreProtocolContract, setOreProtocolContract] = useState<ethers.Contract | null>(null);
 	const [readOreProtocolContract, setReadOreProtocolContract] = useState<ethers.Contract | null>(null);
 	const [multicallContract, setMulticallContract] = useState<ethers.Contract | null>(null);
-	const [isGameActive, setIsGameActive] = useState(false);
 	const { ready, authenticated, user } = usePrivy();
 	const { wallets } = useWallets();
 	// 使用自定义认证状态的地址，并找到对应的钱包对象
@@ -274,7 +273,6 @@ export default function IndexPage() {
 				: eventData.data;
 
 			console.log('解析后的轮次开始数据:', parsedData);
-			// setIsGameActive(true);
 			// 处理轮次开始逻辑 - 根据实际数据结构
 			if (parsedData?.timestamp) {
 				const startTimestamp = Number(parsedData.timestamp);
@@ -292,21 +290,27 @@ export default function IndexPage() {
 	// 监听轮次开始事件（倒计时开始）
 	useEchoChannel('round.new_round', '.round.data.started', onStartedMessage);
 
+	if (!ready) {
+		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
+			<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
+		</div>;
+	}
+
 	return (
 		<DefaultLayout>
 			<div className="flex flex-col h-full bg-[#0D0F13]">
 				{/* 左下角调试信息悬浮块 */}
-				<div className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-[#EFC462] to-[#F4D03F] text-black rounded-xl p-4 shadow-2xl border-2 border-[#EFC462] animate-pulse">
+				{/* <div className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-[#EFC462] to-[#F4D03F] text-black rounded-xl p-4 shadow-2xl border-2 border-[#EFC462] animate-pulse">
 					<div className="flex flex-col gap-2">
 						<div className="font-bold text-sm">🎮 DEBUG INFO</div>
 						<div className="font-semibold">Game State: <span className="text-lg font-black">{roundInfo?.gameState ?? '⏳'}</span></div>
 						<div className="font-semibold">Round ID: <span className="text-lg font-black">{roundInfo?.currentRoundId ?? '⏳'}</span></div>
 					</div>
-				</div>
+				</div> */}
 
 				<section className="flex flex-col items-center justify-center gap-4 px-[14px]">
 					<div className="w-full max-w-[640px] lg:max-w-[1200px] flex flex-col lg:flex-row pt-[16px] lg:pt-[40px]">
-						<div className="block lg:hidden"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
+						<div className="block lg:hidden"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} /></div>
 						<div className="lg:w-[calc(632/1200*100%)] mt-[24px] lg:mt-0">
 							<Matrix
 								selectedCells={selectedCells}
@@ -320,7 +324,7 @@ export default function IndexPage() {
 						</div>
 						<div className="w-0 lg:w-[calc(32/1200*100%)]"></div>
 						<div className="flex-1">
-							<div className="hidden lg:block"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} shouldShowCountdown={isGameActive} /></div>
+							<div className="hidden lg:block"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} /></div>
 							<div className="mt-[24px]">
 								{
 									automationData?.id ? <Auto info={automationData} /> : <Trade

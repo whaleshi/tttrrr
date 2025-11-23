@@ -1,27 +1,40 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import HttpBackend from "i18next-http-backend";
 import LanguageDetector from "i18next-browser-languagedetector";
 
-i18n.use(HttpBackend)
-    .use(LanguageDetector)
+// Import translations
+import enCommon from "./public/locales/en/common.json";
+import zhCommon from "./public/locales/zh/common.json";
+
+export const defaultNS = "common";
+export const resources = {
+    en: {
+        common: enCommon,
+    },
+    zh: {
+        common: zhCommon,
+    },
+} as const;
+
+i18n.use(LanguageDetector)
     .use(initReactI18next)
     .init({
-        fallbackLng: "zh",
-        supportedLngs: ["zh", "en"],
-        ns: ["common"],
-        defaultNS: "common",
+        debug: false,
+        fallbackLng: "en",
+        defaultNS,
+        resources,
+        detection: {
+            order: ["localStorage", "navigator", "htmlTag"],
+            caches: ["localStorage"],
+            lookupLocalStorage: "i18nextLng",
+        },
+        // Add language mapping to handle browser locale codes
+        load: "languageOnly", // Use only language part, ignore region (e.g., 'zh' instead of 'zh-CN')
+        supportedLngs: ["en", "zh"],
+        nonExplicitSupportedLngs: true, // Allow fallback to supported languages
         interpolation: {
             escapeValue: false,
         },
-        backend: {
-            loadPath: "/locales/{{lng}}/{{ns}}.json",
-        },
-        detection: {
-            order: ["cookie", "localStorage", "navigator"],
-            caches: ["cookie"],
-        },
-        debug: false,
     });
 
 export default i18n;

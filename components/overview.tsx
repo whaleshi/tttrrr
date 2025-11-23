@@ -3,24 +3,24 @@ import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth";
 import { ethers } from "ethers";
+import { useTranslation } from "react-i18next";
 
 interface OverviewProps {
 	roundInfo: any;
 	roundId?: number;
 	timestamp?: any;
-	shouldShowCountdown?: boolean;
 }
 
-export default function Overview({ roundInfo, roundId, timestamp, shouldShowCountdown }: OverviewProps) {
+export default function Overview({ roundInfo, roundId, timestamp }: OverviewProps) {
+	const { t } = useTranslation();
 	const [realTimeCountdown, setRealTimeCountdown] = useState(0);
 	const queryClient = useQueryClient();
 	const { address } = useAuthStore();
+	const [isTimeup, setIsTimeup] = useState(false);
 
 	// 计算实时倒计时
 	useEffect(() => {
 		const updateCountdown = () => {
-			// if (shouldShowCountdown) {
-			// 需要显示倒计时
 			const baseTimestamp = timestamp;
 
 			if (baseTimestamp) {
@@ -34,15 +34,12 @@ export default function Overview({ roundInfo, roundId, timestamp, shouldShowCoun
 				if (realTimeCountdown > 0 && newCountdown === 0) {
 					queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 				}
-
+				setIsTimeup(true);
 				setRealTimeCountdown(newCountdown);
 			} else {
+				setIsTimeup(false);
 				setRealTimeCountdown(0);
 			}
-			// } else {
-			// 	// 不需要倒计时，显示00:00
-			// 	setRealTimeCountdown(0);
-			// }
 		};
 
 		// 立即执行一次
@@ -52,7 +49,7 @@ export default function Overview({ roundInfo, roundId, timestamp, shouldShowCoun
 		const timer = setInterval(updateCountdown, 1000);
 
 		return () => clearInterval(timer);
-	}, [timestamp, shouldShowCountdown, realTimeCountdown, queryClient]);
+	}, [timestamp, realTimeCountdown, queryClient]);
 
 	// 格式化倒计时显示
 	const formatCountdown = (seconds: number) => {
@@ -75,27 +72,27 @@ export default function Overview({ roundInfo, roundId, timestamp, shouldShowCoun
 					<LogoIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">{roundInfo?.treasuryOre || '0'}</div>
 				</div>
-				<div className="text-[#868789] text-[12px]">Motherlode</div>
+				<div className="text-[#868789] text-[12px]">{t('Common.motherlode')}</div>
 			</div>
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 				<div className="flex items-center gap-[4px] font-semibold">
 					<div className="text-[16px]">{formatCountdown(realTimeCountdown)}</div>
 				</div>
 				<div className="text-[#868789] text-[12px]">
-					{shouldShowCountdown ? 'Time remaining' : 'Waiting...'}
+					{isTimeup ? t('Common.timeRemaining') : t('Common.waiting')}
 				</div>
 			</div>
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 				<div className="flex items-center gap-[4px] font-semibold">
 					<BNBIcon className="w-[16px] h-[16px]" />
-					<div className="text-[16px]">
+					<div className="text-[16px]">{roundInfoData?.round_id}
 						{roundInfoData?.global?.total_amount && Number(roundInfoData?.global?.total_amount) > 0
 							? (ethers.formatEther(BigInt(roundInfoData?.global?.total_amount || "0")))
 							: '0.00'
 						}
 					</div>
 				</div>
-				<div className="text-[#868789] text-[12px]">Total deployed</div>
+				<div className="text-[#868789] text-[12px]">{t('Common.totalDeployed')}</div>
 			</div>
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 				<div className="flex items-center gap-[4px] font-semibold">
@@ -107,7 +104,7 @@ export default function Overview({ roundInfo, roundId, timestamp, shouldShowCoun
 						}
 					</div>
 				</div>
-				<div className="text-[#868789] text-[12px]">You deployed</div>
+				<div className="text-[#868789] text-[12px]">{t('Common.youDeployed')}</div>
 			</div>
 		</div>
 	);

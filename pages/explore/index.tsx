@@ -7,9 +7,13 @@ import { MiningTable } from '@/components/miningTable';
 import { MotherlodesTable } from '@/components/motherlodesTable';
 import { BuybacksTable } from '@/components/buybacksTable';
 import { ethers } from 'ethers';
+import { useTranslation } from "react-i18next";
+import { usePrivy } from "@privy-io/react-auth";
 const BigNumber = _bignumber;
 
 export default function ExplorePage() {
+	const { t } = useTranslation();
+	const { ready } = usePrivy();
 	const { data: exploreInfoData } = useQuery({
 		queryKey: ['exploreInfo'],
 		queryFn: async () => {
@@ -19,11 +23,17 @@ export default function ExplorePage() {
 		refetchInterval: 30000,
 	});
 
+	if (!ready) {
+		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
+			<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
+		</div>;
+	}
+
 	return (
 		<DefaultLayout>
 			<section className="flex flex-col items-center justify-center w-full px-[14px] max-w-[1200px] mx-auto">
-				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">Explore</div>
-				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">Earn a share of protocol revenue.</div>
+				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">{t('Explore.title')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">{t('Explore.subtitle')}</div>
 
 				{/* Stats Grid */}
 				<div className="w-full grid grid-cols-2 lg:grid-cols-5 gap-2 mb-[32px]">
@@ -33,7 +43,7 @@ export default function ExplorePage() {
 							<LogoIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.max_supply?.value) || 0).toLocaleString()}</div>
 						</div>
-						<div className="text-[#868789] text-[12px]">Max Supply</div>
+						<div className="text-[#868789] text-[12px]">{t('Explore.maxSupply')}</div>
 					</div>
 
 					{/* Circulating Supply */}
@@ -41,7 +51,7 @@ export default function ExplorePage() {
 						<div className="flex items-center gap-[4px] font-semibold">
 							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.circulating_supply?.value) || 0).toLocaleString()}</div>
 						</div>
-						<div className="text-[#868789] text-[12px]">Circulating Supply</div>
+						<div className="text-[#868789] text-[12px]">{t('Explore.circulatingSupply')}</div>
 					</div>
 
 					{/* Buried (7d) */}
@@ -53,7 +63,7 @@ export default function ExplorePage() {
 								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
 							})() : '0'}</div>
 						</div>
-						<div className="text-[#868789] text-[12px]">Buried (7d)</div>
+						<div className="text-[#868789] text-[12px]">{t('Explore.buried7d')}</div>
 					</div>
 
 					{/* Protocol Rev(7d) */}
@@ -65,7 +75,7 @@ export default function ExplorePage() {
 								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
 							})() : '0'}</div>
 						</div>
-						<div className="text-[#868789] text-[12px]">Protocol Rev(7d)</div>
+						<div className="text-[#868789] text-[12px]">{t('Explore.protocolRev7d')}</div>
 					</div>
 
 					{/* Unrefined BURY */}
@@ -74,7 +84,7 @@ export default function ExplorePage() {
 							<LogoIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.unrefined_bury?.value) || 2896320).toLocaleString()}</div>
 						</div>
-						<div className="text-[#868789] text-[12px]">Unrefined ORI</div>
+						<div className="text-[#868789] text-[12px]">{t('Explore.unrefinedOri')}</div>
 					</div>
 				</div>
 

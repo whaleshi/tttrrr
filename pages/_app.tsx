@@ -1,6 +1,7 @@
 import type { AppProps } from "next/app";
 import Head from "next/head";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 import { HeroUIProvider } from "@heroui/system";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
@@ -11,16 +12,33 @@ import { BalanceProvider } from '@/providers/balanceProvider'
 import { Toaster } from 'sonner';
 import NProgress from 'nprogress';
 import { WagmiProvider } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { config } from '@/wagmiConfig';
 
 import { fontSans } from "@/config/fonts";
 import "@/styles/globals.css";
 import "nprogress/nprogress.css";
-import { ToastErrorIcon, ToastLoadingIcon, ToastSuccessIcon } from "@/components/icons";
 import "@/i18n"
 export default function App({ Component, pageProps }: AppProps) {
 	const router = useRouter();
+	const [isMounted, setIsMounted] = useState(false);
+	const { i18n } = useTranslation();
+
+	useEffect(() => {
+		setIsMounted(true);
+
+		// 全局处理未捕获的 Promise rejection
+		const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+			console.error('Unhandled promise rejection:', event.reason);
+			// 阻止 Next.js 默认的错误覆盖层
+			event.preventDefault();
+		};
+
+		window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+		return () => {
+			window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+		};
+	}, []);
 
 	// 配置nprogress
 	useEffect(() => {
@@ -80,35 +98,39 @@ export default function App({ Component, pageProps }: AppProps) {
 				{/* 预加载关键图片 */}
 				<link rel="preload" href="/images/loading.gif" as="image" />
 			</Head>
-			<WagmiProvider config={config}>
-				<PrivyProviders>
-					<QueryProvider>
-						<BalanceProvider>
-							<HeroUIProvider navigate={router.push}>
-								<Toaster
-									richColors
-									position="top-center"
-									// icons={{
-									// 	success: <ToastSuccessIcon className="w-[30px] h-[30px]" />,
-									// 	error: <ToastErrorIcon className="w-[30px] h-[30px]" />,
-									// 	loading: <ToastLoadingIcon className="w-[30px] h-[30px]" />
-									// }}
-									toastOptions={{
-										classNames: {
-											success: 'toast-success',
-											error: 'toast-error',
-											loading: 'toast-loading',
-										}
-									}}
-								/>
-								<NextThemesProvider attribute="class" defaultTheme="dark">
-									<Component {...pageProps} />
-								</NextThemesProvider>
-							</HeroUIProvider>
-						</BalanceProvider>
-					</QueryProvider>
-				</PrivyProviders>
-			</WagmiProvider>
+			{
+				isMounted ? (
+					<WagmiProvider config={config}>
+						<PrivyProviders>
+							<QueryProvider>
+								<BalanceProvider>
+									<HeroUIProvider navigate={router.push}>
+										<Toaster
+											richColors
+											position="top-center"
+											toastOptions={{
+												classNames: {
+													success: 'toast-success',
+													error: 'toast-error',
+													loading: 'toast-loading',
+												}
+											}}
+										/>
+										<NextThemesProvider attribute="class" defaultTheme="dark">
+											<Component {...pageProps} />
+										</NextThemesProvider>
+									</HeroUIProvider>
+								</BalanceProvider>
+							</QueryProvider>
+						</PrivyProviders>
+					</WagmiProvider>
+				) : (
+					<div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
+						<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
+					</div>
+				)
+			}
+
 		</>
 	);
 }

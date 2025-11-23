@@ -1,18 +1,25 @@
 import { AccorIcon, BackIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
-import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Accordion, AccordionItem } from "@heroui/react";
+import { useTranslation } from "react-i18next";
+import { usePrivy } from "@privy-io/react-auth";
 
 export default function AboutPage() {
-	const router = useRouter();
+	const { t } = useTranslation();
+	const { ready } = usePrivy();
 
+	if (!ready) {
+		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
+			<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
+		</div>;
+	}
 
 	return (
 		<DefaultLayout>
 			<section className="flex flex-col items-center justify-center w-full px-[14px] max-w-[600px] mx-auto">
-				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">About</div>
-				<div className="text-[14px] text-[#868789] w-full mt-[2px]">Learn about the ORI</div>
+				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">{t('About.title')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[2px]">{t('About.subtitle')}</div>
 				<style jsx global>{`
 					[data-slot="title"] {
 						font-size: 20px !important;

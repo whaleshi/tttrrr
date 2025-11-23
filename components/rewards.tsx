@@ -58,9 +58,11 @@ import { CONTRACT_CONFIG, DEFAULT_CHAIN_CONFIG } from "@/config/chains";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import _bignumber from "bignumber.js";
 import { customToast, customToastPersistent, dismissToast } from "./customToast";
+import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
 
 export default function Rewards() {
+	const { t } = useTranslation();
 	const [isClaimLoading, setIsClaimLoading] = useState(false);
 	const { isOpen, onOpen, onOpenChange } = useDisclosure();
 	const queryClient = useQueryClient();
@@ -133,7 +135,7 @@ export default function Rewards() {
 
 			// 显示 loading toast
 			loadingToastId = customToastPersistent({
-				title: 'Waiting for signature...',
+				title: t('Common.waitingForSignature'),
 				type: 'loading'
 			});
 
@@ -149,10 +151,10 @@ export default function Rewards() {
 
 			// 估算 gas
 			const estimatedGas = await contract.claimAll.estimateGas(address);
-			
+
 			// 增加 20% 的 gas buffer
 			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
-			
+
 			console.log('claimAll 估算 gas:', estimatedGas.toString());
 			console.log('claimAll 设置 gas limit:', gasLimit.toString());
 
@@ -172,7 +174,8 @@ export default function Rewards() {
 			queryClient.invalidateQueries({ queryKey: ['userRewards', address] });
 
 			customToast({
-				title: '奖励领取成功！',
+				title: t('Common.transactionConfirmed'),
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 
@@ -185,8 +188,8 @@ export default function Rewards() {
 			}
 
 			customToast({
-				title: '领取失败',
-				description: `错误详情: ${error}`,
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => handleConfirmClaim()} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
 				type: 'error'
 			});
 		} finally {
@@ -212,7 +215,7 @@ export default function Rewards() {
 
 			// 显示 loading toast
 			loadingToastId = customToastPersistent({
-				title: 'Waiting for signature...',
+				title: t('Common.waitingForSignature'),
 				type: 'loading'
 			});
 
@@ -228,10 +231,10 @@ export default function Rewards() {
 
 			// 估算 gas
 			const estimatedGas = await contract.claimEth.estimateGas(address);
-			
+
 			// 增加 20% 的 gas buffer
 			const gasLimit = (estimatedGas * BigInt(120)) / BigInt(100);
-			
+
 			console.log('claimEth 估算 gas:', estimatedGas.toString());
 			console.log('claimEth 设置 gas limit:', gasLimit.toString());
 
@@ -252,7 +255,8 @@ export default function Rewards() {
 			queryClient.invalidateQueries({ queryKey: ['userRewards', address] });
 
 			customToast({
-				title: 'BNB奖励领取成功！',
+				title: t('Common.transactionConfirmed'),
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 
@@ -265,8 +269,8 @@ export default function Rewards() {
 			}
 
 			customToast({
-				title: 'BNB领取失败',
-				description: `错误详情: ${error}`,
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => handleClaimEthOnly()} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
 				type: 'error'
 			});
 		} finally {
@@ -274,13 +278,11 @@ export default function Rewards() {
 		}
 	};
 
-	// 检查是否所有奖励值都大于0
 	const hasRewards = rewardsData &&
 		parseFloat(rewardsData?.ethAmount || '0') > 0 ||
 		parseFloat(rewardsData?.oriDirect || '0') > 0 ||
 		parseFloat(rewardsData?.oriRefined || '0') > 0;
 
-	// 如果没有奖励或正在加载，返回空
 	if (isLoading || !hasRewards) {
 		return null;
 	}
@@ -288,7 +290,7 @@ export default function Rewards() {
 	return (
 		<>
 			<div className="text-[20px] text-[#fff] font-semibold flex items-center justify-between mb-[16px]">
-				Rewards
+				{t('Home.rewards')}
 			</div>
 			<div className="border-dashed border-[1px] border-[#25262A] p-[12px] pb-[16px] rounded-[8px]">
 				{parseFloat(rewardsData?.ethAmount || '0') > 0 && (
@@ -296,26 +298,26 @@ export default function Rewards() {
 						label="BNB"
 						value={rewardsData?.ethAmount || "0"}
 						icon={<BNBIcon className="w-[16px] h-[16px]" />}
-						infoText="test test"
+						infoText={t('Home.bnbDesc')}
 						isLoading={isLoading}
 					/>
 				)}
 				{parseFloat(rewardsData?.oriDirect || '0') > 0 && (
 					<RewardItem
-						label="Unrefined ORI"
+						label={t('Home.unrefinedOri')}
 						value={rewardsData?.oriDirect || "0"}
 						icon={<LogoIcon className="w-[16px] h-[16px]" />}
-						infoText="Direct ORI rewards"
+						infoText={t('Home.unrefinedOriDesc')}
 						isLoading={isLoading}
 						className="my-[8px]"
 					/>
 				)}
 				{parseFloat(rewardsData?.oriRefined || '0') > 0 && (
 					<RewardItem
-						label="Refined ORI"
+						label={t('Home.refinedOri')}
 						value={rewardsData?.oriRefined || "0"}
 						icon={<LogoIcon className="w-[16px] h-[16px]" />}
-						infoText="Refined ORI rewards"
+						infoText={t('Home.refinedOriDesc')}
 						isLoading={isLoading}
 					/>
 				)}
@@ -328,7 +330,7 @@ export default function Rewards() {
 						onPress={handleClaimClick}
 						isLoading={isClaimLoading}
 					>
-						Claim
+						{t('Home.claim')}
 					</Button>
 				)}
 				{parseFloat(rewardsData?.ethAmount || '0') > 0 && (
@@ -339,7 +341,7 @@ export default function Rewards() {
 							}`}
 						onClick={isClaimLoading ? undefined : handleClaimEthOnly}
 					>
-						Claim only BNB
+						{t('Home.claimOnlyBNB')}
 					</div>
 				)}
 			</div>
@@ -361,7 +363,7 @@ export default function Rewards() {
 					{(onClose) => (
 						<>
 							<ModalHeader className="relative flex justify-center items-center pt-[16px] pb-4">
-								<h2 className="text-white text-[17px] font-semibold">Claim Rewards</h2>
+								<h2 className="text-white text-[17px] font-semibold">{t('Home.claimRewards')}</h2>
 								<button
 									onClick={onClose}
 									className="absolute right-[12px] top-[12px] p-2 hover:bg-[#25262A] rounded-lg transition-colors cursor-pointer"
@@ -371,7 +373,7 @@ export default function Rewards() {
 							</ModalHeader>
 							<ModalBody className="pt-0">
 								<p className="text-white text-[14px] mb-4">
-									Are you sure you want to claim all your mining rewards, including refined and unrefined ORI?
+									{t('Home.claimRewardsConfirm')}
 								</p>
 								<div className="space-y-[12px] border-[1px] border-dashed border-[#303135] p-[12px] rounded-[8px]">
 									{parseFloat(rewardsData?.ethAmount || '0') > 0 && (
@@ -379,25 +381,25 @@ export default function Rewards() {
 											label="BNB"
 											value={rewardsData?.ethAmount || "0"}
 											icon={<BNBIcon className="w-[16px] h-[16px]" />}
-											infoText="test test"
+											infoText={t('Home.bnbDesc')}
 											isLoading={isLoading}
 										/>
 									)}
 									{parseFloat(rewardsData?.oriDirect || '0') > 0 && (
 										<RewardItem
-											label="Unrefined ORI"
+											label={t('Home.unrefinedOri')}
 											value={rewardsData?.oriDirect || "0"}
 											icon={<LogoIcon className="w-[16px] h-[16px]" />}
-											infoText="Direct ORI rewards"
+											infoText={t('Home.unrefinedOriDesc')}
 											isLoading={isLoading}
 										/>
 									)}
 									{parseFloat(rewardsData?.oriRefined || '0') > 0 && (
 										<RewardItem
-											label="Refined ORI"
+											label={t('Home.refinedOri')}
 											value={rewardsData?.oriRefined || "0"}
 											icon={<LogoIcon className="w-[16px] h-[16px]" />}
-											infoText="Refined ORI rewards"
+											infoText={t('Home.refinedOriDesc')}
 											isLoading={isLoading}
 										/>
 									)}
@@ -411,7 +413,7 @@ export default function Rewards() {
 									}}
 									isLoading={isClaimLoading}
 								>
-									Confirm
+									{t('Home.confirm')}
 								</Button>
 							</ModalBody>
 						</>

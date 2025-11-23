@@ -5,6 +5,7 @@ import { getRoundInfo } from "@/service/api";
 import { useQuery } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth";
 import { ethers } from "ethers";
+import { useTranslation } from "react-i18next";
 
 interface MatrixProps {
 	selectedCells: number[];
@@ -17,6 +18,7 @@ interface MatrixProps {
 }
 
 export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, winningCell, isDrawing, showWinner, roundId }: MatrixProps) {
+	const { t } = useTranslation();
 	const [fadingCells, setFadingCells] = useState<number[]>([]);
 	const [cellCounts, setCellCounts] = useState<{ [key: number]: number }>({});
 	const { address } = useAuthStore();
@@ -34,9 +36,20 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 		refetchInterval: 3000, // 1秒一次
 		enabled: !!roundId // 只在 roundId 存在时启用
 	});
+	// const { data: roundInfoData } = useQuery({
+	// 	queryKey: ['roundInfo', roundId, address || 'anonymous'],
+	// 	queryFn: async () => {
+	// 		const result = await getRoundInfo({
+	// 			roundId,
+	// 			...(address && { miner: address }) // 只在有 address 时传递 miner 参数
+	// 		});
+	// 		return result?.data;
+	// 	},
+	// 	refetchInterval: 3000, // 3秒一次
+	// 	enabled: !!roundId // 只需要 roundId 存在
+	// });
 	// 初始化格子数字
 	useEffect(() => {
-		console.log(roundId, '-----=======')
 		const initialCounts: { [key: number]: number } = {};
 		for (let i = 0; i < 25; i++) {
 			initialCounts[i] = 0;
@@ -141,7 +154,6 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 		// 默认样式
 		return 'bg-[#0D0F13] border-[#25262A] hover:bg-[#161820] hover:border-[#999]';
 	};
-
 	return (
 		<>
 			<div className="w-full grid grid-cols-5 gap-[6px] lg:gap-[8px]">
@@ -187,7 +199,7 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 				>
 					{selectedCells.length === 25 ? (<DeSelectIcon />) : (<SelectIcon />)}
 					<span className="text-[14px] text-[#868789]">
-						{selectedCells.length === 25 ? 'Deselect all' : 'Select all'}
+						{selectedCells.length === 25 ? t('Home.deselectAll') : t('Home.selectAll')}
 					</span>
 				</button>
 			</div>

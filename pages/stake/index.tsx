@@ -1,6 +1,6 @@
 import { LogoIcon, InfoIcon, BNBIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
-import { Button, Input } from "@heroui/react";
+import { Button, Input, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
 import { useState } from "react";
 import { useReadContracts } from 'wagmi';
 import { useQueryClient } from '@tanstack/react-query';
@@ -12,6 +12,7 @@ import _bignumber from "bignumber.js";
 import OreProtocolABI from "@/constant/OreProtocol.json";
 import ReadOreProtocolABI from "@/constant/OreProtocolView.json";
 import { customToast, customToastPersistent, dismissToast } from "@/components/customToast";
+import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
 
 // ERC20 ABI - balanceOf 和 approve 函数
@@ -36,6 +37,7 @@ const ERC20_ABI = [
 ] as const;
 
 export default function StakePage() {
+	const { t } = useTranslation();
 	const [selectedTab, setSelectedTab] = useState('deposit');
 	const [selectedPercentage, setSelectedPercentage] = useState<number | null>(null);
 	const [inputAmount, setInputAmount] = useState('');
@@ -97,7 +99,7 @@ export default function StakePage() {
 	const handlePercentageClick = (percentage: number) => {
 		setSelectedPercentage(percentage);
 		setSelectedAmount(percentage);
-		
+
 		if (selectedTab === 'deposit') {
 			// Deposit模式：使用原始oriBalance进行精确计算
 			if (oriBalance) {
@@ -209,8 +211,8 @@ export default function StakePage() {
 			}
 
 			customToast({
-				title: '质押失败',
-				description: `错误详情: ${error}`,
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => handleStake()} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
 				type: 'error'
 			});
 		} finally {
@@ -281,8 +283,8 @@ export default function StakePage() {
 			}
 
 			customToast({
-				title: '提取失败',
-				description: `错误详情: ${error}`,
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => handleWithdraw()} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
 				type: 'error'
 			});
 		} finally {
@@ -290,11 +292,17 @@ export default function StakePage() {
 		}
 	};
 
+	if (!ready) {
+		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
+			<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
+		</div>;
+	}
+
 	return (
 		<DefaultLayout>
 			<section className="flex flex-col items-center justify-center w-full px-[14px] max-w-[600px] mx-auto">
-				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">Stake</div>
-				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">Earn a share of protocol revenue.</div>
+				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">{t('Stake.title')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">{t('Stake.subtitle')}</div>
 
 				{/* Main Stake Card */}
 				<div className="w-full bg-[#191B1F] rounded-[8px] p-[12px] mb-[32px]">
@@ -307,7 +315,7 @@ export default function StakePage() {
 								}`}
 							onClick={() => handleTabClick('deposit')}
 						>
-							Deposit
+							{t('Stake.deposit')}
 						</div>
 						<div
 							className={`flex-1 rounded-[8px] text-[13px] flex items-center justify-center cursor-pointer transition-all duration-200 ${selectedTab === 'withdraw'
@@ -316,7 +324,7 @@ export default function StakePage() {
 								}`}
 							onClick={() => handleTabClick('withdraw')}
 						>
-							Withdraw
+							{t('Stake.withdraw')}
 						</div>
 					</div>
 
@@ -351,12 +359,12 @@ export default function StakePage() {
 					<div className="flex items-center justify-between mb-[16px] mt-[12px]">
 						<div className="text-[12px] text-[#868789]">
 							<span className="text-[#868789]">
-								{selectedTab === 'deposit' ? 'Bal:' : 'Staked:'}
+								{t('Stake.balance')}:
 							</span> {
-								isLoadingData 
-									? 'Loading...' 
-									: selectedTab === 'deposit' 
-										? formattedOriBalance 
+								isLoadingData
+									? 'Loading...'
+									: selectedTab === 'deposit'
+										? formattedOriBalance
 										: formattedStakeInfo.stakedAmount
 							} ORI
 						</div>
@@ -381,18 +389,25 @@ export default function StakePage() {
 						isLoading={isStaking}
 						isDisabled={isStaking || !inputAmount || parseFloat(inputAmount) <= 0 || !isConnected}
 					>
-						{selectedTab === 'deposit' ? 'Deposit' : 'Withdraw'}
+						{selectedTab === 'deposit' ? t('Stake.deposit') : t('Stake.withdraw')}
 					</Button>
 				</div>
 
 				{
 					Number(formattedStakeInfo?.pendingRewards) > 0 && <div className="w-full mb-[32px]">
-						<div className="text-[20px] font-bold text-[#fff] mb-[16px]">Account</div>
+						<div className="text-[20px] font-bold text-[#fff] mb-[16px]">{t('Stake.account')}</div>
 						<div className="bg-[#0D0F13] border-[2px] border-[#25262A] rounded-[8px] p-[12px]">
 							<div className="flex items-center justify-between mb-[16px]">
 								<div className="flex items-center gap-[8px] text-[13px] text-[#868789]">
-									<span>Yield</span>
-									<InfoIcon className="w-[14px] h-[14px] cursor-pointer" />
+									<span>{t('Stake.yield')}</span>
+									<Popover placement="top" showArrow={true}>
+										<PopoverTrigger>
+											<div><InfoIcon className="w-[14px] h-[14px] cursor-pointer" /></div>
+										</PopoverTrigger>
+										<PopoverContent>
+											<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">{t('Stake.yieldDesc')}</div>
+										</PopoverContent>
+									</Popover>
 								</div>
 								<div className="flex items-center gap-[4px]">
 									<LogoIcon className="w-[16px] h-[16px]" />
@@ -405,7 +420,7 @@ export default function StakePage() {
 								variant="bordered"
 								className="h-[44px] border-[#EFC462] text-[15px] text-[#EFC462] rounded-[22px] font-medium"
 							>
-								Claim
+								{t('Stake.claim')}
 							</Button>
 						</div>
 					</div>
@@ -413,31 +428,52 @@ export default function StakePage() {
 
 				{/* Summary Section */}
 				<div className="w-full mb-[30px]">
-					<div className="text-[20px] font-bold text-[#fff] mb-[16px]">Summary</div>
+					<div className="text-[20px] font-bold text-[#fff] mb-[16px]">{t('Stake.summary')}</div>
 					<div className="space-y-[12px]">
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-[8px] text-[13px] text-[#868789]">
-								<span>Total deposite</span>
-								<InfoIcon className="w-[14px] h-[14px] cursor-pointer" />
+								<span>{t('Stake.totalDeposit')}</span>
+								<Popover placement="top" showArrow={true}>
+									<PopoverTrigger>
+										<div><InfoIcon className="w-[14px] h-[14px] cursor-pointer" /></div>
+									</PopoverTrigger>
+									<PopoverContent>
+										<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">{t('Stake.totalDepositDesc')}</div>
+									</PopoverContent>
+								</Popover>
 							</div>
 							<div className="flex items-center gap-[4px]">
 								<LogoIcon className="w-[16px] h-[16px]" />
-								<span className="text-[14px] text-[#fff]">1,560,253</span>
+								<span className="text-[14px] text-[#fff]">0</span>
 							</div>
 						</div>
 
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-[8px] text-[13px] text-[#868789]">
-								<span>APR</span>
-								<InfoIcon className="w-[14px] h-[14px] cursor-pointer" />
+								<span>{t('Stake.apr')}</span>
+								<Popover placement="top" showArrow={true}>
+									<PopoverTrigger>
+										<div><InfoIcon className="w-[14px] h-[14px] cursor-pointer" /></div>
+									</PopoverTrigger>
+									<PopoverContent>
+										<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">{t('Stake.aprDesc')}</div>
+									</PopoverContent>
+								</Popover>
 							</div>
 							<span className="text-[14px] text-[#fff]">12.56%</span>
 						</div>
 
 						<div className="flex items-center justify-between">
 							<div className="flex items-center gap-[8px] text-[13px] text-[#868789]">
-								<span>TVL</span>
-								<InfoIcon className="w-[14px] h-[14px] cursor-pointer" />
+								<span>{t('Stake.tvl')}</span>
+								<Popover placement="top" showArrow={true}>
+									<PopoverTrigger>
+										<div><InfoIcon className="w-[14px] h-[14px] cursor-pointer" /></div>
+									</PopoverTrigger>
+									<PopoverContent>
+										<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">{t('Stake.tvlDesc')}</div>
+									</PopoverContent>
+								</Popover>
 							</div>
 							<span className="text-[14px] text-[#fff]">$560,253.29</span>
 						</div>

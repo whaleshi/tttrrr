@@ -5,12 +5,14 @@ import { shortenAddress } from "@/utils";
 import { ethers } from "ethers";
 import _bignumber from "bignumber.js";
 import { useAuthStore } from "@/stores/auth";
+import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
 interface RankProps {
 	roundId: number;
 }
 
 export default function Rank({ roundId }: RankProps) {
+	const { t } = useTranslation();
 	const { address } = useAuthStore();
 	// 获取轮次获胜信息
 	const { data: roundWinData, isLoading, error } = useQuery({
@@ -39,7 +41,7 @@ export default function Rank({ roundId }: RankProps) {
 	return (
 		<>
 			<div className="text-[20px] text-[#fff] font-semibold flex items-center justify-between mb-[12px]">
-				Miners<span className="text-[12px] text-[#868789]">Round: #{roundId}</span>
+				{t('Home.miners')}<span className="text-[12px] text-[#868789]">{t('Home.rounds')}: #{roundId}</span>
 			</div>
 			<div>
 				{roundWinData?.list.map((item: any, index: number) => (
@@ -55,7 +57,7 @@ export default function Rank({ roundId }: RankProps) {
 							: 'text-[#868789]'
 							}`}>
 							{index === 0 && item?.winner_address?.toLowerCase() === address?.toLowerCase()
-								? 'You'
+								? t('Home.you')
 								: shortenAddress(item?.winner_address)
 							}
 						</span>

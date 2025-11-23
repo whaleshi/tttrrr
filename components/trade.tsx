@@ -1,6 +1,5 @@
 import { Button, Input } from "@heroui/react"
 import React, { useEffect, useState } from "react";
-import MyAvatar from "@/components/avatarImage";
 import { BNBIcon, SetIcon, BlockIcon, RoundIcon } from "./icons";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import OreProtocolABI from "@/constant/OreProtocol.json";
@@ -12,11 +11,10 @@ import { formatBigNumber } from "@/utils/formatBigNumber";
 import { useBalanceContext } from "@/providers/balanceProvider";
 import _bignumber from "bignumber.js";
 const BigNumber = _bignumber;
-import { useSlippageStore } from "@/stores/slippage";
 import { customToast, customToastPersistent, dismissToast } from "./customToast";
+import { useTranslation } from "react-i18next";
 
 type TradeType = 'manual' | 'auto';
-
 
 interface TradeProps {
 	selectedCells?: number[];
@@ -29,10 +27,9 @@ interface TradeProps {
 }
 
 export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, tokenBalance, initialTab = 'manual', roundId }: TradeProps) => {
+	const { t } = useTranslation();
 	const [isBuy, setIsBuy] = useState(initialTab === 'manual');
 	const [selectedTab, setSelectedTab] = useState(initialTab);
-	const [isSlippageOpen, setIsSlippageOpen] = useState(false);
-	const [outputAmount, setOutputAmount] = useState("");
 	const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [blockAmount, setBlockAmount] = useState('');
@@ -81,7 +78,6 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 	useEffect(() => {
 		setInputAmount("");
-		setOutputAmount("");
 	}, [isBuy]);
 
 	// 当initialTab改变时，更新选中的tab
@@ -120,15 +116,9 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 	// 部署格子的函数
 	const deploySquares = async (selectedSquares: number[], amountPerSquare: string) => {
-		if (!signer || !provider) {
-			customToast({
-				title: '钱包未连接',
-				description: '请先连接您的钱包',
-				type: 'error'
-			});
-			return;
-		}
+
 		setIsLoading(true);
+
 		// 创建合约实例
 		const oreProtocolContract = new ethers.Contract(
 			CONTRACT_CONFIG.ORE_CONTRACT,
@@ -147,34 +137,26 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 		// 计算总费用
 		const squareCount = selectedSquares.length;
 		const totalDeploy = amountPerSquareWei * BigInt(squareCount);
+		const totalRequired = totalDeploy;
+
+		// 检查余额是否足够
+		const totalRequiredFormatted = ethers.formatEther(totalRequired);
+		if (_bignumber(totalRequiredFormatted).gt(balance)) {
+			customToast({
+				title: '余额不足',
+				description: `需要 ${totalRequiredFormatted} BNB，当前余额 ${formatBigNumber(balance)} BNB`,
+				type: 'error'
+			});
+			setIsLoading(false);
+			return;
+		}
 
 		let loadingToastId: any = null;
 
 		try {
-			// 获取检查点费用
-			// const config = await oreProtocolContract.config();
-			// const checkpointFee = config.checkpointFee || 0;
-			// console.log(checkpointFee, '---')
-			const totalRequired = totalDeploy;
-			// + BigInt(checkpointFee);
-
-			// 检查余额是否足够
-			const totalRequiredFormatted = ethers.formatEther(totalRequired);
-			if (_bignumber(totalRequiredFormatted).gt(balance)) {
-				customToast({
-					title: '余额不足',
-					description: `需要 ${totalRequiredFormatted} BNB，当前余额 ${formatBigNumber(balance)} BNB`,
-					type: 'error'
-				});
-				setIsLoading(false);
-				return;
-			}
-
-
-
-			// 显示开始部署的loading提示
+			// 显示loading提示
 			loadingToastId = customToastPersistent({
-				title: 'Waiting for signature...',
+				title: t('Common.waitingForSignature'),
 				type: 'loading'
 			});
 
@@ -182,7 +164,6 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			console.log('Mask:', mask);
 			console.log('每格金额:', amountPerSquare, 'ETH');
 			console.log('总部署金额:', ethers.formatEther(totalDeploy), 'ETH');
-			// console.log('检查点费用:', ethers.formatEther(checkpointFee), 'ETH');
 			console.log('总需要金额:', ethers.formatEther(totalRequired), 'ETH');
 
 			// 估算 gas
@@ -206,36 +187,37 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 				gasLimit: gasLimit
 			});
 
-			// 关闭 loading toast (如果已创建)
+			// 关闭loading toast
 			if (loadingToastId) {
 				dismissToast(loadingToastId);
 			}
 
+			// 显示成功提示
 			customToast({
-				title: 'Transaction confirmed',
-				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				title: t('Common.transactionConfirmed'),
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 
+			// 异步等待交易确认（不阻塞UI）
 			tx.wait().then((receipt: any) => {
-				console.log(receipt);
-			}).catch((error: any) => {
-				console.error(error);
+				console.log('交易确认:', receipt);
+			}).catch((waitError: any) => {
+				console.error('交易确认失败:', waitError);
 			});
-
-
 
 		} catch (error) {
 			console.error('部署格子失败:', error);
 
-			// 关闭 loading toast (如果已创建)
+			// 关闭loading toast
 			if (loadingToastId) {
 				dismissToast(loadingToastId);
 			}
 
+			// 显示错误提示
 			customToast({
-				title: '部署失败',
-				description: `错误详情: ${error}`,
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => deploySquares(selectedSquares, amountPerSquare)} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
 				type: 'error'
 			});
 		} finally {
@@ -245,14 +227,6 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 	// 注册自动化投注的函数
 	const registerAutomation = async (selectedSquares: number[], amountPerSquare: string, rounds: string, blockCount?: string) => {
-		if (!signer || !provider) {
-			customToast({
-				title: '钱包未连接',
-				description: '请先连接您的钱包',
-				type: 'error'
-			});
-			return;
-		}
 
 		// 创建合约实例
 		const oreProtocolContract = new ethers.Contract(
@@ -321,7 +295,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 			// 显示开始注册的loading提示
 			loadingToastId = customToastPersistent({
-				title: 'Waiting for signature...',
+				title: t('Common.waitingForSignature'),
 				type: 'loading'
 			});
 
@@ -354,16 +328,17 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			}
 
 			customToast({
-				title: 'Automation registered',
-				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				title: t('Common.transactionConfirmed'),
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 
+			// 等待交易确认（异步处理，不阻塞UI）
 			tx.wait().then((receipt: any) => {
 				queryClient.invalidateQueries({ queryKey: ['automation'] });
-				console.log(receipt);
-			}).catch((error: any) => {
-				console.error(error);
+				console.log('自动化注册确认:', receipt);
+			}).catch((waitError: any) => {
+				console.error('交易确认失败:', waitError);
 			});
 
 		} catch (error) {
@@ -375,8 +350,8 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 			}
 
 			customToast({
-				title: '注册失败',
-				description: `错误详情: ${error}`,
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => registerAutomation(selectedSquares, amountPerSquare, rounds, blockCount)} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
 				type: 'error'
 			});
 		} finally {
@@ -385,17 +360,14 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 	};
 
 	const handleClick = async (amount: string) => {
-		// 验证输入
-		// const validationError = validateInput();
-		// if (validationError) {
-		// 	toast.error(validationError);
-		// 	return;
-		// }
-
-		// if (!signer || !provider) {
-		// 	toast.error("钱包未连接");
-		// 	return;
-		// }
+		if (!signer || !provider) {
+			customToast({
+				title: '钱包未连接',
+				description: '请先连接您的钱包',
+				type: 'error'
+			});
+			return;
+		}
 
 		// setIsLoading(true);
 		if (!amount || parseFloat(amount) <= 0) {
@@ -448,7 +420,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 							}`}
 						onClick={() => handleTabClick('manual')}
 					>
-						Manual
+						{t('Home.manual')}
 					</div>
 					<div
 						className={`flex-1 rounded-[8px] text-[13px] flex items-center justify-center cursor-pointer transition-all duration-200 ${selectedTab === 'auto'
@@ -457,7 +429,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 							}`}
 						onClick={() => handleTabClick('auto')}
 					>
-						Auto
+						{t('Home.auto')}
 					</div>
 				</div>
 				<Input
@@ -487,7 +459,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 				/>
 				<div className="h-[48px] flex items-center justify-between border-dashed border-b-[1px] border-[#25262A]">
 					<div className="text-[12px] text-[#868789] flex items-center gap-[3px]">
-						<span className="text-[#94989F]">Bal:</span>
+						<span className="text-[#94989F]">{t('Home.balance')}:</span>
 						<>{formatBigNumber(balance)} BNB</>
 					</div>
 					<div className="flex items-center justify-end gap-[8px] flex-1">
@@ -506,7 +478,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 					<div className="border-dashed border-b-[1px] border-[#25262A]">
 						<div className="flex items-center gap-[6px] mt-[12px] mb-[12px]">
 							<BlockIcon />
-							<span className="text-[14px] text-[#fff]">Blocks</span>
+							<span className="text-[14px] text-[#fff]">{t('Home.blocks')}</span>
 							<div className="flex-1 w-full"></div>
 							<Input
 								style={{
@@ -536,7 +508,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 						</div>
 						<div className="flex items-center gap-[6px] mb-[12px]">
 							<RoundIcon />
-							<span className="text-[14px] text-[#fff]">Rounds</span>
+							<span className="text-[14px] text-[#fff]">{t('Home.rounds')}</span>
 							<div className="flex-1"></div>
 							<Input
 								style={{
@@ -568,13 +540,13 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 				)}
 				<div className="pt-[12px] pb-[16px] text-[13px] text-[#868789]">
 					<div className="flex items-center justify-between">
-						Blocks
+						{t('Home.blocks')}
 						<div className="w-[70%] text-right">
 							{selectedTab === 'auto' ? (
 								<span className="text-[#FFF]">
 									{selectedCells.length > 0
 										? selectedCells.sort((a, b) => a - b).map(cellIndex => `#${cellIndex + 1}`).join(', ')
-										: (parseInt(blockAmount) || 0) === 0 ? 'Random' : `Random x${parseInt(blockAmount)}`
+										: (parseInt(blockAmount) || 0) === 0 ? t('Home.random') : `${t('Home.random')} x${parseInt(blockAmount)}`
 									}
 								</span>
 							) : (
@@ -585,16 +557,16 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 					{selectedTab === 'auto' && (
 						<>
 							<div className="flex items-center justify-between mt-[8px]">
-								Total per round<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).dp(8).toString() : '0'} BNB</span>
+								{t('Home.totalPerRound')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).dp(8).toString() : '0'} BNB</span>
 							</div>
 							<div className="flex items-center justify-between mt-[8px]">
-								Total<span className="text-[#FFF]">{inputAmount && roundAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).multipliedBy(parseInt(roundAmount) || 1).dp(8).toString() : '0'} BNB</span>
+								{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount && roundAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).multipliedBy(parseInt(roundAmount) || 1).dp(8).toString() : '0'} BNB</span>
 							</div>
 						</>
 					)}
 					{selectedTab === 'manual' && (
 						<div className="flex items-center justify-between mt-[8px]">
-							Total<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length).dp(8).toString() : '0'} BNB</span>
+							{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length).dp(8).toString() : '0'} BNB</span>
 						</div>
 					)}
 				</div>
@@ -605,7 +577,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 					isLoading={isLoading}
 					isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0}
 				>
-					Deploy {
+					{t('Home.deploy')} {
 						selectedTab === 'auto'
 							? (inputAmount && roundAmount ?
 								BigNumber(inputAmount)

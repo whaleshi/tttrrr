@@ -1,7 +1,5 @@
 import { Button, Input } from "@heroui/react"
 import React, { useEffect, useState } from "react";
-import MyAvatar from "@/components/avatarImage";
-import { BNBIcon, SetIcon, BlockIcon, RoundIcon } from "./icons";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import OreProtocolABI from "@/constant/OreProtocol.json";
 import { DEFAULT_CHAIN_CONFIG, CONTRACT_CONFIG } from "@/config/chains";
@@ -12,17 +10,15 @@ import { formatBigNumber } from "@/utils/formatBigNumber";
 import { useBalanceContext } from "@/providers/balanceProvider";
 import _bignumber from "bignumber.js";
 const BigNumber = _bignumber;
-import { useSlippageStore } from "@/stores/slippage";
 import { customToast, customToastPersistent, dismissToast } from "./customToast";
-
-type TradeType = 'manual' | 'auto';
-
+import { useTranslation } from "react-i18next";
 
 interface AutoProps {
 	info?: any;
 }
 
 export const Auto = ({ info }: AutoProps) => {
+	const { t } = useTranslation();
 	const [isLoading, setIsLoading] = useState(false);
 
 
@@ -88,7 +84,7 @@ export const Auto = ({ info }: AutoProps) => {
 
 			// 显示loading提示
 			loadingToastId = customToastPersistent({
-				title: 'Stopping automation...',
+				title: t('Home.stopping'),
 				type: 'loading'
 			});
 
@@ -128,8 +124,8 @@ export const Auto = ({ info }: AutoProps) => {
 			}
 
 			customToast({
-				title: '停止失败',
-				description: `错误详情: ${error}`,
+				title: t('Common.transactionFailed'),
+				description: <span onClick={stopAutomation} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
 				type: 'error'
 			});
 		} finally {
@@ -142,21 +138,21 @@ export const Auto = ({ info }: AutoProps) => {
 			<div className="w-full">
 				<div className="h-[40px] bg-[#25262A] rounded-[8px] flex mb-[16px]">
 					<div className={`flex-1 rounded-[8px] text-[13px] flex items-center justify-center cursor-pointer transition-all duration-200 bg-[#303135] text-[#fff]`}>
-						Autominer
+						{t('Home.autominerRunning')}
 					</div>
 				</div>
 				<div className="pt-[12px] pb-[16px] text-[13px] text-[#868789]">
 					<div className="flex items-center justify-between">
-						Blocks
+						{t('Home.blocks')}
 						<div className="w-[70%] text-right">
 							<span className="text-[#FFF]">x {info?.extend_data?.blocks}</span>
 						</div>
 					</div>
 					<div className="flex items-center justify-between mt-[8px]">
-						Round remaining<span className="text-[#FFF]">{info?.extend_data?.round_remaining}</span>
+						{t('Home.roundsRemaining')}<span className="text-[#FFF]">{info?.extend_data?.round_remaining}</span>
 					</div>
 					<div className="flex items-center justify-between mt-[8px]">
-						Total per round<span className="text-[#FFF]">{info?.extend_data?.total_per_round ? BigNumber(ethers.formatEther(BigInt(info.extend_data.total_per_round))).dp(6).toString() : '0'} BNB</span>
+						{t('Home.totalPerRound')}<span className="text-[#FFF]">{info?.extend_data?.total_per_round ? BigNumber(ethers.formatEther(BigInt(info.extend_data.total_per_round))).dp(6).toString() : '0'} BNB</span>
 					</div>
 				</div>
 				<Button
@@ -166,7 +162,7 @@ export const Auto = ({ info }: AutoProps) => {
 					isLoading={isLoading}
 					isDisabled={isLoading}
 				>
-					Stop autominer
+					{t('Home.stopAutominer')}
 				</Button>
 			</div>
 		</div>

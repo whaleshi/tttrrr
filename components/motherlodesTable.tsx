@@ -5,6 +5,7 @@ import { shortenAddress } from '@/utils/index';
 import { ethers } from 'ethers';
 import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
+import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
 
 interface MotherlodesTableProps {
@@ -13,6 +14,7 @@ interface MotherlodesTableProps {
 }
 
 export const MotherlodesTable = ({ title = "Motherlodes", description = "Recent motherlodes events" }: MotherlodesTableProps) => {
+	const { t } = useTranslation();
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 10;
 	const queryClient = useQueryClient();
@@ -56,23 +58,23 @@ export const MotherlodesTable = ({ title = "Motherlodes", description = "Recent 
 
 	return (
 		<div className="w-full">
-			<div className="text-[28px] font-bold text-[#fff] mb-[8px]">{title}</div>
-			<div className="text-[14px] text-[#868789] mb-[16px]">{description}</div>
+			<div className="text-[28px] font-bold text-[#fff] mb-[8px]">{t('Explore.motherlodes')}</div>
+			<div className="text-[14px] text-[#868789] mb-[16px]">{t('Explore.motherlodesEvents')}</div>
 
 			{/* Horizontal Scrollable Table */}
 			<div className="w-full overflow-x-auto lg:overflow-x-visible">
 				<div className="min-w-[936px] lg:min-w-full">
 					{/* Table Header */}
 					<div className="flex border-b border-dashed border-[#25262A] h-[38px] items-center text-[12px] text-[#868789] px-[12px]">
-						<div className="w-[70px] lg:flex-[0.8] shrink-0 text-left">Round</div>
-						<div className="w-[60px] lg:flex-[0.7] shrink-0 text-right">Block</div>
-						<div className="w-[140px] lg:flex-[1.8] shrink-0 text-right">BURY Winner</div>
-						<div className="w-[70px] lg:flex-[0.8] shrink-0 text-right">Winners</div>
-						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">Deployed</div>
-						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">Vaulted</div>
-						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">Winnings</div>
-						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">Motherlode</div>
-						<div className="w-[140px] lg:flex-[1.8] shrink-0 text-right">Time</div>
+						<div className="w-[70px] lg:flex-[0.8] shrink-0 text-left">{t('Explore.round')}</div>
+						<div className="w-[60px] lg:flex-[0.7] shrink-0 text-right">{t('Explore.block')}</div>
+						<div className="w-[140px] lg:flex-[1.8] shrink-0 text-right">{t('Explore.oriWinner')}</div>
+						<div className="w-[70px] lg:flex-[0.8] shrink-0 text-right">{t('Explore.winners')}</div>
+						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">{t('Explore.deployed')}</div>
+						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">{t('Explore.vaulted')}</div>
+						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">{t('Explore.winnings')}</div>
+						<div className="w-[110px] lg:flex-[1.3] shrink-0 text-right">{t('Explore.motherlode')}</div>
+						<div className="w-[140px] lg:flex-[1.8] shrink-0 text-right">{t('Explore.time')}</div>
 					</div>
 
 					{/* Table Rows */}
@@ -110,7 +112,7 @@ export const MotherlodesTable = ({ title = "Motherlodes", description = "Recent 
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
 									<img src="/images/nothing.png" alt="No data" className="w-[80px] h-[80px] opacity-50" />
-									<span>No data available</span>
+									<span>{t('Explore.noRecordsFound')}</span>
 								</div>
 							</div>
 						)}
