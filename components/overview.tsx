@@ -85,7 +85,7 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 				<div className="flex items-center gap-[4px] font-semibold">
 					<BNBIcon className="w-[16px] h-[16px]" />
-					<div className="text-[16px]">{roundInfoData?.round_id}
+					<div className="text-[16px]">
 						{roundInfoData?.global?.total_amount && Number(roundInfoData?.global?.total_amount) > 0
 							? (ethers.formatEther(BigInt(roundInfoData?.global?.total_amount || "0")))
 							: '0.00'
