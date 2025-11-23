@@ -17,7 +17,7 @@ export const CHAINS_CONFIG = {
             // rpcUrl: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
             readOreContract: "0x1935Cc4386a86DD326F1F6281Aa82d4673C0b5B2",
             oreContract: "0xbE285D7880A27e66A070FE3312b4595B46E7c3DB",
-            ori: "0x6b7ffbbe555f1fa201f14df9dfbd62850e2d654c",
+            ori: "0x8632B21387340E7f46Ca1328861970DF0ba57305",
         },
         [56]: {
             name: "BNB Smart Chain",

@@ -18,7 +18,7 @@ import { fontSans } from "@/config/fonts";
 import "@/styles/globals.css";
 import "nprogress/nprogress.css";
 import { ToastErrorIcon, ToastLoadingIcon, ToastSuccessIcon } from "@/components/icons";
-
+import "@/i18n"
 export default function App({ Component, pageProps }: AppProps) {
 	const router = useRouter();
 

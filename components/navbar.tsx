@@ -8,8 +8,9 @@ import { usePrivy } from "@privy-io/react-auth";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
 import { useAuthStore } from "@/stores/auth";
 import { shortenAddress, useIsMobile } from "@/utils";
+import { useTranslation } from 'react-i18next';
 
-import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon } from "@/components/icons";
+import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon, LangIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
 import { customToast } from "./customToast";
@@ -17,14 +18,28 @@ import { customToast } from "./customToast";
 
 export const Navbar = () => {
 	const router = useRouter();
+	const { i18n } = useTranslation();
 	const { isOpen: isWalletDrawerOpen, onOpen: onWalletDrawerOpen, onOpenChange: onWalletDrawerOpenChange } = useDisclosure();
 	const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
+	const [lang, setLang] = useState('zh');
 	const walletRef = useRef<HTMLDivElement>(null);
 
 	const { authenticated, logout } = usePrivy();
 	const { toLogin } = usePrivyLogin();
-	const { isLoggedIn, address, clearAuthState, loginAccount } = useAuthStore();
+	const { isLoggedIn, address, clearAuthState } = useAuthStore();
 	const isMobile = useIsMobile();
+
+	// 语言切换效果
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			const currentLang = i18n?.language || 'zh';
+			const html = document.documentElement;
+			html.lang = currentLang;
+			html.classList.remove("lang-en", "lang-zh");
+			html.classList.add(`lang-${currentLang}`);
+			setLang(currentLang);
+		}
+	}, [i18n.language]);
 
 	const newLogin = async () => {
 		if (authenticated) {
@@ -82,14 +97,10 @@ export const Navbar = () => {
 		}
 	};
 
-	const test = () => {
-		// 使用封装的 customToast
-		customToast({
-			title: 'Transaction Confirmed',
-			// description: <span onClick={() => console.log('Description clicked!')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
-			type: 'success'
-		});
-	}
+	const handleLangSwitch = () => {
+		const newLang = lang === 'en' ? 'zh' : 'en';
+		i18n.changeLanguage(newLang);
+	};
 
 	return (
 		<>
@@ -107,7 +118,7 @@ export const Navbar = () => {
 				</div>
 
 				<NavbarContent justify="end" className="gap-[12px]">
-					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat" onPress={test}>
+					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat">
 						<LogoIcon className="w-[18px] h-[18px]" />ORI<span className="text-[#868789]">$268.32</span>
 					</Button>
 					{
@@ -127,6 +138,11 @@ export const Navbar = () => {
 							Connect
 						</Button>
 					}
+					<LangIcon
+						lang={lang as 'zh' | 'en'}
+						className="cursor-pointer hover:opacity-80 transition-opacity"
+						onClick={handleLangSwitch}
+					/>
 				</NavbarContent>
 			</HeroUINavbar>
 			<Drawer isOpen={isWalletDrawerOpen} onOpenChange={onWalletDrawerOpenChange} placement="bottom" hideCloseButton>
