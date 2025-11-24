@@ -83,7 +83,7 @@ export default function PointsPage() {
 									{/* 时间列 - 较宽 */}
 									<div className="text-[12px] text-[#fff] truncate">{record?.timestamp ? new Date(record.timestamp * 1000).toLocaleString() : '-'}</div>
 									{/* 投入金额列 */}
-									<div className="text-[12px] text-[#fff] truncate">{record?.bet_amount ? BigNumber(ethers.formatEther(BigInt(record?.bet_amount))).dp(6).toString() + ' BNB' : '-'}</div>
+									<div className="text-[12px] text-[#fff] truncate">{record?.bet_amount ? BigNumber(ethers.formatUnits(BigInt(record?.bet_amount), 8)).dp(8).toString() + ' BNB' : '-'}</div>
 									{/* USD价值列 */}
 									<div className="text-[12px] text-[#fff] truncate">{record?.usd_value ? '$' + BigNumber(record.usd_value).dp(2).toString() : '-'}</div>
 									{/* 积分列 - 右对齐 */}
