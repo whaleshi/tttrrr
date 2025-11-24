@@ -114,7 +114,7 @@ export default function StakePage() {
 		accRewardPerShare: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(8).toString(),
 	} : { totalStaked: '0', accRewardPerShare: '0' };
 
-	console.log(formattedStakeInfo?.pendingRewards)
+	console.log(formattedStakeInfo)
 	const percentageButtons = [
 		{ label: "25%", value: 25 },
 		{ label: "50%", value: 50 },

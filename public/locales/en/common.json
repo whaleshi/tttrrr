@@ -28,7 +28,7 @@
     },
     "Explore": {
         "title": "Explore",
-        "subtitle": "Earn a share of protocol revenue.",
+        "subtitle": "Review protocol stats and activity.",
         "maxSupply": "Max Supply",
         "circulatingSupply": "Circulating Supply",
         "buried7d": "Buried (7d)",
