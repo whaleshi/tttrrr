@@ -173,12 +173,12 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 						<div className="flex-1"></div>
 						{Number(roundInfoData?.user?.bit_statistics[i]?.amount) > 0 && (
 							<div className="text-[10px] lg:text-[16px] text-[#2ED075] text-right pr-[2px]">
-								{(ethers.formatEther(BigInt(roundInfoData?.user?.bit_statistics[i]?.amount || 0)))}
+								{(ethers.formatUnits(BigInt(roundInfoData?.user?.bit_statistics[i]?.amount || 0), 8))}
 							</div>
 						)}
 						<div className="text-[11px] lg:text-[17px] text-[#fff] text-right">
 							{Number(roundInfoData?.global?.bit_statistics[i]?.amount) > 0
-								? (ethers.formatEther(BigInt(roundInfoData?.global?.bit_statistics[i]?.amount || 0)))
+								? (ethers.formatUnits(BigInt(roundInfoData?.global?.bit_statistics[i]?.amount || 0), 8))
 								: '0.00'
 							}
 						</div>

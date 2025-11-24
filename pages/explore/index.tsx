@@ -87,15 +87,15 @@ export default function ExplorePage() {
 						<div className="text-[#868789] text-[12px]">{t('Explore.unrefinedOri')}</div>
 					</div>
 				</div>
-
-				{/* Mining Section */}
-				<MiningTable />
-
-				{/* Motherlodes Section */}
-				<MotherlodesTable />
-
-				{/* Buybacks Section */}
-				<BuybacksTable />
+				<div className="mb-[20px] w-full">
+					<MiningTable />
+				</div>
+				<div className="mb-[20px] w-full">
+					<MotherlodesTable />
+				</div>
+				<div className="mb-[20px] w-full">
+					<BuybacksTable />
+				</div>
 			</section>
 		</DefaultLayout>
 	);

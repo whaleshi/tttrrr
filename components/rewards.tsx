@@ -90,9 +90,9 @@ export default function Rewards() {
 		);
 		const rewards = await contract.getUserRewards(address);
 		const rewardsData = {
-			ethAmount: BigNumber(ethers.formatEther(BigInt(rewards.ethAmount || 0))).dp(6).toString(),
-			oriDirect: BigNumber(ethers.formatUnits(BigInt(rewards.oriDirect || 0))).dp(6).toString(),
-			oriRefined: BigNumber(ethers.formatUnits(BigInt(rewards.oriRefined || 0))).dp(6).toString()
+			ethAmount: BigNumber(ethers.formatEther(BigInt(rewards.ethAmount || 0))).dp(8).toString(),
+			oriDirect: BigNumber(ethers.formatUnits(BigInt(rewards.oriDirect || 0))).dp(8).toString(),
+			oriRefined: BigNumber(ethers.formatUnits(BigInt(rewards.oriRefined || 0))).dp(8).toString()
 		};
 
 		return rewardsData;

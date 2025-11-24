@@ -73,22 +73,45 @@ export default function StakePage() {
 		},
 	});
 
+	// 单独获取 Treasury State (不需要地址)
+	const { data: treasuryData } = useReadContracts({
+		contracts: [
+			{
+				address: CONTRACT_CONFIG.READ_ORE_CONTRACT as `0x${string}`,
+				abi: ReadOreProtocolABI.abi,
+				functionName: 'getTreasuryState',
+			},
+		],
+		query: {
+			enabled: !!CONTRACT_CONFIG.READ_ORE_CONTRACT,
+			refetchInterval: 10000, // 每10秒刷新一次
+		},
+	});
+
 	// 提取数据
 	const oriBalance = contractData?.[0]?.status === 'success' ? contractData[0].result : null;
 	const userRewards = contractData?.[1]?.status === 'success' ? contractData[1].result : null;
+	const treasuryState = treasuryData?.[0]?.status === 'success' ? treasuryData[0].result : null;
 	console.log(userRewards)
 	// 格式化ORI余额
 	const formattedOriBalance = oriBalance
-		? BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18)).dp(6).toString()
+		? BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18)).dp(8).toString()
 		: '0';
 
 	// 格式化质押数据
 	const formattedStakeInfo = userRewards && Array.isArray(userRewards) ? {
-		stakedAmount: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[0]?.toString() || '0'), 18)).dp(6).toString(),
-		pendingRewards: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[1]?.toString() || '0'), 18)).dp(6).toString(),
-		rewardDebt: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[2]?.toString() || '0'), 18)).dp(6).toString(),
+		stakedAmount: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[0]?.toString() || '0'), 18)).dp(8).toString(),
+		pendingRewards: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[1]?.toString() || '0'), 18)).dp(8).toString(),
+		rewardDebt: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[2]?.toString() || '0'), 18)).dp(8).toString(),
 		updatedAt: (userRewards as any[])[3]?.toString() || '0'
 	} : { stakedAmount: '0', pendingRewards: '0', rewardDebt: '0', updatedAt: '0' };
+
+	// 格式化Treasury数据
+	const formattedTreasuryData = treasuryState && Array.isArray(treasuryState) ? {
+		totalStaked: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[0]?.toString() || '0'), 18)).dp(8).toString(),
+		accRewardPerShare: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(8).toString(),
+	} : { totalStaked: '0', accRewardPerShare: '0' };
+
 	console.log(formattedStakeInfo?.pendingRewards)
 	const percentageButtons = [
 		{ label: "25%", value: 25 },
@@ -444,7 +467,7 @@ export default function StakePage() {
 							</div>
 							<div className="flex items-center gap-[4px]">
 								<LogoIcon className="w-[16px] h-[16px]" />
-								<span className="text-[14px] text-[#fff]">0</span>
+								<span className="text-[14px] text-[#fff]">{formattedTreasuryData.totalStaked}</span>
 							</div>
 						</div>
 

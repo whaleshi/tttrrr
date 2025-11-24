@@ -62,11 +62,11 @@ export default function PointsPage() {
 					<div className="text-[12px] text-[#868789] mb-[12px]">{t('Points.recordsDescription')}</div>
 
 					{/* Table Header */}
-					<div className="grid grid-cols-4 gap-[12px] border-b border-dashed border-[#25262A] h-[38px] items-center">
-						<div className="text-[14px] text-[#868789]">{t('Points.time')}</div>
-						<div className="text-[14px] text-[#868789]">{t('Points.inputAmount')}</div>
-						<div className="text-[14px] text-[#868789]">{t('Points.inputAmount')}</div>
-						<div className="text-[14px] text-[#868789] text-right">{t('Points.earnPoint')}</div>
+					<div className="grid gap-[8px] border-b border-dashed border-[#25262A] h-[38px] items-center" style={{ gridTemplateColumns: '2fr 1.5fr 1fr 1fr' }}>
+						<div className="text-[12px] text-[#868789]">{t('Points.time')}</div>
+						<div className="text-[12px] text-[#868789]">{t('Points.inputAmount')}</div>
+						<div className="text-[12px] text-[#868789]">{t('Points.inputAmount')}</div>
+						<div className="text-[12px] text-[#868789] text-right">{t('Points.earnPoint')}</div>
 					</div>
 
 					{/* Table Rows */}
@@ -79,19 +79,22 @@ export default function PointsPage() {
 							</div>
 						) : pointsListData?.list?.length > 0 ? (
 							pointsListData.list.map((record: any, index: any) => (
-								<div key={index} className="grid grid-cols-4 gap-[12px] h-[38px] items-center">
-									{/* BigNumber(ethers.formatEther(BigInt(record?.bet_amount))).dp(4).toString() */}
-									<div className="text-[14px] text-[#fff]">{record?.timestamp ? new Date(record.timestamp * 1000).toLocaleDateString() : '-'}</div>
-									<div className="text-[14px] text-[#fff]">{record?.bet_amount ? 1 + ' BNB' : '-'}</div>
-									<div className="text-[14px] text-[#fff]">{record?.usd_value ? '$' + BigNumber(record.usd_value).dp(2).toString() : '-'}</div>
-									<div className="text-[14px] text-[#fff] text-right">{record?.points_reward ? BigNumber(record.points_reward).dp(2).toString() : '0.00'}</div>
+								<div key={index} className="grid gap-[8px] h-[38px] items-center" style={{ gridTemplateColumns: '2fr 1.5fr 1fr 1fr' }}>
+									{/* 时间列 - 较宽 */}
+									<div className="text-[12px] text-[#fff] truncate">{record?.timestamp ? new Date(record.timestamp * 1000).toLocaleString() : '-'}</div>
+									{/* 投入金额列 */}
+									<div className="text-[12px] text-[#fff] truncate">{record?.bet_amount ? BigNumber(ethers.formatEther(BigInt(record?.bet_amount))).dp(6).toString() + ' BNB' : '-'}</div>
+									{/* USD价值列 */}
+									<div className="text-[12px] text-[#fff] truncate">{record?.usd_value ? '$' + BigNumber(record.usd_value).dp(2).toString() : '-'}</div>
+									{/* 积分列 - 右对齐 */}
+									<div className="text-[12px] text-[#fff] text-right">{record?.points_reward ? BigNumber(record.points_reward).dp(2).toString() : '0'}</div>
 								</div>
 							))
 						) : (
 							<div className="flex h-[300px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
 									<img src="/images/nothing.png" alt="No data" className="w-[80px] h-[80px] opacity-50" />
-									<span>No records available</span>
+									<span>{t('Explore.noRecordsFound')}</span>
 								</div>
 							</div>
 						)}

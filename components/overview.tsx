@@ -87,7 +87,7 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 					<BNBIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">
 						{roundInfoData?.global?.total_amount && Number(roundInfoData?.global?.total_amount) > 0
-							? (ethers.formatEther(BigInt(roundInfoData?.global?.total_amount || "0")))
+							? (ethers.formatUnits(BigInt(roundInfoData?.global?.total_amount || "0"), 8))
 							: '0.00'
 						}
 					</div>
@@ -99,7 +99,7 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 					<BNBIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">
 						{roundInfoData?.user?.total_amount && Number(roundInfoData?.user?.total_amount) > 0
-							? (ethers.formatEther(BigInt(roundInfoData?.user?.total_amount || "0")))
+							? (ethers.formatUnits(BigInt(roundInfoData?.user?.total_amount || "0"), 8))
 							: '0.00'
 						}
 					</div>
