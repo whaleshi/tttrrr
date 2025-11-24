@@ -54,7 +54,7 @@ body {
 }
 
 #nprogress .bar {
-    background: linear-gradient(90deg, #EFC462, #F4D03F, #F7DC6F) !important;
+    background: linear-gradient(90deg, #efc462, #f4d03f, #f7dc6f) !important;
     position: fixed;
     z-index: 9999;
     top: 56px !important;
@@ -89,4 +89,13 @@ body {
 
 #nprogress .peg {
     display: none !important;
+}
+
+/* 自定义虚线边框样式 - 增加虚线间隔 */
+.custom-dashed-border-bottom {
+    border-bottom: 1px solid transparent;
+    background-image: linear-gradient(90deg, #25262a 0px, #25262a 8px, transparent 8px, transparent 20px);
+    background-size: 15px 1px;
+    background-repeat: repeat-x;
+    background-position: bottom;
 }

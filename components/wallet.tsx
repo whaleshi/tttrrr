@@ -19,7 +19,6 @@ export const WalletBox = () => {
 	const toLogout = async () => {
 		clearAuthState();
 		try { await logout(); } catch { }
-		router.replace('/');
 	}
 
 	return (

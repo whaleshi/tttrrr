@@ -19,75 +19,116 @@ export default function AboutPage() {
 		<DefaultLayout>
 			<section className="flex flex-col items-center justify-center w-full px-[14px] max-w-[600px] mx-auto">
 				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">{t('About.title')}</div>
-				<div className="text-[14px] text-[#868789] w-full mt-[2px]">{t('About.subtitle')}</div>
-				<style jsx global>{`
-					[data-slot="title"] {
-						font-size: 20px !important;
-						font-weight: bold !important;
-					}
-					/* 隐藏HR分割线 */
-					.px-0 hr {
-						display: none !important;
-					}
-					.bg-divider {
-						display: none !important;
-					}
-					/* 添加自定义虚线分割 */
-					[data-slot="base"] {
-						position: relative !important;
-					}
-					[data-slot="base"]:not(:last-child)::after {
-						content: '' !important;
-						position: absolute !important;
-						bottom: 0 !important;
-						left: 0 !important;
-						right: 0 !important;
-						height: 1px !important;
-						background-image: repeating-linear-gradient(to right, #25262A 0px, #25262A 8px, transparent 8px, transparent 16px) !important;
-					}
-				`}</style>
-				<Accordion className="px-0" defaultExpandedKeys={["1", "2"]}>
-					<AccordionItem
-						key="1"
-						aria-label="1"
-						title="Intro"
-						indicator={<AccorIcon />}
-					>
-						<div className="text-[14px] text-[#868789] pb-[12px]"><span className="text-[#EFC462]">ORI</span> is a digital store of value on the <span className="text-[#EFC462]">Binance Chain</span></div>
-					</AccordionItem>
-					<AccordionItem
-						key="2"
-						aria-label="2"
-						title="Mining"
-						indicator={<AccorIcon />}
-					>
-						<div className="text-[14px] text-[#868789] pb-[12px]">Blockchains enable the creation of trustless digital currencies which do not depend on any central bank or issuing authority. As one of the fastest and most widely used blockchains in the world, Solana has become the ideal home for a new generation of digital assets and financial applications. While many other digital stores of value exist and provide immense value to their users, none are native to Solana, and thus rely on risky third-party intermediaries to use with protocols on Solana. BURY is designed from the ground up to serve as a Solana-native store of value with maximal freedom and minimal trust assumptions.</div>
-					</AccordionItem>
-					<AccordionItem
-						key="3"
-						aria-label="3"
-						title="Staking"
-						indicator={<AccorIcon />}
-					>
-						<div className="text-[14px] text-[#868789] pb-[12px]">Blockchains enable the creation of trustless digital currencies which do not depend on any central bank or issuing authority. As one of the fastest and most widely used blockchains in the world, Solana has become the ideal home for a new generation of digital assets and financial applications. While many other digital stores of value exist and provide immense value to their users, none are native to Solana, and thus rely on risky third-party intermediaries to use with protocols on Solana. BURY is designed from the ground up to serve as a Solana-native store of value with maximal freedom and minimal trust assumptions.</div>
-					</AccordionItem>
-					<AccordionItem
-						key="4"
-						aria-label="4"
-						title="Tokenomics"
-						indicator={<AccorIcon />}
-					>
-						<div className="text-[14px] text-[#868789] pb-[12px]">Blockchains enable the creation of trustless digital currencies which do not depend on any central bank or issuing authority. As one of the fastest and most widely used blockchains in the world, Solana has become the ideal home for a new generation of digital assets and financial applications. While many other digital stores of value exist and provide immense value to their users, none are native to Solana, and thus rely on risky third-party intermediaries to use with protocols on Solana. BURY is designed from the ground up to serve as a Solana-native store of value with maximal freedom and minimal trust assumptions.</div>
-					</AccordionItem>
-					<AccordionItem
-						key="5"
-						aria-label="5"
-						title="Links"
-						indicator={<AccorIcon />}
-					>
-						<div className="text-[14px] text-[#868789] pb-[12px]">Blockchains enable the creation of trustless digital currencies which do not depend on any central bank or issuing authority. As one of the fastest and most widely used blockchains in the world, Solana has become the ideal home for a new generation of digital assets and financial applications. While many other digital stores of value exist and provide immense value to their users, none are native to Solana, and thus rely on risky third-party intermediaries to use with protocols on Solana. BURY is designed from the ground up to serve as a Solana-native store of value with maximal freedom and minimal trust assumptions.</div>
-					</AccordionItem>
-				</Accordion>
+				<div className="text-[14px] text-[#868789] w-full mt-[2px] pb-[24px] custom-dashed-border-bottom mb-[24px]">{t('About.subtitle')}</div>
+				<div className="text-[20px] font-bold text-[#fff] w-full">{t('About.summaryTitle')}</div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full"><span className="text-[#fff]">ORI</span> {t('About.summaryContent')}</div>
+				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.introTitle')}</div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.introContent1')}</div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.introContent2')}<br />
+					<span className="text-[#fff]">{t('About.valueLeakageTitle')}</span><br />
+					{t('About.valueLeakageContent')}
+				</div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">
+					{t('About.consequenceContent')}
+					<div className="mt-[8px]">{t('About.consequence1')}</div>
+					<div className="mt-[8px]">{t('About.consequence2')}</div>
+					<div className="mt-[8px]">{t('About.consequence3')}</div>
+				</div>
+				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.problemTitle')}</div>
+				<div className="w-full mt-[16px] border border-[#25262A] rounded-[8px] overflow-hidden">
+					<div className="grid bg-[#191B1F]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#868789] px-[12px] flex items-center">{t('About.tableStep')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#868789] px-[12px] flex items-center">{t('About.tableAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#868789] px-[12px] flex items-center">{t('About.tableResult')}</div>
+					</div>
+
+					<div className="grid border-t border-[#25262A]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.mining')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.miningAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.miningResult')}</div>
+					</div>
+
+					<div className="grid border-t border-[#25262A]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.costSettlement')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.costAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.costResult')}</div>
+					</div>
+
+					<div className="grid border-t border-[#25262A]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.valueFlow')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.valueFlowAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#EF4444] px-[12px] flex items-center">{t('About.valueFlowResult')}</div>
+					</div>
+				</div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.conclusionLabel')}</div>
+				<div className="text-[14px] text-[#868789] mt-[8px] w-full">{t('About.conclusionContent')}</div>
+				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.oriPhilosophyTitle')}</div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.oriInsight')}</div>
+				<div className="text-[14px] text-[#fff] mt-[8px] w-full">{t('About.oriQuestion')}</div>
+				<div className="text-[14px] text-[#868789] mt-[8px] w-full">ORI的答案是：<span className="text-[#EFC462]">{t('About.oriAnswer')}</span></div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">
+					{t('About.oriMechanismIntro')}
+					<div className="mt-[8px]">{t('About.oriMechanism1')}</div>
+					<div className="mt-[8px]">{t('About.oriMechanism2')}</div>
+					<div className="mt-[8px]">{t('About.oriMechanism3')}</div>
+				</div>
+				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.coreMechanismTitle')}</div>
+				<div className="text-[16px] text-[#fff] w-full mt-[16px]">{t('About.zeroPremine')}</div>
+				<div className="text-[14px] text-[#868789] w-full">
+					<div className="mt-[8px]">{t('About.zeropreminePoint1')}</div>
+					<div className="mt-[8px]">{t('About.zeropreminePoint2')}</div>
+					<div className="mt-[8px]">{t('About.zeropreminePoint3')}</div>
+				</div>
+				<div className="text-[16px] text-[#fff] w-full mt-[16px]">{t('About.decentralizedMining')}</div>
+				<div className="text-[14px] text-[#868789] w-full">
+					<div className="mt-[8px]">{t('About.decentralizedPoint1')}</div>
+					<div className="mt-[8px]">{t('About.decentralizedPoint2')}</div>
+				</div>
+				<div className="text-[16px] text-[#fff] w-full mt-[16px]">{t('About.reverseEngine')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[8px]">{t('About.traditionalPow')}</div>
+				<div className="text-[14px] text-[#fff] w-full mt-[8px]"><span className="text-[#EFC462]">{t('About.oriModel')}</span></div>
+				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.economicModelTitle')}</div>
+				<div className="w-full mt-[16px] border border-[#25262A] rounded-[8px] overflow-hidden">
+					<div className="grid bg-[#191B1F]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#868789] px-[12px] flex items-center">{t('About.tableParticipant')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#868789] px-[12px] flex items-center">{t('About.tableAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#868789] px-[12px] flex items-center">{t('About.tableResult')}</div>
+					</div>
+
+					<div className="grid border-t border-[#25262A]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.miner')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.minerAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.minerReward')}</div>
+					</div>
+
+					<div className="grid border-t border-[#25262A]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.holder')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.holderAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.holderReward')}</div>
+					</div>
+
+					<div className="grid border-t border-[#25262A]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.system')}</div>
+						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.systemAction')}</div>
+						<div className="py-[6px] text-[14px] text-[#EF4444] px-[12px] flex items-center">{t('About.systemReward')}</div>
+					</div>
+				</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[16px]">{t('About.economicResult')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[8px]">{t('About.economicResultContent')}</div>
+				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.visionTitle')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[16px]">
+					{t('About.visionContent')}
+				</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[8px]">
+					<span className="text-[#EFC462]">{t('About.visionSummary')}</span>
+				</div>
+				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.conclusionTitle')}</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[16px]">
+					{t('About.conclusionContent1')}
+				</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[32px] mb-[100px]">
+					{t('About.finalMessage')}
+				</div>
 			</section>
 		</DefaultLayout>
 	);

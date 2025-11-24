@@ -13,6 +13,7 @@ import OreProtocolABI from "@/constant/OreProtocol.json";
 import ReadOreProtocolABI from "@/constant/OreProtocolView.json";
 import { customToast, customToastPersistent, dismissToast } from "@/components/customToast";
 import { useTranslation } from "react-i18next";
+import usePrivyLogin from "@/hooks/usePrivyLogin";
 const BigNumber = _bignumber;
 
 // ERC20 ABI - balanceOf 和 approve 函数
@@ -38,6 +39,7 @@ const ERC20_ABI = [
 
 export default function StakePage() {
 	const { t } = useTranslation();
+	const { toLogin } = usePrivyLogin();
 	const [selectedTab, setSelectedTab] = useState('deposit');
 	const [selectedPercentage, setSelectedPercentage] = useState<number | null>(null);
 	const [inputAmount, setInputAmount] = useState('');
@@ -385,7 +387,7 @@ export default function StakePage() {
 								{t('Stake.balance')}:
 							</span> {
 								isLoadingData
-									? 'Loading...'
+									? '0'
 									: selectedTab === 'deposit'
 										? formattedOriBalance
 										: formattedStakeInfo.stakedAmount
@@ -405,15 +407,25 @@ export default function StakePage() {
 					</div>
 
 					{/* Deposit Button */}
-					<Button
-						fullWidth
-						className="h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px] font-medium"
-						onPress={selectedTab === 'deposit' ? handleStake : handleWithdraw}
-						isLoading={isStaking}
-						isDisabled={isStaking || !inputAmount || parseFloat(inputAmount) <= 0 || !isConnected}
-					>
-						{selectedTab === 'deposit' ? t('Stake.deposit') : t('Stake.withdraw')}
-					</Button>
+					{!isConnected ? (
+						<Button
+							fullWidth
+							className="h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px] font-medium"
+							onPress={toLogin}
+						>
+							{t('Header.connectWallet')}
+						</Button>
+					) : (
+						<Button
+							fullWidth
+							className="h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px] font-medium"
+							onPress={selectedTab === 'deposit' ? handleStake : handleWithdraw}
+							isLoading={isStaking}
+							isDisabled={isStaking || !inputAmount || parseFloat(inputAmount) <= 0}
+						>
+							{selectedTab === 'deposit' ? t('Stake.deposit') : t('Stake.withdraw')}
+						</Button>
+					)}
 				</div>
 
 				{
@@ -483,7 +495,7 @@ export default function StakePage() {
 									</PopoverContent>
 								</Popover>
 							</div>
-							<span className="text-[14px] text-[#fff]">12.56%</span>
+							<span className="text-[14px] text-[#fff]">0%</span>
 						</div>
 
 						<div className="flex items-center justify-between">
@@ -498,7 +510,7 @@ export default function StakePage() {
 									</PopoverContent>
 								</Popover>
 							</div>
-							<span className="text-[14px] text-[#fff]">$560,253.29</span>
+							<span className="text-[14px] text-[#fff]">$0</span>
 						</div>
 					</div>
 				</div>

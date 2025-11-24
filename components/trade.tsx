@@ -13,6 +13,7 @@ import _bignumber from "bignumber.js";
 const BigNumber = _bignumber;
 import { customToast, customToastPersistent, dismissToast } from "./customToast";
 import { useTranslation } from "react-i18next";
+import usePrivyLogin from "@/hooks/usePrivyLogin";
 
 type TradeType = 'manual' | 'auto';
 
@@ -28,6 +29,7 @@ interface TradeProps {
 
 export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, tokenBalance, initialTab = 'manual', roundId }: TradeProps) => {
 	const { t } = useTranslation();
+	const { toLogin } = usePrivyLogin();
 	const [isBuy, setIsBuy] = useState(initialTab === 'manual');
 	const [selectedTab, setSelectedTab] = useState(initialTab);
 	const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
@@ -570,28 +572,38 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 						</div>
 					)}
 				</div>
-				<Button
-					fullWidth
-					className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
-					onPress={() => { handleClick(inputAmount) }}
-					isLoading={isLoading}
-					isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0}
-				>
-					{t('Home.deploy')} {
-						selectedTab === 'auto'
-							? (inputAmount && roundAmount ?
-								BigNumber(inputAmount)
-									.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
-									.multipliedBy(parseInt(roundAmount) || 1)
-									.dp(8).toString()
-								: '0')
-							: (inputAmount ?
-								BigNumber(inputAmount)
-									.multipliedBy(selectedCells.length)
-									.dp(8).toString()
-								: '0')
-					} BNB
-				</Button>
+				{!isConnected ? (
+					<Button
+						fullWidth
+						className="h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]"
+						onPress={toLogin}
+					>
+						{t('Header.connectWallet')}
+					</Button>
+				) : (
+					<Button
+						fullWidth
+						className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
+						onPress={() => { handleClick(inputAmount) }}
+						isLoading={isLoading}
+						isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0}
+					>
+						{t('Home.deploy')} {
+							selectedTab === 'auto'
+								? (inputAmount && roundAmount ?
+									BigNumber(inputAmount)
+										.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
+										.multipliedBy(parseInt(roundAmount) || 1)
+										.dp(8).toString()
+									: '0')
+								: (inputAmount ?
+									BigNumber(inputAmount)
+										.multipliedBy(selectedCells.length)
+										.dp(8).toString()
+									: '0')
+						} BNB
+					</Button>
+				)}
 			</div>
 		</div>
 	)
