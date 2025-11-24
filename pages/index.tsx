@@ -160,7 +160,7 @@ export default function IndexPage() {
 				// 如果 round_id 和 reset_event_round_id 一样，取 reset_event_round_id；不一样取最大的
 				let targetRoundId;
 				if (data?.round_id === data?.reset_event_round_id) {
-					targetRoundId = data?.reset_event_round_id + 1;
+					targetRoundId = roundInfo?.gameState != 4 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id;
 				} else {
 					targetRoundId = Math.max(data?.round_id || 0, data?.reset_event_round_id || 0);
 				}
@@ -299,14 +299,13 @@ export default function IndexPage() {
 	return (
 		<DefaultLayout>
 			<div className="flex flex-col h-full bg-[#0D0F13]">
-				{/* 左下角调试信息悬浮块 */}
-				{/* <div className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-[#EFC462] to-[#F4D03F] text-black rounded-xl p-4 shadow-2xl border-2 border-[#EFC462] animate-pulse">
+				<div className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-[#EFC462] to-[#F4D03F] text-black rounded-xl p-4 shadow-2xl border-2 border-[#EFC462] animate-pulse">
 					<div className="flex flex-col gap-2">
 						<div className="font-bold text-sm">🎮 DEBUG INFO</div>
 						<div className="font-semibold">Game State: <span className="text-lg font-black">{roundInfo?.gameState ?? '⏳'}</span></div>
 						<div className="font-semibold">Round ID: <span className="text-lg font-black">{roundInfo?.currentRoundId ?? '⏳'}</span></div>
 					</div>
-				</div> */}
+				</div>
 
 				<section className="flex flex-col items-center justify-center gap-4 px-[14px]">
 					<div className="w-full max-w-[640px] lg:max-w-[1200px] flex flex-col lg:flex-row pt-[16px] lg:pt-[40px]">
