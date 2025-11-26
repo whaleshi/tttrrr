@@ -158,10 +158,10 @@ export const BNBIcon = (props: IconSvgProps) => (
 
 export const BlockIcon = (props: IconSvgProps) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" {...props}>
-		<rect x="1.875" y="1.875" width="5.25" height="5.25" rx="1.75" fill="#868789" stroke="#868789" stroke-width="0.4375" />
-		<rect x="1.875" y="8.875" width="5.25" height="5.25" rx="1.75" fill="#868789" stroke="#868789" stroke-width="0.4375" />
-		<rect x="8.875" y="1.875" width="5.25" height="5.25" rx="1.75" fill="#868789" stroke="#868789" stroke-width="0.4375" />
-		<rect x="8.875" y="8.875" width="5.25" height="5.25" rx="1.75" fill="#B89E60" stroke="#B89E60" stroke-width="0.4375" />
+		<rect x="1.875" y="1.875" width="5.25" height="5.25" rx="1.75" fill="#868789" stroke="#868789" strokeWidth="0.4375" />
+		<rect x="1.875" y="8.875" width="5.25" height="5.25" rx="1.75" fill="#868789" stroke="#868789" strokeWidth="0.4375" />
+		<rect x="8.875" y="1.875" width="5.25" height="5.25" rx="1.75" fill="#868789" stroke="#868789" strokeWidth="0.4375" />
+		<rect x="8.875" y="8.875" width="5.25" height="5.25" rx="1.75" fill="#B89E60" stroke="#B89E60" strokeWidth="0.4375" />
 	</svg>
 )
 
