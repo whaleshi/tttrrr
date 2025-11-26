@@ -140,14 +140,14 @@ export const Auto = ({ info }: AutoProps) => {
 					<div className="flex items-center justify-between">
 						{t('Home.blocks')}
 						<div className="w-[70%] text-right">
-							<span className="text-[#FFF]">x {info?.extend_data?.blocks}</span>
+							<span className="text-[#FFF]">{info?.randomize_mask ? t('Home.random') + ' x ' + info?.extend_data?.blocks : info?.extend_data?.selected?.map((cellIndex: number) => `#${cellIndex + 1}`).join(', ')}</span>
 						</div>
 					</div>
 					<div className="flex items-center justify-between mt-[8px]">
 						{t('Home.roundsRemaining')}<span className="text-[#FFF]">{info?.extend_data?.round_remaining}</span>
 					</div>
 					<div className="flex items-center justify-between mt-[8px]">
-						{t('Home.totalPerRound')}<span className="text-[#FFF]">{info?.extend_data?.total_per_round ? BigNumber(ethers.formatEther(BigInt(info.extend_data.total_per_round))).dp(6).toString() : '0'} BNB</span>
+						{t('Home.totalPerRound')}<span className="text-[#FFF]">{info?.extend_data?.total_per_round ? BigNumber(ethers.formatUnits(BigInt(info.extend_data.total_per_round), 8)).dp(8).toString() : '0'} BNB</span>
 					</div>
 				</div>
 				<Button

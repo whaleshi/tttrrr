@@ -301,7 +301,8 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 				gasLimit: gasLimit
 			});
 
-			// 关闭 loading toast (如果已创建)
+			// 等待交易确认
+			await tx.wait();
 			if (loadingToastId) {
 				dismissToast(loadingToastId);
 			}
@@ -311,14 +312,8 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
-
-			// 等待交易确认（异步处理，不阻塞UI）
-			tx.wait().then((receipt: any) => {
-				queryClient.invalidateQueries({ queryKey: ['automation'] });
-				console.log('自动化注册确认:', receipt);
-			}).catch((waitError: any) => {
-				console.error('交易确认失败:', waitError);
-			});
+			queryClient.invalidateQueries({ queryKey: ['automation'] });
+			console.log('自动化注册确认');
 
 		} catch (error) {
 			console.error('注册自动化失败:', error);
@@ -380,7 +375,7 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 			await deploySquares(selectedCells, amount);
 		} else if (selectedTab === 'auto') {
 			// 自动模式：注册自动化投注
-			await registerAutomation(selectedCells, amount, roundAmount || '1', blockAmount);
+			await registerAutomation(selectedCells, amount, roundAmount, blockAmount);
 		}
 		// onDeploy?.(amount);
 	};
