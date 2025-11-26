@@ -227,6 +227,7 @@
         "roundsRequired": "需要回合数",
         "stopAutominer": "停止自动挖矿",
         "selectAll": "全选",
-        "deselectAll": "取消全选"
+        "deselectAll": "取消全选",
+        "amount": "请输入有效金额"
     }
 }

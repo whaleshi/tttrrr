@@ -14,7 +14,6 @@ import { useBalanceContext } from "@/providers/balanceProvider";
 import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon, LangIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
-import { customToast } from "./customToast";
 
 
 export const Navbar = () => {

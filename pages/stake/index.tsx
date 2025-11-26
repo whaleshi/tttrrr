@@ -149,8 +149,25 @@ export default function StakePage() {
 		}
 		if (!inputAmount || parseFloat(inputAmount) <= 0) {
 			customToast({
-				title: t('Common.transactionFailed'),
-				description: t('Home.insufficientBalance'),
+				title: t('Home.insufficientBalance'),
+				type: 'error'
+			});
+			return;
+		}
+
+		// 检查ORI余额是否足够
+		if (!oriBalance) {
+			customToast({
+				title: t('Home.insufficientBalance'),
+				type: 'error'
+			});
+			return;
+		}
+
+		const stakeAmount = ethers.parseUnits(inputAmount, 18);
+		if (BigInt(oriBalance.toString()) < BigInt(stakeAmount.toString())) {
+			customToast({
+				title: t('Home.insufficientBalance'),
 				type: 'error'
 			});
 			return;
@@ -164,32 +181,39 @@ export default function StakePage() {
 			const provider = new ethers.BrowserProvider(ethereumProvider);
 			const signer = await provider.getSigner();
 
-			// 质押金额（注意ORI是18位小数）
-			const stakeAmount = ethers.parseUnits(inputAmount, 18);
-
-			loadingToastId = customToastPersistent({
-				title: 'Step 1: Approving ORI tokens...',
-				type: 'loading'
-			});
-
-			// 1. 先授权 ORI 代币
+			// 1. 检查当前授权额度
 			const oriToken = new ethers.Contract(
 				DEFAULT_CHAIN_CONFIG.ori,
 				OreTokenABI.abi,
 				signer
 			);
 
-			const approveTx = await oriToken.approve(CONTRACT_CONFIG.ORE_CONTRACT, stakeAmount);
-			await approveTx.wait();
+			const currentAllowance = await oriToken.allowance(address, CONTRACT_CONFIG.ORE_CONTRACT);
 
-			// 更新loading提示
-			dismissToast(loadingToastId);
+			// 2. 如果授权额度不足，先进行授权
+			if (BigInt(currentAllowance.toString()) < BigInt(stakeAmount.toString())) {
+				loadingToastId = customToastPersistent({
+					title: t('Common.waitingForSignature'),
+					type: 'loading'
+				});
+
+				const approveTx = await oriToken.approve(CONTRACT_CONFIG.ORE_CONTRACT, stakeAmount);
+				await approveTx.wait();
+
+				// 更新loading提示
+				dismissToast(loadingToastId);
+			}
+
+			// 3. 进行质押操作
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
 			loadingToastId = customToastPersistent({
-				title: 'Step 2: Depositing stake...',
+				title: t('Common.waitingForSignature'),
 				type: 'loading'
 			});
 
-			// 2. 存入质押
+			// 4. 存入质押
 			const oreProtocolContract = new ethers.Contract(
 				CONTRACT_CONFIG.ORE_CONTRACT,
 				OreProtocolABI.abi,
@@ -205,7 +229,7 @@ export default function StakePage() {
 			}
 
 			customToast({
-				title: '质押成功！',
+				title: t('Common.transactionConfirmed'),
 				description: <span onClick={() => window.open(`https://bscscan.com/tx/${stakeTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
 				type: 'success'
 			});
@@ -235,10 +259,31 @@ export default function StakePage() {
 
 	// 提取质押函数
 	const handleWithdraw = async () => {
-		if (!wallet || !isConnected || !inputAmount || parseFloat(inputAmount) <= 0) {
+		if (!wallet || !isConnected) {
+			return;
+		}
+		if (!inputAmount || parseFloat(inputAmount) <= 0) {
 			customToast({
-				title: '输入错误',
-				description: '请先连接钱包并输入有效金额',
+				title: t('Home.insufficientBalance'),
+				type: 'error'
+			});
+			return;
+		}
+
+		// 检查质押余额是否足够
+		const withdrawAmount = ethers.parseUnits(inputAmount, 18);
+		if (!userRewards || !Array.isArray(userRewards)) {
+			customToast({
+				title: t('Home.insufficientBalance'),
+				type: 'error'
+			});
+			return;
+		}
+
+		const stakedAmountRaw = (userRewards as any[])[0]?.toString() || '0';
+		if (BigInt(stakedAmountRaw) < BigInt(withdrawAmount.toString())) {
+			customToast({
+				title: t('Home.insufficientBalance'),
 				type: 'error'
 			});
 			return;
@@ -252,11 +297,8 @@ export default function StakePage() {
 			const provider = new ethers.BrowserProvider(ethereumProvider);
 			const signer = await provider.getSigner();
 
-			// 提取金额（注意ORI是18位小数）
-			const withdrawAmount = ethers.parseUnits(inputAmount, 18);
-
 			loadingToastId = customToastPersistent({
-				title: 'Withdrawing stake...',
+				title: t('Common.waitingForSignature'),
 				type: 'loading'
 			});
 
@@ -276,7 +318,7 @@ export default function StakePage() {
 			}
 
 			customToast({
-				title: '提取成功！',
+				title: t('Common.transactionConfirmed'),
 				description: <span onClick={() => window.open(`https://bscscan.com/tx/${withdrawTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
 				type: 'success'
 			});
@@ -288,7 +330,6 @@ export default function StakePage() {
 			setInputAmount('');
 
 		} catch (error) {
-			console.error('提取失败:', error);
 
 			if (loadingToastId) {
 				dismissToast(loadingToastId);

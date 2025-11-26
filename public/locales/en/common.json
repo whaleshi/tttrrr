@@ -227,6 +227,7 @@
         "roundsRequired": "Rounds required",
         "stopAutominer": "Stop autominer",
         "selectAll": "Select all",
-        "deselectAll": "Deselect all"
+        "deselectAll": "Deselect all",
+        "amount": "Please enter a valid amount"
     }
 }

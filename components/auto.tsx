@@ -63,11 +63,6 @@ export const Auto = ({ info }: AutoProps) => {
 	// 停止自动化挖矿功能
 	const stopAutomation = async () => {
 		if (!signer || !provider) {
-			customToast({
-				title: '钱包未连接',
-				description: '请先连接您的钱包',
-				type: 'error'
-			});
 			return;
 		}
 
@@ -107,7 +102,7 @@ export const Auto = ({ info }: AutoProps) => {
 			}
 
 			customToast({
-				title: '自动化已停止！',
+				title: t('Common.transactionConfirmed'),
 				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
 				type: 'success'
 			});

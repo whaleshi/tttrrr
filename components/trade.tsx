@@ -124,8 +124,7 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 		const totalRequiredFormatted = ethers.formatEther(totalRequired);
 		if (_bignumber(totalRequiredFormatted).gt(balance)) {
 			customToast({
-				title: '余额不足',
-				description: `需要 ${totalRequiredFormatted} BNB，当前余额 ${formatBigNumber(balance)} BNB`,
+				title: t('Home.insufficientBalance'),
 				type: 'error'
 			});
 			setIsLoading(false);
@@ -239,23 +238,23 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 		try {
 			// 获取检查点费用
 			const config = await oreProtocolContract.config();
-			const checkpointFee = config.checkpointFee || 0;
+			console.log(config, 'automation config');
+			const executorFee = config.executorFee || 0;
 
 			const automation = {
 				owner: address,
 				balance: 0, // 会自动加上 msg.value
 				mask: mask,
 				amountPerSquare: amountPerSquareWei,
-				// feePerCall: ethers.parseEther("0.001"), // 给 Bot 的费用
 				randomizeMask: randomizeMask,
 				active: true
 			};
-
+			console.log(executorFee, 'executorFee');
 			// 预存轮次费用
 			const roundsToFund = parseInt(rounds);
 			// 计算实际的格子数量
 			const actualSquareCount = selectedSquares.length > 0 ? selectedSquares.length : (blockCount ? parseInt(blockCount) : 0);
-			const costPerRound = automation.amountPerSquare * BigInt(actualSquareCount);
+			const costPerRound = automation.amountPerSquare * BigInt(actualSquareCount) + BigInt(executorFee);
 			// + // 总投注
 			// BigInt(checkpointFee) +                     // checkpoint 费用
 			// automation.feePerCall;              // Bot 费用
@@ -265,8 +264,7 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 			const totalRequiredFormatted = ethers.formatEther(totalFunding);
 			if (_bignumber(totalRequiredFormatted).gt(balance)) {
 				customToast({
-					title: '余额不足',
-					description: `需要 ${totalRequiredFormatted} BNB，当前余额 ${formatBigNumber(balance)} BNB`,
+					title: t('Home.insufficientBalance'),
 					type: 'error'
 				});
 				return;
@@ -341,20 +339,11 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 	};
 
 	const handleClick = async (amount: string) => {
-		if (!signer || !provider) {
-			customToast({
-				title: '钱包未连接',
-				description: '请先连接您的钱包',
-				type: 'error'
-			});
-			return;
-		}
 
 		// setIsLoading(true);
 		if (!amount || parseFloat(amount) <= 0) {
 			customToast({
-				title: '输入错误',
-				description: '请输入有效金额',
+				title: t('Home.amount'),
 				type: 'error'
 			});
 			return;
@@ -363,8 +352,7 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 		// Auto模式下可以通过blockAmount输入数量，Manual模式下必须选择格子
 		if (selectedTab === 'manual' && selectedCells.length === 0) {
 			customToast({
-				title: '选择错误',
-				description: '请选择至少一个格子',
+				title: t('Home.noTerritorySelected'),
 				type: 'error'
 			});
 			return;
@@ -372,8 +360,15 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 
 		if (selectedTab === 'auto' && selectedCells.length === 0 && (parseInt(blockAmount) || 0) === 0) {
 			customToast({
-				title: '操作错误',
-				description: '请选择格子或输入块数量',
+				title: t('Home.noTerritorySelected'),
+				type: 'error'
+			});
+			return;
+		}
+
+		if (selectedTab === 'auto' && (parseInt(roundAmount) || 0) === 0) {
+			customToast({
+				title: t('Home.roundsRequired'),
 				type: 'error'
 			});
 			return;
@@ -564,9 +559,11 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 						className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
 						onPress={() => { handleClick(inputAmount) }}
 						isLoading={isLoading}
-						isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || roundInfo?.gameState !== 1}
+						isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || (selectedTab === 'manual' && roundInfo?.gameState !== 1)}
 					>
-						{roundInfo?.gameState === 1 ? (
+						{(selectedTab === 'manual' && roundInfo?.gameState !== 1) ? (
+							t('Home.waitingForRound')
+						) : (
 							<>{t('Home.deploy')} {
 								selectedTab === 'auto'
 									? (inputAmount && roundAmount ?
@@ -581,8 +578,6 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 											.dp(8).toString()
 										: '0')
 							} BNB</>
-						) : (
-							t('Home.waitingForRound')
 						)}
 					</Button>
 				)}

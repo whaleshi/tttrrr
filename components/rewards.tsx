@@ -125,11 +125,6 @@ export default function Rewards() {
 			setIsClaimLoading(true);
 
 			if (!wallet || !isConnected || !address || !CONTRACT_CONFIG.ORE_CONTRACT) {
-				customToast({
-					title: '钱包未连接',
-					description: '请先连接您的钱包',
-					type: 'error'
-				});
 				return;
 			}
 
@@ -205,11 +200,6 @@ export default function Rewards() {
 			setIsClaimLoading(true);
 
 			if (!wallet || !isConnected || !address || !CONTRACT_CONFIG.ORE_CONTRACT) {
-				customToast({
-					title: '钱包未连接',
-					description: '请先连接您的钱包',
-					type: 'error'
-				});
 				return;
 			}
 

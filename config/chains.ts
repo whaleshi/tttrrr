@@ -15,9 +15,9 @@ export const CHAINS_CONFIG = {
             explorerUrl: "https://testnet.bscscan.com",
             rpcUrl: "https://delicate-old-breeze.bsc-testnet.quiknode.pro/4e8edc72f64856f8e8fa3377a81c9f3a1f6b5dee/",
             // rpcUrl: "https://data-seed-prebsc-1-s1.bnbchain.org:8545",
-            readOreContract: "0xd68067d9CF664954DA1aaa4541C36A0B8b73ca1C",
-            oreContract: "0xe3D42673b450B0B2A50FedBf415E791141a610BC",
-            ori: "0xAabD376a39Eb322dEb367A6a1C982170eB588950",
+            readOreContract: "0x72051E2Facb0E4FB7272C158Caa8E61f0180f22E",
+            oreContract: "0x9f3F884E0fAda89712939Ac17dAC88f8095f7950",
+            ori: "0x96AA947477a0C05532D81219b60f7bb0450bC9d9",
         },
         [56]: {
             name: "BNB Smart Chain",
