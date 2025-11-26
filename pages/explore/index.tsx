@@ -102,7 +102,7 @@ export default function ExplorePage() {
 						<div className="flex items-center gap-[4px] font-semibold">
 							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 							<div className="text-[16px] text-[#fff]">{exploreInfoData?.buried_7d?.value ? (() => {
-								const formatted = BigNumber(ethers.formatEther(BigInt(exploreInfoData.buried_7d.value))).dp(6, BigNumber.ROUND_DOWN);
+								const formatted = BigNumber(ethers.formatUnits(BigInt(exploreInfoData.buried_7d.value), 8)).dp(6, BigNumber.ROUND_DOWN);
 								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
 							})() : '0'}</div>
 						</div>
