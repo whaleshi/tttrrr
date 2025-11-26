@@ -225,7 +225,7 @@ export default function StakePage() {
 
 			customToast({
 				title: t('Common.transactionConfirmed'),
-				description: <span onClick={() => window.open(`https://bscscan.com/tx/${stakeTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${stakeTx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 
@@ -320,7 +320,7 @@ export default function StakePage() {
 
 			customToast({
 				title: t('Common.transactionConfirmed'),
-				description: <span onClick={() => window.open(`https://bscscan.com/tx/${withdrawTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${withdrawTx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 
@@ -388,7 +388,7 @@ export default function StakePage() {
 
 			customToast({
 				title: t('Common.transactionConfirmed'),
-				description: <span onClick={() => window.open(`https://bscscan.com/tx/${claimTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${claimTx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 

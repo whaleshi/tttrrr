@@ -79,7 +79,7 @@ export const Auto = ({ info }: AutoProps) => {
 
 			// 显示loading提示
 			loadingToastId = customToastPersistent({
-				title: t('Home.stopping'),
+				title: t('Common.waitingForSignature'),
 				type: 'loading'
 			});
 
@@ -103,7 +103,7 @@ export const Auto = ({ info }: AutoProps) => {
 
 			customToast({
 				title: t('Common.transactionConfirmed'),
-				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${tx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
 				type: 'success'
 			});
 

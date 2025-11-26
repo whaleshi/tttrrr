@@ -558,12 +558,12 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 										BigNumber(inputAmount)
 											.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
 											.multipliedBy(parseInt(roundAmount) || 1)
-											.dp(8).toString()
+											.dp(8).toFixed()
 										: '0')
 									: (inputAmount ?
 										BigNumber(inputAmount)
 											.multipliedBy(selectedCells.length)
-											.dp(8).toString()
+											.dp(8).toFixed()
 										: '0')
 							} BNB</>
 						)}
