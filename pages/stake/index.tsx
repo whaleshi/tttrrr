@@ -18,7 +18,7 @@ import usePrivyLogin from "@/hooks/usePrivyLogin";
 const BigNumber = _bignumber;
 import { getSummary } from "@/service/api";
 import { Image } from "@heroui/react";
-
+import { useBalanceContext } from "@/providers/balanceProvider";
 
 export default function StakePage() {
 	const { t } = useTranslation();
@@ -26,7 +26,7 @@ export default function StakePage() {
 	const [selectedTab, setSelectedTab] = useState('deposit');
 	const [inputAmount, setInputAmount] = useState('');
 	const [isStaking, setIsStaking] = useState(false);
-
+	const { price } = useBalanceContext();
 	const { ready } = usePrivy();
 	const { wallets } = useWallets();
 	const { isLoggedIn, address } = useAuthStore();
@@ -532,7 +532,11 @@ export default function StakePage() {
 									</PopoverContent>
 								</Popover>
 							</div>
-							<span className="text-[14px] text-[#fff]">$0</span>
+							<span className="text-[14px] text-[#fff]">
+								${price && formattedTreasuryData?.totalStaked 
+									? BigNumber(formattedTreasuryData.totalStaked).multipliedBy(price).dp(2).toString() 
+									: '0.00'}
+							</span>
 						</div>
 					</div>
 				</div>
