@@ -236,19 +236,19 @@ export default function IndexPage() {
 					setIsDrawing(false);
 
 					// 5秒后开始新一轮
-					// setTimeout(() => {
-					// 	setShowWinner(false);
-					// 	setWinningCell(null);
-					// 	setCellAmounts({}); // 清空投注金额
+					setTimeout(() => {
+						setShowWinner(false);
+						setWinningCell(null);
+						setCellAmounts({}); // 清空投注金额
 
-					// 	// 再次触发eventInfo重新获取，确保获取最新轮次信息
-					// 	console.log('🔄 准备新轮次，重新获取eventInfo');
-					// 	queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
+						// 再次触发eventInfo重新获取，确保获取最新轮次信息
+						console.log('🔄 准备新轮次，重新获取eventInfo');
+						queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 
-					// 	// 再次触发自动化配置重新获取
-					// 	console.log('🔄 准备新轮次，重新获取自动化配置');
-					// 	queryClient.invalidateQueries({ queryKey: ['automation'] });
-					// }, 5000);
+						// 再次触发自动化配置重新获取
+						console.log('🔄 准备新轮次，重新获取自动化配置');
+						queryClient.invalidateQueries({ queryKey: ['automation'] });
+					}, 5000);
 				}, 3600); // 24个格子 * 150ms
 			}
 		} catch (error) {
