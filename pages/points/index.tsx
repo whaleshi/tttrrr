@@ -9,6 +9,7 @@ import { ethers } from 'ethers';
 import { useTranslation } from "react-i18next";
 import { usePrivy } from "@privy-io/react-auth";
 const BigNumber = _bignumber;
+import { useBalanceContext } from "@/providers/balanceProvider";
 
 export default function PointsPage() {
 	const { t } = useTranslation();
@@ -16,6 +17,7 @@ export default function PointsPage() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 20;
 	const { address } = useAuthStore();
+	const { price } = useBalanceContext();
 
 	// 获取积分记录列表
 	const { data: pointsListData, isLoading } = useQuery({
@@ -46,7 +48,7 @@ export default function PointsPage() {
 				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">{t('Points.subtitle')}</div>
 
 				{/* My Points Card */}
-				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[88px] mb-[24px] flex items-center px-[16px]">
+				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[88px] mb-[12px] flex items-center px-[16px]">
 					<div className="flex items-center gap-[12px]">
 						<PointsIcon className="w-[40px] h-[40px]" />
 						<div>
@@ -55,17 +57,16 @@ export default function PointsPage() {
 						</div>
 					</div>
 				</div>
-
+				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.recordsDescription')}<span className="text-[#fff]">234,567,800</span></div>
 				{/* Records Section */}
 				<div className="w-full">
 					<div className="text-[20px] font-semibold text-[#fff] mb-[8px]">{t('Points.records')}</div>
-					<div className="text-[12px] text-[#868789] mb-[12px]">{t('Points.recordsDescription')}</div>
 
 					{/* Table Header */}
-					<div className="grid gap-[8px] border-b border-dashed border-[#25262A] h-[38px] items-center" style={{ gridTemplateColumns: '2fr 1.5fr 1fr 1fr' }}>
+					<div className="grid gap-[8px] border-b border-dashed border-[#25262A] h-[38px] items-center" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
 						<div className="text-[12px] text-[#868789]">{t('Points.time')}</div>
-						<div className="text-[12px] text-[#868789]">{t('Points.inputAmount')}</div>
-						<div className="text-[12px] text-[#868789]">{t('Points.inputAmount')}</div>
+						<div className="text-[12px] text-[#868789] text-center">{t('Points.inputAmount')}</div>
+						{/* <div className="text-[12px] text-[#868789]">USD</div> */}
 						<div className="text-[12px] text-[#868789] text-right">{t('Points.earnPoint')}</div>
 					</div>
 
@@ -79,13 +80,13 @@ export default function PointsPage() {
 							</div>
 						) : pointsListData?.list?.length > 0 ? (
 							pointsListData.list.map((record: any, index: any) => (
-								<div key={index} className="grid gap-[8px] h-[38px] items-center" style={{ gridTemplateColumns: '2fr 1.5fr 1fr 1fr' }}>
+								<div key={index} className="grid gap-[8px] h-[38px] items-center" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
 									{/* 时间列 - 较宽 */}
 									<div className="text-[12px] text-[#fff] truncate">{record?.timestamp ? new Date(record.timestamp * 1000).toLocaleString() : '-'}</div>
 									{/* 投入金额列 */}
-									<div className="text-[12px] text-[#fff] truncate">{record?.bet_amount ? BigNumber(ethers.formatUnits(BigInt(record?.bet_amount), 8)).dp(6).toString() + ' BNB' : '-'}</div>
+									{/* <div className="text-[12px] text-[#fff] truncate">{record?.bet_amount ? BigNumber(ethers.formatUnits(BigInt(record?.bet_amount), 8)).dp(6, BigNumber.ROUND_DOWN).toString() + ' BNB' : '-'}</div> */}
 									{/* USD价值列 */}
-									<div className="text-[12px] text-[#fff] truncate">{record?.usd_value ? '$' + BigNumber(record.usd_value).dp(2).toString() : '-'}</div>
+									<div className="text-[12px] text-[#fff] truncate text-center">{record?.bet_amount && price ? '$' + BigNumber(ethers.formatUnits(BigInt(record.bet_amount), 8)).multipliedBy(price).dp(2).toString() : '-'}</div>
 									{/* 积分列 - 右对齐 */}
 									<div className="text-[12px] text-[#fff] text-right">{record?.points_reward ? BigNumber(record.points_reward).dp(2).toString() : '0'}</div>
 								</div>

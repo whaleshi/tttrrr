@@ -3,7 +3,6 @@ import NextLink from "next/link";
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router"
 import { Image, Input } from "@heroui/react"
-import NextImage from "next/image"
 import { usePrivy } from "@privy-io/react-auth";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
 import { useAuthStore } from "@/stores/auth";
@@ -116,8 +115,8 @@ export const Navbar = () => {
 					<Image src="/images/logo.png" alt="logo" className="w-[36px] h-[36px]" disableSkeleton disableAnimation radius="none" />
 					<LogoTextIcon />
 				</NextLink>
-				<div 
-					className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden cursor-pointer hover:opacity-80" 
+				<div
+					className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden cursor-pointer hover:opacity-80"
 					onClick={handleTokenClick}
 				>
 					${price.toFixed(2) || 0}

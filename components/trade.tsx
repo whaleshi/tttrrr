@@ -520,16 +520,16 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 					{selectedTab === 'auto' && (
 						<>
 							<div className="flex items-center justify-between mt-[8px]">
-								{t('Home.totalPerRound')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).dp(6).toFixed() : '0'} BNB</span>
+								{t('Home.totalPerRound')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'} BNB</span>
 							</div>
 							<div className="flex items-center justify-between mt-[8px]">
-								{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount && roundAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).multipliedBy(parseInt(roundAmount) || 1).dp(6).toFixed() : '0'} BNB</span>
+								{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount && roundAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).multipliedBy(parseInt(roundAmount) || 1).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'} BNB</span>
 							</div>
 						</>
 					)}
 					{selectedTab === 'manual' && (
 						<div className="flex items-center justify-between mt-[8px]">
-							{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length).dp(6).toFixed() : '0'} BNB</span>
+							{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'} BNB</span>
 						</div>
 					)}
 				</div>
@@ -558,12 +558,12 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 										BigNumber(inputAmount)
 											.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
 											.multipliedBy(parseInt(roundAmount) || 1)
-											.dp(6).toFixed()
+											.dp(6, BigNumber.ROUND_DOWN).toFixed()
 										: '0')
 									: (inputAmount ?
 										BigNumber(inputAmount)
 											.multipliedBy(selectedCells.length)
-											.dp(6).toFixed()
+											.dp(6, BigNumber.ROUND_DOWN).toFixed()
 										: '0')
 							} BNB</>
 						)}

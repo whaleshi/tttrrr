@@ -85,21 +85,20 @@ export default function StakePage() {
 	const treasuryState = treasuryData?.[0]?.status === 'success' ? treasuryData[0].result : null;
 	// 格式化ORI余额
 	const formattedOriBalance = oriBalance
-		? BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18)).dp(6).toString()
+		? BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18)).dp(6, BigNumber.ROUND_DOWN).toString()
 		: '0';
-
 	// 格式化质押数据
 	const formattedStakeInfo = userRewards && Array.isArray(userRewards) ? {
-		stakedAmount: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[0]?.toString() || '0'), 18)).dp(6).toString(),
-		pendingRewards: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[1]?.toString() || '0'), 18)).dp(6).toString(),
-		rewardDebt: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[2]?.toString() || '0'), 18)).dp(6).toString(),
+		stakedAmount: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[0]?.toString() || '0'), 18)).dp(6, BigNumber.ROUND_DOWN).toString(),
+		pendingRewards: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[1]?.toString() || '0'), 18)).dp(6, BigNumber.ROUND_DOWN).toString(),
+		rewardDebt: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[2]?.toString() || '0'), 18)).dp(6, BigNumber.ROUND_DOWN).toString(),
 		updatedAt: (userRewards as any[])[3]?.toString() || '0'
 	} : { stakedAmount: '0', pendingRewards: '0', rewardDebt: '0', updatedAt: '0' };
 
 	// 格式化Treasury数据
 	const formattedTreasuryData = treasuryState && Array.isArray(treasuryState) ? {
-		totalStaked: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[0]?.toString() || '0'), 18)).dp(6).toString(),
-		accRewardPerShare: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(6).toString(),
+		totalStaked: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[0]?.toString() || '0'), 18)).dp(6, BigNumber.ROUND_DOWN).toString(),
+		accRewardPerShare: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(6, BigNumber.ROUND_DOWN).toString(),
 	} : { totalStaked: '0', accRewardPerShare: '0' };
 
 	const percentageButtons = [
@@ -115,8 +114,8 @@ export default function StakePage() {
 				const calculatedAmount = BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18))
 					.multipliedBy(percentage)
 					.dividedBy(100)
-					.dp(6)
-					.toString();
+					.dp(6, BigNumber.ROUND_DOWN)
+					.toFixed();
 				setInputAmount(calculatedAmount);
 			}
 		} else {
@@ -126,8 +125,8 @@ export default function StakePage() {
 				const calculatedAmount = BigNumber(ethers.formatUnits(BigInt(stakedAmountRaw), 18))
 					.multipliedBy(percentage)
 					.dividedBy(100)
-					.dp(6)
-					.toString();
+					.dp(6, BigNumber.ROUND_DOWN)
+					.toFixed();
 				setInputAmount(calculatedAmount);
 			}
 		}
@@ -162,6 +161,7 @@ export default function StakePage() {
 
 		const stakeAmount = ethers.parseUnits(inputAmount, 18);
 		if (BigInt(oriBalance.toString()) < BigInt(stakeAmount.toString())) {
+			console.log(1, BigInt(oriBalance.toString()), BigInt(stakeAmount.toString()))
 			customToast({
 				title: t('Home.insufficientBalance'),
 				type: 'error'

@@ -66,12 +66,12 @@ export default function Rank({ roundId }: RankProps) {
 							{Number(item?.ore_reward) > 0 && (
 								<>
 									<Image src="/images/logo.png" alt="logo" className="w-[14px] h-[14px] shrink-0" disableSkeleton disableAnimation radius="none" />
-									<span>{BigNumber(ethers.formatUnits(BigInt(item?.ore_reward || 0), 8)).dp(6).toFixed()}</span>
+									<span>{BigNumber(ethers.formatUnits(BigInt(item?.ore_reward || 0), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}</span>
 									<span className="text-[#868789]">+</span>
 								</>
 							)}
 							<BNBIcon className="w-[14px] h-[14px]" />
-							<span>{BigNumber(ethers.formatUnits(BigInt(item?.eth_reward || 0), 8)).dp(6).toFixed()}</span>
+							<span>{BigNumber(ethers.formatUnits(BigInt(item?.eth_reward || 0), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed()}</span>
 						</div>
 					</div>
 				))}
