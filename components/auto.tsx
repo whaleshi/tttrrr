@@ -139,7 +139,7 @@ export const Auto = ({ info }: AutoProps) => {
 				<div className="pt-[12px] pb-[16px] text-[13px] text-[#868789]">
 					<div className="flex items-center justify-between">
 						{t('Home.blocks')}
-						<div className="w-[70%] text-right">
+						<div className="w-[80%] text-right">
 							<span className="text-[#FFF]">{info?.randomize_mask ? t('Home.random') + ' x ' + info?.extend_data?.blocks : info?.extend_data?.selected?.map((cellIndex: number) => `#${cellIndex + 1}`).join(', ')}</span>
 						</div>
 					</div>
