@@ -1,9 +1,5 @@
-import { Image, Button } from "@heroui/react"
 import DefaultLayout from "@/layouts/default";
-import { useRouter } from "next/router";
-import NextImage from "next/image"
 import { useState, useEffect, useCallback } from "react"
-import { siteConfig } from "@/config/site";
 import Matrix from "@/components/matrix";
 import Overview from "@/components/overview";
 import { Trade } from "@/components/trade";
@@ -11,18 +7,16 @@ import { Auto } from "@/components/auto";
 import Rank from "@/components/rank";
 import Rewards from "@/components/rewards";
 import { ethers } from "ethers";
-import { usePrivy, useWallets } from "@privy-io/react-auth";
+import { usePrivy } from "@privy-io/react-auth";
 import { useAuthStore } from "@/stores/auth";
-import OreProtocolABI from "@/constant/OreProtocol.json";
 import ReadOreProtocolABI from "@/constant/OreProtocolView.json";
-import { CONTRACT_CONFIG, MULTICALL3_ADDRESS, MULTICALL3_ABI } from "@/config/chains";
+import { CONTRACT_CONFIG } from "@/config/chains";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useReadContracts } from 'wagmi';
 import { useEchoChannel } from "@/hooks/useEchoChannel";
 import { getEventInfo, getAutomation } from "@/service/api";
 
 export default function IndexPage() {
-	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [selectedCells, setSelectedCells] = useState<number[]>([]);
 	const [cellAmounts, setCellAmounts] = useState<{ [key: number]: number }>({});
@@ -30,65 +24,10 @@ export default function IndexPage() {
 	const [isDrawing, setIsDrawing] = useState(false);
 	const [showWinner, setShowWinner] = useState(false);
 	const [roundId, setRoundId] = useState<number | null>(null);
-	const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-	const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
-	const [oreProtocolContract, setOreProtocolContract] = useState<ethers.Contract | null>(null);
-	const [readOreProtocolContract, setReadOreProtocolContract] = useState<ethers.Contract | null>(null);
-	const [multicallContract, setMulticallContract] = useState<ethers.Contract | null>(null);
-	const { ready, authenticated, user } = usePrivy();
-	const { wallets } = useWallets();
+	const { ready } = usePrivy();
 	// 使用自定义认证状态的地址，并找到对应的钱包对象
-	const { isLoggedIn, address } = useAuthStore();
-	const wallet = address ? wallets.find((w) => w.address?.toLowerCase() === address.toLowerCase()) : null;
-	const isConnected = ready && isLoggedIn && !!address;
+	const { address } = useAuthStore();
 
-	// 初始化 provider 和 signer
-	useEffect(() => {
-		const initializeProvider = async () => {
-			if (wallet) {
-				try {
-					const ethereumProvider = await wallet.getEthereumProvider();
-					const ethersProvider = new ethers.BrowserProvider(ethereumProvider);
-					const ethersSigner = await ethersProvider.getSigner();
-
-					setProvider(ethersProvider);
-					setSigner(ethersSigner);
-
-					// 初始化 OreProtocol 合约
-					const oreContract = new ethers.Contract(
-						CONTRACT_CONFIG.ORE_CONTRACT,
-						OreProtocolABI.abi,
-						ethersSigner
-					);
-					setOreProtocolContract(oreContract);
-
-					// 创建只读合约实例用于查询
-					const readOreContract = new ethers.Contract(
-						CONTRACT_CONFIG.READ_ORE_CONTRACT,
-						ReadOreProtocolABI.abi,
-						ethersProvider
-					);
-					setReadOreProtocolContract(readOreContract);
-
-					// 创建 MULTICALL3 合约实例
-					const multicall3Contract = new ethers.Contract(
-						MULTICALL3_ADDRESS,
-						MULTICALL3_ABI,
-						ethersProvider
-					);
-					setMulticallContract(multicall3Contract);
-					// console.log('合约对象:', oreContract);
-
-				} catch (error) {
-					console.error("Failed to initialize provider:", error);
-				}
-			}
-		};
-
-		if (isConnected && wallet) {
-			initializeProvider();
-		}
-	}, [wallet, isConnected]);
 
 	// 获取轮次信息 - 每1秒请求一次 (使用 wagmi useReadContracts)
 	const { data: roundInfo, error: roundInfoError } = useReadContracts({
@@ -131,30 +70,12 @@ export default function IndexPage() {
 			}
 		}
 	});
-	// 处理 wagmi 返回的数据并打印日志
-	useEffect(() => {
-		if (roundInfo) {
-			console.log('处理后的数据:', roundInfo);
-			console.log('getTreasuryState:', roundInfo.treasuryOre);
-			console.log('getGameState:', roundInfo.gameState);
-			console.log('getCurrentRoundInfo:', roundInfo.currentRoundId);
-		}
-
-		if (roundInfoError) {
-			console.error('获取合约信息失败:', roundInfoError);
-		}
-	}, [roundInfo, roundInfoError]);
 
 	const { data: eventInfoData } = useQuery({
 		queryKey: ['eventInfo', roundInfo?.gameState],
 		queryFn: async () => {
 			const result = await getEventInfo();
 			const data = result?.data;
-
-
-			// if (data) { setRoundId(roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id); console.log('设置roundId为:', roundInfo?.gameState === 1 ? data?.reset_event_round_id + 1 : data?.reset_event_round_id); }
-
-			// 在接口请求里计算是否游戏中并设置状态
 			if (data) {
 				// 如果 round_id 和 reset_event_round_id 一样，取 reset_event_round_id；不一样取最大的
 				let targetRoundId;
@@ -208,20 +129,16 @@ export default function IndexPage() {
 				? JSON.parse(eventData.data)
 				: eventData.data;
 
-			console.log('解析后的开奖数据:', parsedData);
 
 			// 处理开奖逻辑
 			if (parsedData?.winning_square !== undefined) {
 				queryClient.invalidateQueries({ queryKey: ['roundWinInfo'] });
 				const winningSquare = Number(parsedData.winning_square);
-				console.log('实时开奖事件 - 中奖格子:', winningSquare);
 
 				// 立即触发eventInfo重新获取
-				console.log('🔄 开奖事件，重新获取eventInfo');
 				queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 
 				// 立即触发自动化配置重新获取
-				console.log('🔄 开奖事件，重新获取自动化配置');
 				queryClient.invalidateQueries({ queryKey: ['automation'] });
 
 
@@ -242,11 +159,9 @@ export default function IndexPage() {
 						setCellAmounts({}); // 清空投注金额
 
 						// 再次触发eventInfo重新获取，确保获取最新轮次信息
-						console.log('🔄 准备新轮次，重新获取eventInfo');
 						queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 
 						// 再次触发自动化配置重新获取
-						console.log('🔄 准备新轮次，重新获取自动化配置');
 						queryClient.invalidateQueries({ queryKey: ['automation'] });
 					}, 5000);
 				}, 3600); // 24个格子 * 150ms
@@ -275,19 +190,15 @@ export default function IndexPage() {
 			// 处理轮次开始逻辑 - 根据实际数据结构
 			if (parsedData?.timestamp) {
 				const startTimestamp = Number(parsedData.timestamp);
-				console.log('轮次开始时间戳:', startTimestamp);
 				// 触发eventInfo重新获取
-				console.log('🔄 轮次开始，重新获取eventInfo');
 				setShowWinner(false);
 				setWinningCell(null);
 				setCellAmounts({}); // 清空投注金额
 
 				// 再次触发eventInfo重新获取，确保获取最新轮次信息
-				console.log('🔄 准备新轮次，重新获取eventInfo');
 				queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 
 				// 再次触发自动化配置重新获取
-				console.log('🔄 准备新轮次，重新获取自动化配置');
 				queryClient.invalidateQueries({ queryKey: ['automation'] });
 			}
 
@@ -308,14 +219,6 @@ export default function IndexPage() {
 	return (
 		<DefaultLayout>
 			<div className="flex flex-col h-full bg-[#0D0F13]">
-				{/* <div className="fixed bottom-6 left-6 z-50 bg-gradient-to-r from-[#EFC462] to-[#F4D03F] text-black rounded-xl p-4 shadow-2xl border-2 border-[#EFC462] animate-pulse">
-					<div className="flex flex-col gap-2">
-						<div className="font-bold text-sm">🎮 DEBUG INFO</div>
-						<div className="font-semibold">Game State: <span className="text-lg font-black">{roundInfo?.gameState ?? '⏳'}</span></div>
-						<div className="font-semibold">Round ID: <span className="text-lg font-black">{roundInfo?.currentRoundId ?? '⏳'}</span></div>
-					</div>
-				</div> */}
-
 				<section className="flex flex-col items-center justify-center gap-4 px-[14px]">
 					<div className="w-full max-w-[640px] lg:max-w-[1200px] flex flex-col lg:flex-row pt-[16px] lg:pt-[40px]">
 						<div className="block lg:hidden"><Overview roundInfo={roundInfo} roundId={roundId as number} timestamp={eventInfoData?.timestamp} /></div>

@@ -1,4 +1,4 @@
-import { LogoIcon, BNBIcon } from "@/components/icons";
+import { BNBIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useQuery } from '@tanstack/react-query';
 import { getExploreInfo } from '@/service/api';
@@ -82,7 +82,7 @@ export default function ExplorePage() {
 					{/* Max Supply */}
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
-							<LogoIcon className="w-[16px] h-[16px]" />
+							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.max_supply?.value) || 0).toLocaleString()}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">{t('Explore.maxSupply')}</div>
@@ -91,7 +91,7 @@ export default function ExplorePage() {
 					{/* Circulating Supply */}
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
-							<LogoIcon className="w-[16px] h-[16px]" />
+							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 							<div className="text-[16px] text-[#fff]">{(Number(formattedTotalSupply) || 0).toLocaleString()}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">{t('Explore.circulatingSupply')}</div>
@@ -100,7 +100,7 @@ export default function ExplorePage() {
 					{/* Buried (7d) */}
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
-							<LogoIcon className="w-[16px] h-[16px]" />
+							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 							<div className="text-[16px] text-[#fff]">{exploreInfoData?.buried_7d?.value ? (() => {
 								const formatted = BigNumber(ethers.formatEther(BigInt(exploreInfoData.buried_7d.value))).dp(6);
 								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();

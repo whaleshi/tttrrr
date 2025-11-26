@@ -1,4 +1,4 @@
-import { BNBIcon, LogoIcon } from "@/components/icons";
+import { BNBIcon } from "@/components/icons";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { buryEventList } from '@/service/api';
 import { ethers } from 'ethers';
@@ -6,6 +6,7 @@ import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
 import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
+import { Image } from "@heroui/react";
 
 interface BuybacksTableProps {
 	title?: string;
@@ -88,7 +89,7 @@ export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybac
 												<span className="text-[#fff] truncate">{row?.vault_share ? BigNumber(ethers.formatEther(BigInt(row.vault_share))).dp(6).toString() : '0'}</span>
 											</div>
 											<div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
-												<LogoIcon className="w-[14px] h-[14px] shrink-0" />
+												<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />
 												<span className="text-[#fff] truncate">{row?.total_ore_mined ? BigNumber(ethers.formatEther(BigInt(row.total_ore_mined))).dp(6).toString() : '0'}</span>
 											</div>
 											<div className="flex-1 text-[#fff] text-right break-words">{row?.winnings ? BigNumber(ethers.formatEther(BigInt(row.winnings))).dp(6).toString() + '%' : '-'}</div>

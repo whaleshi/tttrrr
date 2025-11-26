@@ -415,8 +415,8 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 					isDisabled={false}
 					onChange={(e) => {
 						const value = e.target.value;
-						// 只允许数字和小数点
-						if (value === '' || /^\d*\.?\d*$/.test(value)) {
+						// 只允许数字和小数点，最多8位小数
+						if (value === '' || /^\d*\.?\d{0,8}$/.test(value)) {
 							// 确保不以小数点开头，如果是则添加0
 							const formattedValue = value.startsWith('.') ? '0' + value : value;
 							setInputAmount(formattedValue);

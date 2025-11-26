@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { LogoIcon, BNBIcon, InfoIcon } from "@/components/icons";
+import { BNBIcon, InfoIcon } from "@/components/icons";
 import { Image, Button, Popover, PopoverContent, PopoverTrigger, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
 
 // 自定义关闭图标组件
@@ -296,7 +296,7 @@ export default function Rewards() {
 					<RewardItem
 						label={t('Home.unrefinedOri')}
 						value={rewardsData?.oriDirect || "0"}
-						icon={<LogoIcon className="w-[16px] h-[16px]" />}
+						icon={<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />}
 						infoText={t('Home.unrefinedOriDesc')}
 						isLoading={isLoading}
 						className="my-[8px]"
@@ -379,7 +379,7 @@ export default function Rewards() {
 										<RewardItem
 											label={t('Home.unrefinedOri')}
 											value={rewardsData?.oriDirect || "0"}
-											icon={<LogoIcon className="w-[16px] h-[16px]" />}
+											icon={<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />}
 											infoText={t('Home.unrefinedOriDesc')}
 											isLoading={isLoading}
 										/>

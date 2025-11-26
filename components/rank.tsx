@@ -1,4 +1,4 @@
-import { LogoIcon, BNBIcon } from "@/components/icons";
+import { BNBIcon } from "@/components/icons";
 import { useQuery } from "@tanstack/react-query";
 import { getRoundWinInfo } from "@/service/api";
 import { shortenAddress } from "@/utils";
@@ -7,6 +7,7 @@ import _bignumber from "bignumber.js";
 import { useAuthStore } from "@/stores/auth";
 import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
+import { Image } from "@heroui/react";
 interface RankProps {
 	roundId: number;
 }
@@ -64,7 +65,7 @@ export default function Rank({ roundId }: RankProps) {
 						<div className="flex items-center gap-[4px] text-[12px] text-[#fff]">
 							{Number(item?.ore_reward) > 0 && (
 								<>
-									<LogoIcon className="w-[14px] h-[14px]" />
+									<Image src="/images/logo.png" alt="logo" className="w-[14px] h-[14px] shrink-0" disableSkeleton disableAnimation radius="none" />
 									<span>{BigNumber(ethers.formatUnits(BigInt(item?.ore_reward || 0), 8)).dp(8).toFixed()}</span>
 									<span className="text-[#868789]">+</span>
 								</>

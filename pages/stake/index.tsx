@@ -1,4 +1,4 @@
-import { LogoIcon, InfoIcon, BNBIcon } from "@/components/icons";
+import { InfoIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { Button, Input, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
 import { useState } from "react";
@@ -17,18 +17,16 @@ import { useTranslation } from "react-i18next";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
 const BigNumber = _bignumber;
 import { getSummary } from "@/service/api";
+import { Image } from "@heroui/react";
 
 
 export default function StakePage() {
 	const { t } = useTranslation();
 	const { toLogin } = usePrivyLogin();
 	const [selectedTab, setSelectedTab] = useState('deposit');
-	const [selectedPercentage, setSelectedPercentage] = useState<number | null>(null);
 	const [inputAmount, setInputAmount] = useState('');
-	const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
 	const [isStaking, setIsStaking] = useState(false);
 
-	const queryClient = useQueryClient();
 	const { ready } = usePrivy();
 	const { wallets } = useWallets();
 	const { isLoggedIn, address } = useAuthStore();
@@ -110,8 +108,6 @@ export default function StakePage() {
 	];
 
 	const handlePercentageClick = (percentage: number) => {
-		setSelectedAmount(percentage);
-
 		if (selectedTab === 'deposit') {
 			// Deposit模式：使用原始oriBalance进行精确计算
 			if (oriBalance) {
@@ -139,7 +135,6 @@ export default function StakePage() {
 	const handleTabClick = (tab: string) => {
 		setSelectedTab(tab);
 		setInputAmount('');
-		setSelectedAmount(null);
 	};
 
 	// 质押函数
@@ -402,7 +397,7 @@ export default function StakePage() {
 							}
 						}}
 						startContent={<div className="shrink-0 flex items-center gap-[4px] pl-[4px]">
-							<LogoIcon className="w-[20px] h-[20px]" />
+							<Image src="/images/logo.png" alt="logo" className="w-[20px] h-[20px] shrink-0" disableSkeleton disableAnimation radius="none" />
 							<div className="text-[16px] text-[#fff]">ORI</div>
 						</div>}
 					/>
@@ -472,7 +467,7 @@ export default function StakePage() {
 									</Popover>
 								</div>
 								<div className="flex items-center gap-[4px]">
-									<LogoIcon className="w-[16px] h-[16px]" />
+									<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 									<span className="text-[14px] text-[#EFC462]">{formattedStakeInfo?.pendingRewards}</span>
 								</div>
 							</div>
@@ -505,7 +500,7 @@ export default function StakePage() {
 								</Popover>
 							</div>
 							<div className="flex items-center gap-[4px]">
-								<LogoIcon className="w-[16px] h-[16px]" />
+								<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 								<span className="text-[14px] text-[#fff]">{formattedTreasuryData.totalStaked}</span>
 							</div>
 						</div>

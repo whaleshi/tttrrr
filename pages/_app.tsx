@@ -83,9 +83,7 @@ export default function App({ Component, pageProps }: AppProps) {
 					router.prefetch('/explore'),
 					router.prefetch('/about')
 				]);
-				console.log('页面预加载完成');
 			} catch (error) {
-				console.warn('页面预加载失败:', error);
 			}
 		}, 1000); // 1秒后开始预加载
 

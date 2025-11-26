@@ -11,7 +11,7 @@ import { shortenAddress, useIsMobile } from "@/utils";
 import { useTranslation } from 'react-i18next';
 import { useBalanceContext } from "@/providers/balanceProvider";
 
-import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon, LangIcon } from "@/components/icons";
+import { CloseIcon, LogoTextIcon, WalletIcon, LangIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
 
@@ -107,7 +107,7 @@ export const Navbar = () => {
 		<>
 			<HeroUINavbar maxWidth="full" position="static" className="fixed top-0 left-0 right-0 z-50 bg-[#0D0F13] border-b-[1px] border-[#25262A]" classNames={{ wrapper: "gap-[6px] px-4 h-[56px] lg:h-[64px]" }}>
 				<NextLink className="flex justify-start items-center gap-[4px] logo-container" href="/">
-					<LogoIcon className="w-[36px] h-[36px]" />
+					<Image src="/images/logo.png" alt="logo" className="w-[36px] h-[36px]" disableSkeleton disableAnimation radius="none" />
 					<LogoTextIcon />
 				</NextLink>
 				<div className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden">${price.toFixed(2) || 0}</div>
@@ -131,7 +131,8 @@ export const Navbar = () => {
 
 				<NavbarContent justify="end" className="gap-[12px]">
 					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat">
-						<LogoIcon className="w-[18px] h-[18px]" />ORI<span className="text-[#868789]">${price.toFixed(2) || 0}</span>
+						<Image src="/images/logo.png" alt="logo" className="w-[18px] h-[18px] shrink-0" disableSkeleton disableAnimation radius="none" />
+						ORI<span className="text-[#868789]">${price.toFixed(2) || 0}</span>
 					</Button>
 					{
 						isLoggedIn ? (

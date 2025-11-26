@@ -91,49 +91,6 @@ export const Gold1Icon = (props: IconSvgProps) => (
 	</svg>
 );
 
-export const LogoIcon = (props: IconSvgProps) => (
-
-	<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-		<g clipPath="url(#clip0_2562_611)">
-			<mask id="mask0_2562_611" maskUnits="userSpaceOnUse" x="-10" y="-10" width="100" height="100">
-				<path d="M90 90H-10V-10H90V90ZM40 10C23.4315 10 10 23.4315 10 40C10 56.5685 23.4315 70 40 70C56.5685 70 70 56.5685 70 40C70 23.4315 56.5685 10 40 10ZM40 24C48.8366 24 56 31.1634 56 40C56 48.8366 48.8366 56 40 56C31.1634 56 24 48.8366 24 40C24 31.1634 31.1634 24 40 24Z" fill="#444444" />
-			</mask>
-			<g mask="url(#mask0_2562_611)">
-				<path d="M64.7485 10.251C71.0823 16.5847 74.9995 25.3351 74.9995 35C74.9995 54.3299 59.3294 69.9999 39.9995 70V60C53.8066 59.9999 64.9995 48.8071 64.9995 35C64.9995 28.0965 62.2013 21.8464 57.6772 17.3223L64.7485 10.251Z" fill="url(#paint0_linear_2562_611)" />
-				<path d="M19.3546 7.27034C27.3355 3.20382 36.8676 2.18122 46.0594 5.16772C64.4432 11.141 74.5039 30.8865 68.5308 49.2703L59.0202 46.1801C63.2867 33.0488 56.1005 18.9449 42.9692 14.6783C36.4034 12.545 29.5945 13.2755 23.8937 16.1804L19.3546 7.27034Z" fill="url(#paint1_linear_2562_611)" />
-				<path d="M2.49129 49.5203C1.09011 40.6733 3.06428 31.2916 8.74519 23.4725C20.107 7.8343 41.995 4.36767 57.6333 15.7294L51.7554 23.8196C40.5852 15.7041 24.9509 18.1802 16.8354 29.3504C12.7776 34.9354 11.3676 41.6366 12.3685 47.9559L2.49129 49.5203Z" fill="url(#paint2_linear_2562_611)" />
-				<path d="M37.463 78.6146C28.616 77.2134 20.3036 72.4367 14.6226 64.6176C3.26091 48.9793 6.72754 27.0914 22.3658 15.7295L28.2436 23.8197C17.0735 31.9353 14.5973 47.5696 22.7128 58.7398C26.7706 64.3248 32.7081 67.7365 39.0274 68.7374L37.463 78.6146Z" fill="url(#paint3_linear_2562_611)" />
-				<path d="M75.9403 54.3446C71.8738 62.3257 64.7623 68.7551 55.5704 71.7417C37.1865 77.7149 17.441 67.6542 11.4678 49.2703L20.9783 46.1802C25.245 59.3115 39.3489 66.4976 52.4802 62.2312C59.0459 60.0978 64.1254 55.5053 67.03 49.8046L75.9403 54.3446Z" fill="url(#paint4_linear_2562_611)" />
-			</g>
-			<path d="M65.981 25.0001C74.2652 39.3488 69.349 57.6965 55.0002 65.9808C40.6514 74.2651 22.3037 69.3488 14.0194 55C5.73516 40.6513 10.6514 22.3036 25.0002 14.0193C39.349 5.73502 57.6967 10.6513 65.981 25.0001L56.0845 27.664C53.269 28.4218 50.3354 27.4376 47.7869 26.021C43.0338 23.3788 37.0525 23.2267 32.0002 26.1436C26.948 29.0605 24.0896 34.3163 24.0014 39.7535C23.9541 42.6689 23.3396 45.7015 21.2754 47.7609L14.0194 55L23.9157 52.3353C26.7315 51.5771 29.6655 52.5614 32.2142 53.9784C36.9671 56.6208 42.9479 56.7734 48.0002 53.8565C53.0525 50.9395 55.9114 45.6833 55.9996 40.2459C56.0469 37.3301 56.6614 34.2971 58.7259 32.2376L65.981 25.0001Z" fill="#FFB218" />
-		</g>
-		<defs>
-			<linearGradient id="paint0_linear_2562_611" x1="57.4995" y1="17" x2="57.4995" y2="70" gradientUnits="userSpaceOnUse">
-				<stop stopColor="#FFB218" stopOpacity="0" />
-				<stop offset="1" stopColor="#FFB218" />
-			</linearGradient>
-			<linearGradient id="paint1_linear_2562_611" x1="23.5334" y1="16.2492" x2="73.9386" y2="32.6268" gradientUnits="userSpaceOnUse">
-				<stop stopColor="#FFB218" stopOpacity="0" />
-				<stop offset="1" stopColor="#FFB218" />
-			</linearGradient>
-			<linearGradient id="paint2_linear_2562_611" x1="12.3228" y1="48.3211" x2="43.4755" y2="5.44316" gradientUnits="userSpaceOnUse">
-				<stop stopColor="#FFB218" stopOpacity="0" />
-				<stop offset="1" stopColor="#FFB218" />
-			</linearGradient>
-			<linearGradient id="paint3_linear_2562_611" x1="39.3606" y1="68.8937" x2="8.20795" y2="26.0158" gradientUnits="userSpaceOnUse">
-				<stop stopColor="#FFB218" stopOpacity="0" />
-				<stop offset="1" stopColor="#FFB218" />
-			</linearGradient>
-			<linearGradient id="paint4_linear_2562_611" x1="67.2816" y1="49.5359" x2="16.8756" y2="65.9138" gradientUnits="userSpaceOnUse">
-				<stop stopColor="#FFB218" stopOpacity="0" />
-				<stop offset="1" stopColor="#FFB218" />
-			</linearGradient>
-			<clipPath id="clip0_2562_611">
-				<rect width="80" height="80" fill="white" />
-			</clipPath>
-		</defs>
-	</svg>
-)
 
 export const LogoTextIcon = (props: IconSvgProps) => (
 	<svg xmlns="http://www.w3.org/2000/svg" width="36" height="14" viewBox="0 0 36 14" fill="none" {...props}>

@@ -1,4 +1,4 @@
-import { LogoIcon, BNBIcon } from "@/components/icons";
+import { BNBIcon } from "@/components/icons";
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth";
@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useBalanceContext } from "@/providers/balanceProvider";
 import _bignumber from "bignumber.js";
 const BigNumber = _bignumber;
+import { Image } from "@heroui/react";
 
 interface OverviewProps {
 	roundInfo: any;
@@ -92,7 +93,7 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 				onMouseLeave={() => !isMobile && setShowPrice(false)}
 			>
 				<div className="flex items-center gap-[4px] font-semibold">
-					<LogoIcon className="w-[16px] h-[16px]" />
+					<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 					<div className="text-[16px]">{roundInfo?.treasuryOre || '0'}</div>
 				</div>
 				<div className="text-[#868789] text-[12px]">

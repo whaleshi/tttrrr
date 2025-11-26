@@ -1,4 +1,4 @@
-import { BNBIcon, LogoIcon } from "@/components/icons";
+import { BNBIcon } from "@/components/icons";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { resetEventList } from '@/service/api';
 import { shortenAddress } from '@/utils/index';
@@ -7,6 +7,7 @@ import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
 import { useTranslation } from "react-i18next";
 const BigNumber = _bignumber;
+import { Image } from "@heroui/react";
 
 interface MotherlodesTableProps {
 	title?: string;
@@ -107,7 +108,7 @@ export const MotherlodesTable = ({ title = "Motherlodes", description = "Recent 
 												<span className="text-[#fff] truncate">{row?.winnings ? BigNumber(ethers.formatUnits(BigInt(row.winnings), 8)).dp(8).toString() : '0'}</span>
 											</div>
 											<div className="w-[110px] lg:flex-[1.3] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px] min-w-0">
-												<LogoIcon className="w-[14px] h-[14px] shrink-0" />
+												<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
 												{row?.motherlode ? BigNumber(ethers.formatUnits(BigInt(row.motherlode_payout), 8)).dp(8).toString() : '0'}
 											</div>
 											<div className="w-[140px] lg:flex-[1.8] shrink-0 text-[#fff] text-right text-[11px] leading-tight">{row?.timestamp ? new Date(row.timestamp * 1000).toLocaleString() : '-'}</div>
