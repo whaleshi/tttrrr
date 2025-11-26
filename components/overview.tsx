@@ -4,6 +4,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores/auth";
 import { ethers } from "ethers";
 import { useTranslation } from "react-i18next";
+import { useBalanceContext } from "@/providers/balanceProvider";
+import _bignumber from "bignumber.js";
+const BigNumber = _bignumber;
 
 interface OverviewProps {
 	roundInfo: any;
@@ -14,8 +17,26 @@ interface OverviewProps {
 export default function Overview({ roundInfo, roundId, timestamp }: OverviewProps) {
 	const { t } = useTranslation();
 	const [realTimeCountdown, setRealTimeCountdown] = useState(0);
+	const [showPrice, setShowPrice] = useState(false);
+	const [showTotalPrice, setShowTotalPrice] = useState(false);
+	const [showUserPrice, setShowUserPrice] = useState(false);
+	const [showRound, setShowRound] = useState(false);
+	const [isMobile, setIsMobile] = useState(false);
 	const queryClient = useQueryClient();
 	const { address } = useAuthStore();
+	const { price } = useBalanceContext();
+
+	// 检测是否为移动设备
+	useEffect(() => {
+		const checkIsMobile = () => {
+			setIsMobile(window.innerWidth < 768);
+		};
+
+		checkIsMobile();
+		window.addEventListener('resize', checkIsMobile);
+
+		return () => window.removeEventListener('resize', checkIsMobile);
+	}, []);
 
 	// 计算实时倒计时
 	useEffect(() => {
@@ -64,22 +85,55 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 	});
 	return (
 		<div className="grid grid-cols-2 gap-2">
-			<div className="bg-[rgba(239,196,98,0.10)] border-[2px] border-[#EFC462] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
+			<div
+				className="bg-[rgba(239,196,98,0.10)] border-[2px] border-[#EFC462] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center cursor-pointer"
+				onClick={() => isMobile && setShowPrice(!showPrice)}
+				onMouseEnter={() => !isMobile && setShowPrice(true)}
+				onMouseLeave={() => !isMobile && setShowPrice(false)}
+			>
 				<div className="flex items-center gap-[4px] font-semibold">
 					<LogoIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">{roundInfo?.treasuryOre || '0'}</div>
 				</div>
-				<div className="text-[#868789] text-[12px]">{t('Common.motherlode')}</div>
+				<div className="text-[#868789] text-[12px]">
+					{!showPrice ? (
+						t('Common.motherlode')
+					) : (
+						price && roundInfo?.treasuryOre ? (
+							<div>
+								≈ ${BigNumber(price).multipliedBy(roundInfo.treasuryOre).dp(2).toString()}
+							</div>
+						) : (
+							t('Common.motherlode')
+						)
+					)}
+				</div>
 			</div>
-			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
+			<div
+				className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center cursor-pointer"
+				onClick={() => isMobile && setShowRound(!showRound)}
+				onMouseEnter={() => !isMobile && setShowRound(true)}
+				onMouseLeave={() => !isMobile && setShowRound(false)}
+			>
 				<div className="flex items-center gap-[4px] font-semibold">
 					<div className="text-[16px]">{roundInfo?.gameState === 1 ? formatCountdown(realTimeCountdown) : roundInfo?.gameState === 3 ? t('Common.drawing') : t('Common.waiting')}</div>
 				</div>
 				<div className="text-[#868789] text-[12px]">
-					{t('Common.timeRemaining')}
+					{!showRound ? (
+						t('Common.timeRemaining')
+					) : (
+						<div>
+							{t('Home.rounds')} #{roundId}
+						</div>
+					)}
 				</div>
 			</div>
-			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
+			<div
+				className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center cursor-pointer"
+				onClick={() => isMobile && setShowTotalPrice(!showTotalPrice)}
+				onMouseEnter={() => !isMobile && setShowTotalPrice(true)}
+				onMouseLeave={() => !isMobile && setShowTotalPrice(false)}
+			>
 				<div className="flex items-center gap-[4px] font-semibold">
 					<BNBIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">
@@ -89,9 +143,26 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 						}
 					</div>
 				</div>
-				<div className="text-[#868789] text-[12px]">{t('Common.totalDeployed')}</div>
+				<div className="text-[#868789] text-[12px]">
+					{!showTotalPrice ? (
+						t('Common.totalDeployed')
+					) : (
+						price ? (
+							<div>
+								≈ ${BigNumber(ethers.formatUnits(BigInt(roundInfoData?.global?.total_amount || "0"), 8)).multipliedBy(price).dp(2).toString()}
+							</div>
+						) : (
+							t('Common.totalDeployed')
+						)
+					)}
+				</div>
 			</div>
-			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
+			<div
+				className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center cursor-pointer"
+				onClick={() => isMobile && setShowUserPrice(!showUserPrice)}
+				onMouseEnter={() => !isMobile && setShowUserPrice(true)}
+				onMouseLeave={() => !isMobile && setShowUserPrice(false)}
+			>
 				<div className="flex items-center gap-[4px] font-semibold">
 					<BNBIcon className="w-[16px] h-[16px]" />
 					<div className="text-[16px]">
@@ -101,7 +172,19 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 						}
 					</div>
 				</div>
-				<div className="text-[#868789] text-[12px]">{t('Common.youDeployed')}</div>
+				<div className="text-[#868789] text-[12px]">
+					{!showUserPrice ? (
+						t('Common.youDeployed')
+					) : (
+						price ? (
+							<div>
+								≈ ${BigNumber(ethers.formatUnits(BigInt(roundInfoData?.user?.total_amount || "0"), 8)).multipliedBy(price).dp(2).toString()}
+							</div>
+						) : (
+							t('Common.youDeployed')
+						)
+					)}
+				</div>
 			</div>
 		</div>
 	);
