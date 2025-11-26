@@ -296,7 +296,7 @@ export default function Rewards() {
 					<RewardItem
 						label={t('Home.unrefinedOri')}
 						value={rewardsData?.oriDirect || "0"}
-						icon={<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />}
+						icon={<Image src="/images/logos.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />}
 						infoText={t('Home.unrefinedOriDesc')}
 						isLoading={isLoading}
 						className="my-[8px]"
@@ -306,7 +306,7 @@ export default function Rewards() {
 					<RewardItem
 						label={t('Home.refinedOri')}
 						value={rewardsData?.oriRefined || "0"}
-						icon={<Image src="/images/logos.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />}
+						icon={<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />}
 						infoText={t('Home.refinedOriDesc')}
 						isLoading={isLoading}
 					/>
@@ -379,7 +379,7 @@ export default function Rewards() {
 										<RewardItem
 											label={t('Home.unrefinedOri')}
 											value={rewardsData?.oriDirect || "0"}
-											icon={<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />}
+											icon={<Image src="/images/logos.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />}
 											infoText={t('Home.unrefinedOriDesc')}
 											isLoading={isLoading}
 										/>
@@ -388,7 +388,7 @@ export default function Rewards() {
 										<RewardItem
 											label={t('Home.refinedOri')}
 											value={rewardsData?.oriRefined || "0"}
-											icon={<Image src="/images/logos.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />}
+											icon={<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />}
 											infoText={t('Home.refinedOriDesc')}
 											isLoading={isLoading}
 										/>
