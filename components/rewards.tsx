@@ -102,7 +102,7 @@ export default function Rewards() {
 		queryKey: ['userRewards', address],
 		queryFn: fetchUserRewards,
 		enabled: !!address,
-		refetchInterval: 10000, // 每 10 秒刷新一次
+		refetchInterval: 3000, // 每 3 秒刷新一次
 		refetchIntervalInBackground: true, // 后台也继续刷新
 		retry: 2,
 		staleTime: 0, // 数据立即过期
