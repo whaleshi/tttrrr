@@ -11,32 +11,13 @@ import { ethers } from "ethers";
 import _bignumber from "bignumber.js";
 import OreProtocolABI from "@/constant/OreProtocol.json";
 import ReadOreProtocolABI from "@/constant/OreProtocolView.json";
+import OreTokenABI from "@/constant/OreToken.json";
 import { customToast, customToastPersistent, dismissToast } from "@/components/customToast";
 import { useTranslation } from "react-i18next";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
 const BigNumber = _bignumber;
 import { getSummary } from "@/service/api";
 
-// ERC20 ABI - balanceOf 和 approve 函数
-const ERC20_ABI = [
-	{
-		"constant": true,
-		"inputs": [{ "name": "_owner", "type": "address" }],
-		"name": "balanceOf",
-		"outputs": [{ "name": "balance", "type": "uint256" }],
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{ "name": "_spender", "type": "address" },
-			{ "name": "_value", "type": "uint256" }
-		],
-		"name": "approve",
-		"outputs": [{ "name": "", "type": "bool" }],
-		"type": "function"
-	}
-] as const;
 
 export default function StakePage() {
 	const { t } = useTranslation();
@@ -59,7 +40,7 @@ export default function StakePage() {
 		contracts: [
 			{
 				address: DEFAULT_CHAIN_CONFIG.ori as `0x${string}`,
-				abi: ERC20_ABI,
+				abi: OreTokenABI.abi,
 				functionName: 'balanceOf',
 				args: [address as `0x${string}`],
 			},
@@ -129,7 +110,6 @@ export default function StakePage() {
 	];
 
 	const handlePercentageClick = (percentage: number) => {
-		setSelectedPercentage(percentage);
 		setSelectedAmount(percentage);
 
 		if (selectedTab === 'deposit') {
@@ -158,7 +138,6 @@ export default function StakePage() {
 
 	const handleTabClick = (tab: string) => {
 		setSelectedTab(tab);
-		setSelectedPercentage(null);
 		setInputAmount('');
 		setSelectedAmount(null);
 	};
@@ -196,7 +175,7 @@ export default function StakePage() {
 			// 1. 先授权 ORI 代币
 			const oriToken = new ethers.Contract(
 				DEFAULT_CHAIN_CONFIG.ori,
-				ERC20_ABI,
+				OreTokenABI.abi,
 				signer
 			);
 
@@ -236,7 +215,6 @@ export default function StakePage() {
 
 			// 清空输入
 			setInputAmount('');
-			setSelectedPercentage(null);
 
 		} catch (error) {
 			console.error('质押失败:', error);
@@ -308,7 +286,6 @@ export default function StakePage() {
 
 			// 清空输入
 			setInputAmount('');
-			setSelectedPercentage(null);
 
 		} catch (error) {
 			console.error('提取失败:', error);
@@ -381,7 +358,6 @@ export default function StakePage() {
 								// 确保不以小数点开头，如果是则添加0
 								const formattedValue = value.startsWith('.') ? '0' + value : value;
 								setInputAmount(formattedValue);
-								setSelectedPercentage(null);
 							}
 						}}
 						startContent={<div className="shrink-0 flex items-center gap-[4px] pl-[4px]">

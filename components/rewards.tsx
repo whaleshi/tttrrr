@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { LogoIcon, BNBIcon, InfoIcon } from "@/components/icons";
-import { Button, Divider, Popover, PopoverContent, PopoverTrigger, Progress, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
+import { Image, Button, Popover, PopoverContent, PopoverTrigger, Modal, ModalContent, ModalHeader, ModalBody, useDisclosure } from "@heroui/react";
 
 // 自定义关闭图标组件
 const CloseIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
@@ -316,7 +316,7 @@ export default function Rewards() {
 					<RewardItem
 						label={t('Home.refinedOri')}
 						value={rewardsData?.oriRefined || "0"}
-						icon={<LogoIcon className="w-[16px] h-[16px]" />}
+						icon={<Image src="/images/logos.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />}
 						infoText={t('Home.refinedOriDesc')}
 						isLoading={isLoading}
 					/>
@@ -398,7 +398,7 @@ export default function Rewards() {
 										<RewardItem
 											label={t('Home.refinedOri')}
 											value={rewardsData?.oriRefined || "0"}
-											icon={<LogoIcon className="w-[16px] h-[16px]" />}
+											icon={<Image src="/images/logos.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />}
 											infoText={t('Home.refinedOriDesc')}
 											isLoading={isLoading}
 										/>

@@ -9,6 +9,11 @@ import { BuybacksTable } from '@/components/buybacksTable';
 import { ethers } from 'ethers';
 import { useTranslation } from "react-i18next";
 import { usePrivy } from "@privy-io/react-auth";
+import { useReadContracts } from "wagmi";
+import { CONTRACT_CONFIG, DEFAULT_CHAIN_CONFIG } from "@/config/chains";
+import ReadOreProtocolABI from "@/constant/OreProtocolView.json";
+import OreTokenABI from "@/constant/OreToken.json";
+import { Image } from "@heroui/react";
 const BigNumber = _bignumber;
 
 export default function ExplorePage() {
@@ -23,6 +28,43 @@ export default function ExplorePage() {
 		refetchInterval: 30000,
 	});
 
+	const { data: treasuryData } = useReadContracts({
+		contracts: [
+			{
+				address: CONTRACT_CONFIG.READ_ORE_CONTRACT as `0x${string}`,
+				abi: ReadOreProtocolABI.abi,
+				functionName: 'getTreasuryState',
+			},
+			{
+				address: DEFAULT_CHAIN_CONFIG.ori as `0x${string}`,
+				abi: OreTokenABI.abi,
+				functionName: 'totalSupply',
+			},
+		],
+		query: {
+			enabled: !!CONTRACT_CONFIG.READ_ORE_CONTRACT && !!DEFAULT_CHAIN_CONFIG.ori,
+			refetchInterval: 10000, // 每10秒刷新一次
+		},
+	});
+
+	// 提取数据
+	const treasuryState = treasuryData?.[0]?.status === 'success' ? treasuryData[0].result : null;
+	const totalSupply = treasuryData?.[1]?.status === 'success' ? treasuryData[1].result : null;
+
+	// 格式化Treasury数据
+	const formattedTreasuryData = treasuryState && Array.isArray(treasuryState) ? {
+		totalStaked: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[0]?.toString() || '0'), 18)).dp(2).toString(),
+		stakeRewardsFactor: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(2).toString(),
+		totalOreShares: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[2]?.toString() || '0'), 18)).dp(2).toString(),
+		minerRewardsFactor: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[3]?.toString() || '0'), 18)).dp(2).toString(),
+		vaultEth: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[4]?.toString() || '0'), 18)).dp(2).toString(),
+		motherlodeOre: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[5]?.toString() || '0'), 18)).dp(2).toString(),
+	} : { totalStaked: '0', stakeRewardsFactor: '0', totalOreShares: '0', minerRewardsFactor: '0', vaultEth: '0', motherlodeOre: '0' };
+
+	// 格式化totalSupply
+	const formattedTotalSupply = totalSupply
+		? BigNumber(ethers.formatUnits(BigInt(totalSupply.toString()), 18)).dp(2).toString()
+		: '0';
 	if (!ready) {
 		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
 			<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
@@ -50,7 +92,7 @@ export default function ExplorePage() {
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
 							<LogoIcon className="w-[16px] h-[16px]" />
-							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.circulating_supply?.value) || 0).toLocaleString()}</div>
+							<div className="text-[16px] text-[#fff]">{(Number(formattedTotalSupply) || 0).toLocaleString()}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">{t('Explore.circulatingSupply')}</div>
 					</div>
@@ -82,8 +124,8 @@ export default function ExplorePage() {
 					{/* Unrefined BURY */}
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center col-span-2 lg:col-span-1">
 						<div className="flex items-center gap-[4px] font-semibold">
-							<LogoIcon className="w-[16px] h-[16px]" />
-							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.unrefined_bury?.value) || 2896320).toLocaleString()}</div>
+							<Image src="/images/logos.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />
+							<div className="text-[16px] text-[#fff]">{(Number(formattedTreasuryData?.totalOreShares) || 0).toLocaleString()}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">{t('Explore.unrefinedOri')}</div>
 					</div>
