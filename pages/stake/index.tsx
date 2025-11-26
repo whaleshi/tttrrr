@@ -216,7 +216,6 @@ export default function StakePage() {
 			);
 
 			const stakeTx = await oreProtocolContract.depositStake(stakeAmount);
-			await stakeTx.wait();
 
 			// 关闭loading toast
 			if (loadingToastId) {
@@ -227,6 +226,13 @@ export default function StakePage() {
 				title: t('Common.transactionConfirmed'),
 				description: <span onClick={() => window.open(`https://bscscan.com/tx/${stakeTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
 				type: 'success'
+			});
+
+			// 异步等待交易确认，不阻塞用户界面
+			stakeTx.wait().then((receipt: any) => {
+				console.log('质押交易确认:', receipt);
+			}).catch((waitError: any) => {
+				console.error('质押交易确认失败:', waitError);
 			});
 
 			// 立即刷新合约数据
@@ -305,7 +311,6 @@ export default function StakePage() {
 			);
 
 			const withdrawTx = await oreProtocolContract.withdrawStake(withdrawAmount, address);
-			await withdrawTx.wait();
 
 			// 关闭loading toast
 			if (loadingToastId) {
@@ -316,6 +321,13 @@ export default function StakePage() {
 				title: t('Common.transactionConfirmed'),
 				description: <span onClick={() => window.open(`https://bscscan.com/tx/${withdrawTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
 				type: 'success'
+			});
+
+			// 异步等待交易确认，不阻塞用户界面
+			withdrawTx.wait().then((receipt: any) => {
+				console.log('取款交易确认:', receipt);
+			}).catch((waitError: any) => {
+				console.error('取款交易确认失败:', waitError);
 			});
 
 			// 立即刷新合约数据
