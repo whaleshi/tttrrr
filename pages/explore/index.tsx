@@ -114,7 +114,7 @@ export default function ExplorePage() {
 						<div className="flex items-center gap-[4px] font-semibold">
 							<BNBIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{exploreInfoData?.protocol_rev_7d?.value ? (() => {
-								const formatted = BigNumber(ethers.formatUnits(BigInt(exploreInfoData.protocol_rev_7d.value), 8)).dp(8);
+								const formatted = BigNumber(ethers.formatUnits(BigInt(exploreInfoData.protocol_rev_7d.value), 8)).dp(6);
 								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
 							})() : '0'}</div>
 						</div>

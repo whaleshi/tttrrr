@@ -147,7 +147,7 @@ export const Auto = ({ info }: AutoProps) => {
 						{t('Home.roundsRemaining')}<span className="text-[#FFF]">{info?.extend_data?.round_remaining}</span>
 					</div>
 					<div className="flex items-center justify-between mt-[8px]">
-						{t('Home.totalPerRound')}<span className="text-[#FFF]">{info?.extend_data?.total_per_round ? BigNumber(ethers.formatUnits(BigInt(info.extend_data.total_per_round), 8)).dp(8).toString() : '0'} BNB</span>
+						{t('Home.totalPerRound')}<span className="text-[#FFF]">{info?.extend_data?.total_per_round ? BigNumber(ethers.formatUnits(BigInt(info.extend_data.total_per_round), 8)).dp(6).toString() : '0'} BNB</span>
 					</div>
 				</div>
 				<Button

@@ -409,7 +409,7 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 					onChange={(e) => {
 						const value = e.target.value;
 						// 只允许数字和小数点，最多8位小数
-						if (value === '' || /^\d*\.?\d{0,8}$/.test(value)) {
+						if (value === '' || /^\d*\.?\d{0,6}$/.test(value)) {
 							// 确保不以小数点开头，如果是则添加0
 							const formattedValue = value.startsWith('.') ? '0' + value : value;
 							setInputAmount(formattedValue);
@@ -520,16 +520,16 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 					{selectedTab === 'auto' && (
 						<>
 							<div className="flex items-center justify-between mt-[8px]">
-								{t('Home.totalPerRound')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).dp(8).toString() : '0'} BNB</span>
+								{t('Home.totalPerRound')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).dp(6).toFixed() : '0'} BNB</span>
 							</div>
 							<div className="flex items-center justify-between mt-[8px]">
-								{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount && roundAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).multipliedBy(parseInt(roundAmount) || 1).dp(8).toString() : '0'} BNB</span>
+								{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount && roundAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0).multipliedBy(parseInt(roundAmount) || 1).dp(6).toFixed() : '0'} BNB</span>
 							</div>
 						</>
 					)}
 					{selectedTab === 'manual' && (
 						<div className="flex items-center justify-between mt-[8px]">
-							{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length).dp(8).toString() : '0'} BNB</span>
+							{t('Home.totalDeployed')}<span className="text-[#FFF]">{inputAmount ? BigNumber(inputAmount).multipliedBy(selectedCells.length).dp(6).toFixed() : '0'} BNB</span>
 						</div>
 					)}
 				</div>
@@ -558,12 +558,12 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 										BigNumber(inputAmount)
 											.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
 											.multipliedBy(parseInt(roundAmount) || 1)
-											.dp(8).toFixed()
+											.dp(6).toFixed()
 										: '0')
 									: (inputAmount ?
 										BigNumber(inputAmount)
 											.multipliedBy(selectedCells.length)
-											.dp(8).toFixed()
+											.dp(6).toFixed()
 										: '0')
 							} BNB</>
 						)}

@@ -85,21 +85,21 @@ export default function StakePage() {
 	const treasuryState = treasuryData?.[0]?.status === 'success' ? treasuryData[0].result : null;
 	// 格式化ORI余额
 	const formattedOriBalance = oriBalance
-		? BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18)).dp(8).toString()
+		? BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18)).dp(6).toString()
 		: '0';
 
 	// 格式化质押数据
 	const formattedStakeInfo = userRewards && Array.isArray(userRewards) ? {
-		stakedAmount: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[0]?.toString() || '0'), 18)).dp(8).toString(),
-		pendingRewards: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[1]?.toString() || '0'), 18)).dp(8).toString(),
-		rewardDebt: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[2]?.toString() || '0'), 18)).dp(8).toString(),
+		stakedAmount: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[0]?.toString() || '0'), 18)).dp(6).toString(),
+		pendingRewards: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[1]?.toString() || '0'), 18)).dp(6).toString(),
+		rewardDebt: BigNumber(ethers.formatUnits(BigInt((userRewards as any[])[2]?.toString() || '0'), 18)).dp(6).toString(),
 		updatedAt: (userRewards as any[])[3]?.toString() || '0'
 	} : { stakedAmount: '0', pendingRewards: '0', rewardDebt: '0', updatedAt: '0' };
 
 	// 格式化Treasury数据
 	const formattedTreasuryData = treasuryState && Array.isArray(treasuryState) ? {
-		totalStaked: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[0]?.toString() || '0'), 18)).dp(8).toString(),
-		accRewardPerShare: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(8).toString(),
+		totalStaked: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[0]?.toString() || '0'), 18)).dp(6).toString(),
+		accRewardPerShare: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(6).toString(),
 	} : { totalStaked: '0', accRewardPerShare: '0' };
 
 	const percentageButtons = [
@@ -469,7 +469,7 @@ export default function StakePage() {
 						onChange={(e) => {
 							const value = e.target.value;
 							// 只允许数字和小数点，最大8位小数
-							if (value === '' || /^\d*\.?\d{0,8}$/.test(value)) {
+							if (value === '' || /^\d*\.?\d{0,6}$/.test(value)) {
 								// 确保不以小数点开头，如果是则添加0
 								const formattedValue = value.startsWith('.') ? '0' + value : value;
 								setInputAmount(formattedValue);
