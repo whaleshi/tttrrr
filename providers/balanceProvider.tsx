@@ -86,7 +86,6 @@ export function BalanceProvider({ children }: { children: ReactNode }) {
 
 	// 更新价格
 	useEffect(() => {
-		console.log(priceData)
 		if (priceData?.data && Array.isArray(priceData.data)) {
 			const oriPriceItem = priceData.data.find((item: { contract_addr: string; }) => item.contract_addr === DEFAULT_CHAIN_CONFIG.ori);
 			setPrice(oriPriceItem?.price || 0);

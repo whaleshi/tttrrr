@@ -49,6 +49,7 @@ export default function ExplorePage() {
 					{/* Circulating Supply */}
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
+							<LogoIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{(Number(exploreInfoData?.circulating_supply?.value) || 0).toLocaleString()}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">{t('Explore.circulatingSupply')}</div>
@@ -57,7 +58,7 @@ export default function ExplorePage() {
 					{/* Buried (7d) */}
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
-							<BNBIcon className="w-[16px] h-[16px]" />
+							<LogoIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{exploreInfoData?.buried_7d?.value ? (() => {
 								const formatted = BigNumber(ethers.formatEther(BigInt(exploreInfoData.buried_7d.value))).dp(6);
 								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
@@ -71,7 +72,7 @@ export default function ExplorePage() {
 						<div className="flex items-center gap-[4px] font-semibold">
 							<BNBIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{exploreInfoData?.protocol_rev_7d?.value ? (() => {
-								const formatted = BigNumber(ethers.formatEther(BigInt(exploreInfoData.protocol_rev_7d.value))).dp(6);
+								const formatted = BigNumber(ethers.formatUnits(BigInt(exploreInfoData.protocol_rev_7d.value), 8)).dp(8);
 								return formatted.gte(1) ? formatted.toNumber().toLocaleString() : formatted.toString();
 							})() : '0'}</div>
 						</div>

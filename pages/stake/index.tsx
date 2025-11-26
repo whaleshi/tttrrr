@@ -165,10 +165,13 @@ export default function StakePage() {
 
 	// 质押函数
 	const handleStake = async () => {
-		if (!wallet || !isConnected || !inputAmount || parseFloat(inputAmount) <= 0) {
+		if (!wallet || !isConnected) {
+			return;
+		}
+		if (!inputAmount || parseFloat(inputAmount) <= 0) {
 			customToast({
-				title: '输入错误',
-				description: '请先连接钱包并输入有效金额',
+				title: t('Common.transactionFailed'),
+				description: t('Home.insufficientBalance'),
 				type: 'error'
 			});
 			return;
@@ -373,8 +376,8 @@ export default function StakePage() {
 						isDisabled={false}
 						onChange={(e) => {
 							const value = e.target.value;
-							// 只允许数字和小数点
-							if (value === '' || /^\d*\.?\d*$/.test(value)) {
+							// 只允许数字和小数点，最大8位小数
+							if (value === '' || /^\d*\.?\d{0,8}$/.test(value)) {
 								// 确保不以小数点开头，如果是则添加0
 								const formattedValue = value.startsWith('.') ? '0' + value : value;
 								setInputAmount(formattedValue);

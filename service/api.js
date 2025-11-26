@@ -20,3 +20,5 @@ export const getUserPoints = (params) => post(getApiBaseUrl() + "/ori/points/use
 export const getSummary = (params) => post(getApiBaseUrl() + "/ori/summary", params);
 
 export const getPrice = (params) => post(getApiBaseUrl() + "/ori/query/chain_asset_config", params);
+
+export const buryEventList = (params) => post(getApiBaseUrl() + "/ori/bury_event/list", params);

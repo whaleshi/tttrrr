@@ -1,6 +1,6 @@
 import { BNBIcon, LogoIcon } from "@/components/icons";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { resetEventList } from '@/service/api';
+import { buryEventList } from '@/service/api';
 import { ethers } from 'ethers';
 import _bignumber from 'bignumber.js';
 import { useState, useEffect } from 'react';
@@ -21,9 +21,8 @@ export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybac
 	const { data: eventListInfo, isLoading } = useQuery({
 		queryKey: ['buybacksInfo', currentPage],
 		queryFn: async () => {
-			const result = await resetEventList(
+			const result = await buryEventList(
 				{
-					"motherlode": "", // 获取所有事件，后续可能需要专门的buybacks API
 					"page": currentPage.toString(),
 					"page_size": pageSize.toString(),
 				}
@@ -43,8 +42,7 @@ export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybac
 				queryClient.prefetchQuery({
 					queryKey: ['buybacksInfo', nextPage],
 					queryFn: async () => {
-						const result = await resetEventList({
-							"motherlode": "",
+						const result = await buryEventList({
 							"page": nextPage.toString(),
 							"page_size": pageSize.toString(),
 						});
