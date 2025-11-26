@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/auth";
 import { ethers } from "ethers";
 import { getPrice } from '@/service/api';
 import { useQuery } from '@tanstack/react-query';
+import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
 
 interface BalanceContextType {
 	balance: number;
@@ -86,8 +87,9 @@ export function BalanceProvider({ children }: { children: ReactNode }) {
 	// 更新价格
 	useEffect(() => {
 		console.log(priceData)
-		if (priceData?.data) {
-			setPrice(priceData.data);
+		if (priceData?.data && Array.isArray(priceData.data)) {
+			const oriPriceItem = priceData.data.find((item: { contract_addr: string; }) => item.contract_addr === DEFAULT_CHAIN_CONFIG.ori);
+			setPrice(oriPriceItem?.price || 0);
 		}
 	}, [priceData]);
 

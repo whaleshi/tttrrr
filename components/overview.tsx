@@ -16,7 +16,6 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 	const [realTimeCountdown, setRealTimeCountdown] = useState(0);
 	const queryClient = useQueryClient();
 	const { address } = useAuthStore();
-	const [isTimeup, setIsTimeup] = useState(false);
 
 	// 计算实时倒计时
 	useEffect(() => {
@@ -34,10 +33,8 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 				if (realTimeCountdown > 0 && newCountdown === 0) {
 					queryClient.invalidateQueries({ queryKey: ['eventInfo'] });
 				}
-				setIsTimeup(true);
 				setRealTimeCountdown(newCountdown);
 			} else {
-				setIsTimeup(false);
 				setRealTimeCountdown(0);
 			}
 		};
@@ -76,10 +73,10 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 			</div>
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 				<div className="flex items-center gap-[4px] font-semibold">
-					<div className="text-[16px]">{formatCountdown(realTimeCountdown)}</div>
+					<div className="text-[16px]">{roundInfo?.gameState === 1 ? formatCountdown(realTimeCountdown) : roundInfo?.gameState === 3 ? t('Common.drawing') : t('Common.waiting')}</div>
 				</div>
 				<div className="text-[#868789] text-[12px]">
-					{isTimeup ? t('Common.timeRemaining') : t('Common.waiting')}
+					{t('Common.timeRemaining')}
 				</div>
 			</div>
 			<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">

@@ -19,23 +19,17 @@ type TradeType = 'manual' | 'auto';
 
 interface TradeProps {
 	selectedCells?: number[];
-	inputAmount?: string;
-	setInputAmount?: (amount: string) => void;
-	onDeploy?: (amount: string) => void;
-	tokenBalance?: any;
-	initialTab?: string;
-	roundId?: number | null;
+	roundInfo?: any;
 }
 
-export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = () => { }, onDeploy, tokenBalance, initialTab = 'manual', roundId }: TradeProps) => {
+export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 	const { t } = useTranslation();
 	const { toLogin } = usePrivyLogin();
-	const [isBuy, setIsBuy] = useState(initialTab === 'manual');
-	const [selectedTab, setSelectedTab] = useState(initialTab);
-	const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
+	const [selectedTab, setSelectedTab] = useState('manual');
 	const [isLoading, setIsLoading] = useState(false);
 	const [blockAmount, setBlockAmount] = useState('');
 	const [roundAmount, setRoundAmount] = useState('');
+	const [inputAmount, setInputAmount] = useState('');
 
 	// 同步blockAmount与selectedCells数量
 	useEffect(() => {
@@ -60,9 +54,7 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 
 	const handleTabClick = (tab: TradeType) => {
 		setSelectedTab(tab as TradeType);
-		setIsBuy(tab === 'manual');
 		setInputAmount('');
-		setSelectedAmount(null);
 	};
 
 
@@ -73,22 +65,9 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 	];
 
 	const handleAmountSelect = (amount: { label: string; value: number }) => {
-		setSelectedAmount(amount.value);
 		setInputAmount(amount.value.toString());
 	};
 
-
-	useEffect(() => {
-		setInputAmount("");
-	}, [isBuy]);
-
-	// 当initialTab改变时，更新选中的tab
-	useEffect(() => {
-		if (initialTab) {
-			setSelectedTab(initialTab as TradeType);
-			setIsBuy(initialTab === 'buy');
-		}
-	}, [initialTab]);
 
 
 	const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
@@ -451,7 +430,6 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 							// 确保不以小数点开头，如果是则添加0
 							const formattedValue = value.startsWith('.') ? '0' + value : value;
 							setInputAmount(formattedValue);
-							setSelectedAmount(null);
 						}
 					}}
 					startContent={<div className="shrink-0 flex items-center gap-[4px] pl-[4px]">
@@ -586,22 +564,26 @@ export const Trade = ({ selectedCells = [], inputAmount = '', setInputAmount = (
 						className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
 						onPress={() => { handleClick(inputAmount) }}
 						isLoading={isLoading}
-						isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0}
+						isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || roundInfo?.gameState !== 1}
 					>
-						{t('Home.deploy')} {
-							selectedTab === 'auto'
-								? (inputAmount && roundAmount ?
-									BigNumber(inputAmount)
-										.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
-										.multipliedBy(parseInt(roundAmount) || 1)
-										.dp(8).toString()
-									: '0')
-								: (inputAmount ?
-									BigNumber(inputAmount)
-										.multipliedBy(selectedCells.length)
-										.dp(8).toString()
-									: '0')
-						} BNB
+						{roundInfo?.gameState === 1 ? (
+							<>{t('Home.deploy')} {
+								selectedTab === 'auto'
+									? (inputAmount && roundAmount ?
+										BigNumber(inputAmount)
+											.multipliedBy(selectedCells.length > 0 ? selectedCells.length : parseInt(blockAmount) || 0)
+											.multipliedBy(parseInt(roundAmount) || 1)
+											.dp(8).toString()
+										: '0')
+									: (inputAmount ?
+										BigNumber(inputAmount)
+											.multipliedBy(selectedCells.length)
+											.dp(8).toString()
+										: '0')
+							} BNB</>
+						) : (
+							t('Home.waitingForRound')
+						)}
 					</Button>
 				)}
 			</div>

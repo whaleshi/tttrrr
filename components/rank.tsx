@@ -19,7 +19,7 @@ export default function Rank({ roundId }: RankProps) {
 		queryKey: ['roundWinInfo', roundId],
 		queryFn: async () => {
 			const result = await getRoundWinInfo({
-				round_id: roundId - 1, // roundId - 1
+				round_id: roundId, // roundId - 1
 				winner_address: address // 可选参数，留空获取所有获胜者
 			});
 			return result?.data;

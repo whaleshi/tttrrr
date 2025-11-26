@@ -9,6 +9,7 @@ import usePrivyLogin from "@/hooks/usePrivyLogin";
 import { useAuthStore } from "@/stores/auth";
 import { shortenAddress, useIsMobile } from "@/utils";
 import { useTranslation } from 'react-i18next';
+import { useBalanceContext } from "@/providers/balanceProvider";
 
 import { CloseIcon, LogoIcon, LogoTextIcon, MenuCloseIcon, MenuIcon, SearchInputIcon, WalletIcon, LangIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
@@ -23,6 +24,7 @@ export const Navbar = () => {
 	const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
 	const [lang, setLang] = useState('zh');
 	const walletRef = useRef<HTMLDivElement>(null);
+	const { price } = useBalanceContext();
 
 	const { authenticated, logout } = usePrivy();
 	const { toLogin } = usePrivyLogin();
@@ -109,7 +111,7 @@ export const Navbar = () => {
 					<LogoIcon className="w-[36px] h-[36px]" />
 					<LogoTextIcon />
 				</NextLink>
-				<div className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden">$268.32</div>
+				<div className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden">${price.toFixed(2) || 0}</div>
 				<div className="text-[16px] hidden lg:flex items-center gap-[16px] pl-[24px] font-semibold">
 					{[
 						{ href: '/', label: t('Header.home') },
@@ -130,7 +132,7 @@ export const Navbar = () => {
 
 				<NavbarContent justify="end" className="gap-[12px]">
 					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat">
-						<LogoIcon className="w-[18px] h-[18px]" />ORI<span className="text-[#868789]">$268.32</span>
+						<LogoIcon className="w-[18px] h-[18px]" />ORI<span className="text-[#868789]">${price.toFixed(2) || 0}</span>
 					</Button>
 					{
 						isLoggedIn ? (

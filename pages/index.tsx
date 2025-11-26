@@ -25,7 +25,6 @@ export default function IndexPage() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [selectedCells, setSelectedCells] = useState<number[]>([]);
-	const [inputAmount, setInputAmount] = useState('');
 	const [cellAmounts, setCellAmounts] = useState<{ [key: number]: number }>({});
 	const [winningCell, setWinningCell] = useState<number | null>(null);
 	const [isDrawing, setIsDrawing] = useState(false);
@@ -328,19 +327,7 @@ export default function IndexPage() {
 								{
 									automationData?.id ? <Auto info={automationData} /> : <Trade
 										selectedCells={selectedCells}
-										inputAmount={inputAmount}
-										setInputAmount={setInputAmount}
-										roundId={roundId}
-										onDeploy={(amount) => {
-											// 给每个选中的格子都加上输入的金额
-											const inputAmount = parseFloat(amount);
-											const newAmounts = { ...cellAmounts };
-											selectedCells.forEach(cellIndex => {
-												newAmounts[cellIndex] = (newAmounts[cellIndex] || 0) + inputAmount;
-											});
-											setCellAmounts(newAmounts);
-											setInputAmount(''); // 清空输入
-										}}
+										roundInfo={roundInfo}
 									/>
 								}
 
@@ -349,7 +336,9 @@ export default function IndexPage() {
 								<Rewards />
 							</div>
 							<div className="my-[24px]">
-								<Rank roundId={roundId as number} />
+								{
+									roundInfo?.gameState === 4 && <Rank roundId={roundId as number} />
+								}
 							</div>
 						</div>
 					</div>
