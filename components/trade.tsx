@@ -238,28 +238,21 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 		try {
 			// 获取检查点费用
 			const config = await oreProtocolContract.config();
-			console.log(config, 'automation config');
 			const executorFee = config.executorFee || 0;
 
 			const automation = {
 				owner: address,
 				balance: 0, // 会自动加上 msg.value
+				botFee: 0,
 				mask: mask,
 				amountPerSquare: amountPerSquareWei,
 				randomizeMask: randomizeMask,
 				active: true
 			};
-			console.log(executorFee, 'executorFee');
-			// 预存轮次费用
 			const roundsToFund = parseInt(rounds);
-			// 计算实际的格子数量
 			const actualSquareCount = selectedSquares.length > 0 ? selectedSquares.length : (blockCount ? parseInt(blockCount) : 0);
 			const costPerRound = automation.amountPerSquare * BigInt(actualSquareCount) + BigInt(executorFee);
-			// + // 总投注
-			// BigInt(checkpointFee) +                     // checkpoint 费用
-			// automation.feePerCall;              // Bot 费用
 			const totalFunding = costPerRound * BigInt(roundsToFund);
-
 			// 检查余额是否足够
 			const totalRequiredFormatted = ethers.formatEther(totalFunding);
 			if (_bignumber(totalRequiredFormatted).gt(balance)) {
