@@ -26,6 +26,7 @@ export default function StakePage() {
 	const [selectedTab, setSelectedTab] = useState('deposit');
 	const [inputAmount, setInputAmount] = useState('');
 	const [isStaking, setIsStaking] = useState(false);
+	const [isClaiming, setIsClaiming] = useState(false);
 	const { price } = useBalanceContext();
 	const { ready } = usePrivy();
 	const { wallets } = useWallets();
@@ -352,6 +353,72 @@ export default function StakePage() {
 		}
 	};
 
+	// 认领收益
+	const handleClaimYield = async () => {
+		if (!wallet || !isConnected) {
+			return;
+		}
+
+		setIsClaiming(true);
+		let loadingToastId: any = null;
+
+		try {
+			const ethereumProvider = await wallet.getEthereumProvider();
+			const provider = new ethers.BrowserProvider(ethereumProvider);
+			const signer = await provider.getSigner();
+
+			loadingToastId = customToastPersistent({
+				title: t('Common.waitingForSignature'),
+				type: 'loading'
+			});
+
+			// 调用claimStakeYield方法
+			const oreProtocolContract = new ethers.Contract(
+				CONTRACT_CONFIG.ORE_CONTRACT,
+				OreProtocolABI.abi,
+				signer
+			);
+
+			const claimTx = await oreProtocolContract.claimStakeYield(address);
+
+			// 关闭loading toast
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: t('Common.transactionConfirmed'),
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${claimTx.hash}`, '_blank')} className="cursor-pointer hover:underline">View on Bscscan {">"}</span>,
+				type: 'success'
+			});
+
+			// 异步等待交易确认，不阻塞用户界面
+			claimTx.wait().then((receipt: any) => {
+				console.log('认领收益交易确认:', receipt);
+			}).catch((waitError: any) => {
+				console.error('认领收益交易确认失败:', waitError);
+			});
+
+			// 立即刷新合约数据
+			refetchContractData();
+
+		} catch (error) {
+
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => handleClaimYield()} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
+				type: 'error'
+			});
+
+		} finally {
+			setIsClaiming(false);
+		}
+	};
+
 	if (!ready) {
 		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
 			<img src="/images/loading.gif" alt="Loading" className="w-[60px] h-[60px]" />
@@ -488,6 +555,8 @@ export default function StakePage() {
 								fullWidth
 								variant="bordered"
 								className="h-[44px] border-[#EFC462] text-[15px] text-[#EFC462] rounded-[22px] font-medium"
+								onPress={handleClaimYield}
+								isDisabled={isClaiming}
 							>
 								{t('Stake.claim')}
 							</Button>
@@ -545,8 +614,8 @@ export default function StakePage() {
 								</Popover>
 							</div>
 							<span className="text-[14px] text-[#fff]">
-								${price && formattedTreasuryData?.totalStaked 
-									? BigNumber(formattedTreasuryData.totalStaked).multipliedBy(price).dp(2).toString() 
+								${price && formattedTreasuryData?.totalStaked
+									? BigNumber(formattedTreasuryData.totalStaked).multipliedBy(price).dp(2).toString()
 									: '0.00'}
 							</span>
 						</div>
