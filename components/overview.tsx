@@ -117,7 +117,7 @@ export default function Overview({ roundInfo, roundId, timestamp }: OverviewProp
 				onMouseLeave={() => !isMobile && setShowRound(false)}
 			>
 				<div className="flex items-center gap-[4px] font-semibold">
-					<div className="text-[16px]">{roundInfo?.gameState === 1 ? formatCountdown(realTimeCountdown) : (roundInfo?.gameState === 3 || roundInfo?.gameState === 4) ? t('Common.drawing') : t('Common.waiting')}</div>
+					<div className="text-[16px]">{roundInfo?.gameState === 1 && realTimeCountdown > 0 ? formatCountdown(realTimeCountdown) : (roundInfo?.gameState === 3 || roundInfo?.gameState === 4) ? t('Common.drawing') : t('Common.waiting')}</div>
 				</div>
 				<div className="text-[#868789] text-[12px]">
 					{!showRound ? (
