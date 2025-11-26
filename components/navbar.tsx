@@ -14,6 +14,7 @@ import { useBalanceContext } from "@/providers/balanceProvider";
 import { CloseIcon, LogoTextIcon, WalletIcon, LangIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
+import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
 
 
 export const Navbar = () => {
@@ -22,6 +23,11 @@ export const Navbar = () => {
 	const { isOpen: isWalletDrawerOpen, onOpen: onWalletDrawerOpen, onOpenChange: onWalletDrawerOpenChange } = useDisclosure();
 	const [isWalletDropdownOpen, setIsWalletDropdownOpen] = useState(false);
 	const [lang, setLang] = useState('zh');
+
+	// 跳转到代币详情页
+	const handleTokenClick = () => {
+		window.open(`https://web3.binance.com/token/bsc/${DEFAULT_CHAIN_CONFIG.ori}`, '_blank');
+	};
 	const walletRef = useRef<HTMLDivElement>(null);
 	const { price } = useBalanceContext();
 
@@ -110,7 +116,12 @@ export const Navbar = () => {
 					<Image src="/images/logo.png" alt="logo" className="w-[36px] h-[36px]" disableSkeleton disableAnimation radius="none" />
 					<LogoTextIcon />
 				</NextLink>
-				<div className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden">${price.toFixed(2) || 0}</div>
+				<div 
+					className="text-[#4A4B4E] text-[12px] pt-[4px] block lg:hidden cursor-pointer hover:opacity-80" 
+					onClick={handleTokenClick}
+				>
+					${price.toFixed(2) || 0}
+				</div>
 				<div className="text-[16px] hidden lg:flex items-center gap-[16px] pl-[24px] font-semibold">
 					{[
 						{ href: '/', label: t('Header.home') },
@@ -130,7 +141,11 @@ export const Navbar = () => {
 				</div>
 
 				<NavbarContent justify="end" className="gap-[12px]">
-					<Button className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]" variant="flat">
+					<Button
+						className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]"
+						variant="flat"
+						onPress={handleTokenClick}
+					>
 						<Image src="/images/logo.png" alt="logo" className="w-[18px] h-[18px] shrink-0" disableSkeleton disableAnimation radius="none" />
 						ORI<span className="text-[#868789]">${price.toFixed(2) || 0}</span>
 					</Button>
