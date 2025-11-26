@@ -1,5 +1,5 @@
 import { getApiBaseUrl } from "./base";
-import { post, _post } from "./tool";
+import { post } from "./tool";
 
 export const getRoundInfo = (params) => post(getApiBaseUrl() + "/ori/round", params);
 
@@ -16,3 +16,7 @@ export const resetEventList = (params) => post(getApiBaseUrl() + "/ori/reset_eve
 export const getPointsList = (params) => post(getApiBaseUrl() + "/ori/points/list", params);
 
 export const getUserPoints = (params) => post(getApiBaseUrl() + "/ori/points/user", params);
+
+export const getSummary = (params) => post(getApiBaseUrl() + "/ori/summary", params);
+
+export const getPrice = (params) => post(getApiBaseUrl() + "/ori/query/chain_asset_config", params);

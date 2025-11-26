@@ -3,7 +3,7 @@ import DefaultLayout from "@/layouts/default";
 import { Button, Input, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
 import { useState } from "react";
 import { useReadContracts } from 'wagmi';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useAuthStore } from "@/stores/auth";
 import { DEFAULT_CHAIN_CONFIG, CONTRACT_CONFIG } from "@/config/chains";
@@ -15,6 +15,7 @@ import { customToast, customToastPersistent, dismissToast } from "@/components/c
 import { useTranslation } from "react-i18next";
 import usePrivyLogin from "@/hooks/usePrivyLogin";
 const BigNumber = _bignumber;
+import { getSummary } from "@/service/api";
 
 // ERC20 ABI - balanceOf 和 approve 函数
 const ERC20_ABI = [
@@ -90,11 +91,18 @@ export default function StakePage() {
 		},
 	});
 
+	// 获取summary数据，进页面请求一次，失败重试2次
+	const { data: summaryData } = useQuery({
+		queryKey: ['summary'],
+		queryFn: () => getSummary({}),
+		retry: 2, // 失败重试2次
+		refetchOnWindowFocus: false, // 避免窗口聚焦时重新请求
+		refetchOnMount: true, // 组件挂载时请求
+	});
 	// 提取数据
 	const oriBalance = contractData?.[0]?.status === 'success' ? contractData[0].result : null;
 	const userRewards = contractData?.[1]?.status === 'success' ? contractData[1].result : null;
 	const treasuryState = treasuryData?.[0]?.status === 'success' ? treasuryData[0].result : null;
-	console.log(userRewards)
 	// 格式化ORI余额
 	const formattedOriBalance = oriBalance
 		? BigNumber(ethers.formatUnits(BigInt(oriBalance.toString()), 18)).dp(8).toString()
@@ -114,7 +122,6 @@ export default function StakePage() {
 		accRewardPerShare: BigNumber(ethers.formatUnits(BigInt((treasuryState as any[])[1]?.toString() || '0'), 18)).dp(8).toString(),
 	} : { totalStaked: '0', accRewardPerShare: '0' };
 
-	console.log(formattedStakeInfo)
 	const percentageButtons = [
 		{ label: "25%", value: 25 },
 		{ label: "50%", value: 50 },
@@ -495,7 +502,7 @@ export default function StakePage() {
 									</PopoverContent>
 								</Popover>
 							</div>
-							<span className="text-[14px] text-[#fff]">0%</span>
+							<span className="text-[14px] text-[#fff]">{summaryData?.data?.staking_annual_yield?.value || '0'}%</span>
 						</div>
 
 						<div className="flex items-center justify-between">

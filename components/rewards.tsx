@@ -94,7 +94,7 @@ export default function Rewards() {
 			oriDirect: BigNumber(ethers.formatUnits(BigInt(rewards.oriDirect || 0))).dp(8).toString(),
 			oriRefined: BigNumber(ethers.formatUnits(BigInt(rewards.oriRefined || 0))).dp(8).toString()
 		};
-
+		console.log(rewardsData)
 		return rewardsData;
 	};
 

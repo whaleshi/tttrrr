@@ -3,6 +3,8 @@ import { createContext, useContext, useState, ReactNode, useEffect } from "react
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { useAuthStore } from "@/stores/auth";
 import { ethers } from "ethers";
+import { getPrice } from '@/service/api';
+import { useQuery } from '@tanstack/react-query';
 
 interface BalanceContextType {
 	balance: number;
@@ -72,6 +74,22 @@ export function BalanceProvider({ children }: { children: ReactNode }) {
 			setBalance(0);
 		}
 	}, [provider, currentAddress]);
+
+	// 获取价格，每10秒刷新一次
+	const { data: priceData } = useQuery({
+		queryKey: ['price'],
+		queryFn: () => getPrice({}),
+		refetchInterval: 10000, // 10秒
+		refetchOnWindowFocus: false,
+	});
+
+	// 更新价格
+	useEffect(() => {
+		console.log(priceData)
+		if (priceData?.data) {
+			setPrice(priceData.data);
+		}
+	}, [priceData]);
 
 	return (
 		<BalanceContext.Provider
