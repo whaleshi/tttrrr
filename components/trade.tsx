@@ -20,9 +20,10 @@ type TradeType = 'manual' | 'auto';
 interface TradeProps {
 	selectedCells?: number[];
 	roundInfo?: any;
+	roundId?: number;
 }
 
-export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
+export const Trade = ({ selectedCells = [], roundInfo, roundId }: TradeProps) => {
 	const { t } = useTranslation();
 	const { toLogin } = usePrivyLogin();
 	const [selectedTab, setSelectedTab] = useState('manual');
@@ -373,6 +374,13 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 		// onDeploy?.(amount);
 	};
 
+
+	const { data: roundInfoData } = useQuery<any>({
+		queryKey: ['roundInfo', roundId, address],
+		queryFn: () => null,
+		enabled: false
+	});
+
 	return (
 		<div className="w-full bg-[#191B1F] rounded-[8px] p-[12px]">
 			<div className="w-full">
@@ -547,7 +555,7 @@ export const Trade = ({ selectedCells = [], roundInfo }: TradeProps) => {
 						className={`h-[44px] text-[15px] text-[#0D0F13] bg-[#fff] rounded-[22px]`}
 						onPress={() => { handleClick(inputAmount) }}
 						isLoading={isLoading}
-						isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || (selectedTab === 'manual' && roundInfo?.gameState !== 1)}
+						isDisabled={isLoading || !inputAmount || parseFloat(inputAmount) <= 0 || (selectedTab === 'manual' && roundInfo?.gameState !== 1) || (selectedTab === 'manual' && roundInfoData?.user?.total_amount && Number(roundInfoData?.user?.total_amount) > 0)}
 					>
 						{(selectedTab === 'manual' && roundInfo?.gameState !== 1) ? (
 							t('Home.waitingForRound')

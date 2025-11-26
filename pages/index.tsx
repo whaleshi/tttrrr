@@ -231,6 +231,7 @@ export default function IndexPage() {
 								isDrawing={isDrawing}
 								showWinner={showWinner}
 								roundId={roundId}
+								isShow={automationData?.id ? false : true}
 							/>
 						</div>
 						<div className="w-0 lg:w-[calc(32/1200*100%)]"></div>
@@ -241,6 +242,7 @@ export default function IndexPage() {
 									automationData?.id ? <Auto info={automationData} /> : <Trade
 										selectedCells={selectedCells}
 										roundInfo={roundInfo}
+										roundId={roundId as number}
 									/>
 								}
 

@@ -15,9 +15,10 @@ interface MatrixProps {
 	isDrawing: boolean;
 	showWinner: boolean;
 	roundId: number | null;
+	isShow: boolean;
 }
 
-export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, winningCell, isDrawing, showWinner, roundId }: MatrixProps) {
+export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, winningCell, isDrawing, showWinner, roundId, isShow }: MatrixProps) {
 	const { t } = useTranslation();
 	const [fadingCells, setFadingCells] = useState<number[]>([]);
 	const [cellCounts, setCellCounts] = useState<{ [key: number]: number }>({});
@@ -185,24 +186,26 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 					</div>
 				))}
 			</div>
-			<div className="w-full mt-[16px] flex justify-center">
-				<button
-					onClick={() => {
-						// 如果已经全选，则取消全选；否则全选
-						if (selectedCells.length === 25) {
-							setSelectedCells([]);
-						} else {
-							setSelectedCells(Array.from({ length: 25 }, (_, i) => i));
-						}
-					}}
-					className="flex items-center gap-[8px] hover:brightness-150 transition-all cursor-pointer border-[1px] border-[#25262A] py-[8px] px-[16px] rounded-full"
-				>
-					{selectedCells.length === 25 ? (<DeSelectIcon />) : (<SelectIcon />)}
-					<span className="text-[14px] text-[#868789]">
-						{selectedCells.length === 25 ? t('Home.deselectAll') : t('Home.selectAll')}
-					</span>
-				</button>
-			</div>
+			{
+				isShow && <div className="w-full mt-[16px] flex justify-center">
+					<button
+						onClick={() => {
+							// 如果已经全选，则取消全选；否则全选
+							if (selectedCells.length === 25) {
+								setSelectedCells([]);
+							} else {
+								setSelectedCells(Array.from({ length: 25 }, (_, i) => i));
+							}
+						}}
+						className="flex items-center gap-[8px] hover:brightness-150 transition-all cursor-pointer border-[1px] border-[#25262A] py-[8px] px-[16px] rounded-full"
+					>
+						{selectedCells.length === 25 ? (<DeSelectIcon />) : (<SelectIcon />)}
+						<span className="text-[14px] text-[#868789]">
+							{selectedCells.length === 25 ? t('Home.deselectAll') : t('Home.selectAll')}
+						</span>
+					</button>
+				</div>
+			}
 		</>
 	)
 }
