@@ -599,7 +599,7 @@ export default function StakePage() {
 									</PopoverContent>
 								</Popover>
 							</div>
-							<span className="text-[14px] text-[#fff]">{summaryData?.data?.staking_annual_yield?.value || '0'}%</span>
+							<span className="text-[14px] text-[#fff]">{summaryData?.data?.staking_annual_yield?.value.toFixed(2) || '0'}%</span>
 						</div>
 
 						<div className="flex items-center justify-between">
