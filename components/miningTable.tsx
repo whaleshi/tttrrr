@@ -87,35 +87,31 @@ export const MiningTable = ({ title = "Mining", description = "Recent mining act
 								</div>
 							</div>
 						) : eventListInfo?.list?.length > 0 ? (
-							<div className="h-[380px]">
-								{
-									eventListInfo.list.map((row: any, index: any) => (
-										<div key={index} className="flex min-h-[38px] items-center text-[12px] hover:bg-[#191B1F] transition-colors cursor-pointer px-[12px] rounded-[8px] py-[2px]">
-											<div className="w-[70px] lg:flex-[0.8] shrink-0 text-[#fff] break-words text-left">#{row?.round_id}</div>
-											<div className="w-[60px] lg:flex-[0.7] shrink-0 text-[#fff] break-words text-right">#{row?.winning_square}</div>
-											<div className="w-[140px] lg:flex-[1.8] shrink-0 text-[#fff] break-words overflow-hidden text-right">{row?.num_winners > 0 ? (row?.split_reward ? 'Split' : shortenAddress(row?.top_miner)) : 'NoWinner'}</div>
-											<div className="w-[70px] lg:flex-[0.8] shrink-0 text-[#fff] break-words text-right">{row?.num_winners}</div>
-											<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
-												<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-												<span className="text-[#fff] truncate">{row?.total_deploy ? BigNumber(ethers.formatUnits(BigInt(row.total_deploy), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
-											</div>
-											<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
-												<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-												<span className="text-[#fff] truncate">{row?.vault_share ? BigNumber(ethers.formatUnits(BigInt(row.vault_share), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
-											</div>
-											<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
-												<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-												<span className="text-[#fff] truncate">{row?.winnings ? BigNumber(ethers.formatUnits(BigInt(row.winnings), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
-											</div>
-											<div className="w-[110px] lg:flex-[1.3] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px] min-w-0">
-												<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
-												{row?.motherlode ? BigNumber(ethers.formatUnits(BigInt(row.motherlode_payout), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}
-											</div>
-											<div className="w-[140px] lg:flex-[1.8] shrink-0 text-[#fff] text-right text-[11px] leading-tight">{row?.timestamp ? new Date(row.timestamp * 1000).toLocaleString() : '-'}</div>
-										</div>
-									))
-								}
-							</div>
+							eventListInfo.list.map((row: any, index: any) => (
+								<div key={index} className="flex min-h-[38px] items-center text-[12px] hover:bg-[#191B1F] transition-colors cursor-pointer px-[12px] rounded-[8px] py-[2px]">
+									<div className="w-[70px] lg:flex-[0.8] shrink-0 text-[#fff] break-words text-left">#{row?.round_id}</div>
+									<div className="w-[60px] lg:flex-[0.7] shrink-0 text-[#fff] break-words text-right">#{row?.winning_square}</div>
+									<div className="w-[140px] lg:flex-[1.8] shrink-0 text-[#fff] break-words overflow-hidden text-right">{row?.num_winners > 0 ? (row?.split_reward ? 'Split' : shortenAddress(row?.top_miner)) : 'NoWinner'}</div>
+									<div className="w-[70px] lg:flex-[0.8] shrink-0 text-[#fff] break-words text-right">{row?.num_winners}</div>
+									<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
+										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
+										<span className="text-[#fff] truncate">{row?.total_deploy ? BigNumber(ethers.formatUnits(BigInt(row.total_deploy), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
+									</div>
+									<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
+										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
+										<span className="text-[#fff] truncate">{row?.vault_share ? BigNumber(ethers.formatUnits(BigInt(row.vault_share), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
+									</div>
+									<div className="w-[110px] lg:flex-[1.3] shrink-0 flex items-center justify-end gap-[4px] min-w-0">
+										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
+										<span className="text-[#fff] truncate">{row?.winnings ? BigNumber(ethers.formatUnits(BigInt(row.winnings), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
+									</div>
+									<div className="w-[110px] lg:flex-[1.3] shrink-0 text-[#fff] break-words text-right flex items-center justify-end gap-[4px] min-w-0">
+										<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
+										{row?.motherlode ? BigNumber(ethers.formatUnits(BigInt(row.motherlode_payout), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}
+									</div>
+									<div className="w-[140px] lg:flex-[1.8] shrink-0 text-[#fff] text-right text-[11px] leading-tight">{row?.timestamp ? new Date(row.timestamp * 1000).toLocaleString() : '-'}</div>
+								</div>
+							))
 						) : (
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">

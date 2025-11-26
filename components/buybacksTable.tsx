@@ -79,24 +79,20 @@ export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybac
 								</div>
 							</div>
 						) : eventListInfo?.list?.length > 0 ? (
-							<div className="h-[380px]">
-								{
-									eventListInfo.list.map((row: any, index: any) => (
-										<div key={index} className="flex min-h-[38px] items-center text-[12px] hover:bg-[#191B1F] transition-colors cursor-pointer px-[12px] rounded-[8px] py-[2px]">
-											<div className="flex-1 text-[#fff] text-[11px] leading-tight text-left">{row?.timestamp ? new Date(row.timestamp * 1000).toLocaleString() : '-'}</div>
-											<div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
-												<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-												<span className="text-[#fff] truncate">{row?.amount_in ? BigNumber(ethers.formatUnits(BigInt(row.amount_in), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
-											</div>
-											<div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
-												<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />
-												<span className="text-[#fff] truncate">{row?.burned ? BigNumber(ethers.formatUnits(BigInt(row.burned), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
-											</div>
-											<div className="flex-1 text-[#fff] text-right break-words">{row?.staking_yield ? row?.staking_yield?.toFixed(2) + '%' : '-'}</div>
-										</div>
-									))
-								}
-							</div>
+							eventListInfo.list.map((row: any, index: any) => (
+								<div key={index} className="flex min-h-[38px] items-center text-[12px] hover:bg-[#191B1F] transition-colors cursor-pointer px-[12px] rounded-[8px] py-[2px]">
+									<div className="flex-1 text-[#fff] text-[11px] leading-tight text-left">{row?.timestamp ? new Date(row.timestamp * 1000).toLocaleString() : '-'}</div>
+									<div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
+										<BNBIcon className="w-[14px] h-[14px] shrink-0" />
+										<span className="text-[#fff] truncate">{row?.amount_in ? BigNumber(ethers.formatUnits(BigInt(row.amount_in), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
+									</div>
+									<div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
+										<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />
+										<span className="text-[#fff] truncate">{row?.burned ? BigNumber(ethers.formatUnits(BigInt(row.burned), 8)).dp(6, BigNumber.ROUND_DOWN).toFixed() : '0'}</span>
+									</div>
+									<div className="flex-1 text-[#fff] text-right break-words">{row?.staking_yield ? row?.staking_yield?.toFixed(2) + '%' : '-'}</div>
+								</div>
+							))
 						) : (
 							<div className="flex h-[380px] items-center justify-center text-[14px] text-[#868789]">
 								<div className="flex flex-col items-center gap-[12px]">
