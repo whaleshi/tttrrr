@@ -86,13 +86,13 @@ export const BuybacksTable = ({ title = "Buybacks", description = "Recent buybac
 											<div className="flex-1 text-[#fff] text-[11px] leading-tight text-left">{row?.timestamp ? new Date(row.timestamp * 1000).toLocaleString() : '-'}</div>
 											<div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
 												<BNBIcon className="w-[14px] h-[14px] shrink-0" />
-												<span className="text-[#fff] truncate">{row?.vault_share ? BigNumber(ethers.formatEther(BigInt(row.vault_share))).dp(6).toString() : '0'}</span>
+												<span className="text-[#fff] truncate">{row?.amount_in ? BigNumber(ethers.formatUnits(BigInt(row.amount_in), 8)).dp(8).toString() : '0'}</span>
 											</div>
 											<div className="flex-1 flex items-center justify-end gap-[4px] min-w-0">
 												<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px]" disableSkeleton disableAnimation radius="none" />
-												<span className="text-[#fff] truncate">{row?.total_ore_mined ? BigNumber(ethers.formatEther(BigInt(row.total_ore_mined))).dp(6).toString() : '0'}</span>
+												<span className="text-[#fff] truncate">{row?.burned ? BigNumber(ethers.formatUnits(BigInt(row.burned), 8)).dp(8).toString() : '0'}</span>
 											</div>
-											<div className="flex-1 text-[#fff] text-right break-words">{row?.winnings ? BigNumber(ethers.formatEther(BigInt(row.winnings))).dp(6).toString() + '%' : '-'}</div>
+											<div className="flex-1 text-[#fff] text-right break-words">{row?.staker_share ? BigNumber(ethers.formatUnits(BigInt(row.staker_share), 8)).dp(8).toString() + '%' : '-'}</div>
 										</div>
 									))
 								}

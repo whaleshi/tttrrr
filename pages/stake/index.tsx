@@ -557,6 +557,7 @@ export default function StakePage() {
 								className="h-[44px] border-[#EFC462] text-[15px] text-[#EFC462] rounded-[22px] font-medium"
 								onPress={handleClaimYield}
 								isDisabled={isClaiming}
+								isLoading={isClaiming}
 							>
 								{t('Stake.claim')}
 							</Button>
