@@ -57,7 +57,7 @@ export default function PointsPage() {
 						</div>
 					</div>
 				</div>
-				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.recordsDescription')}<span className="text-[#fff]">234,567,800</span></div>
+				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.recordsDescription')}<span className="text-[#fff]">{pointsListData?.system_total_points ? BigNumber(pointsListData.system_total_points).dp(2).toFormat() : '0'}</span></div>
 				{/* Records Section */}
 				<div className="w-full">
 					<div className="text-[20px] font-semibold text-[#fff] mb-[8px]">{t('Points.records')}</div>
