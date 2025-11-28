@@ -70,7 +70,7 @@ export default function IndexPage() {
 			}
 		}
 	});
-
+	console.log(roundInfo)
 	const { data: eventInfoData } = useQuery({
 		queryKey: ['eventInfo', roundInfo?.gameState],
 		queryFn: async () => {
