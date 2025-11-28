@@ -55,7 +55,6 @@ export default function IndexPage() {
 				if (!data || data.length < 3) return null;
 
 				const [treasuryResult, gameStateResult, currentRoundResult] = data;
-
 				return {
 					treasuryOre: treasuryResult.status === 'success' && treasuryResult.result
 						? ethers.formatUnits((treasuryResult.result as any)[5])
@@ -86,7 +85,7 @@ export default function IndexPage() {
 				}
 
 				setRoundId(targetRoundId);
-				console.log('round_id:', data?.round_id, 'reset_event_round_id:', data?.reset_event_round_id, '最终设置roundId为:', targetRoundId);
+				// console.log('round_id:', data?.round_id, 'reset_event_round_id:', data?.reset_event_round_id, '最终设置roundId为:', targetRoundId);
 			}
 
 			return data;
