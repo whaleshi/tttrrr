@@ -1,15 +1,16 @@
-import { PointsIcon } from "@/components/icons";
+import { CopyIcon, PointsIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useQuery } from '@tanstack/react-query';
-import { getPointsList, getUserPoints } from '@/service/api';
+import { getPointsList } from '@/service/api';
 import { useState } from 'react';
 import _bignumber from 'bignumber.js';
 import { useAuthStore } from '@/stores/auth';
-import { ethers } from 'ethers';
 import { useTranslation } from "react-i18next";
 import { usePrivy } from "@privy-io/react-auth";
 const BigNumber = _bignumber;
-import { useBalanceContext } from "@/providers/balanceProvider";
+import { Image } from "@heroui/react";
+import { PointsRecords } from "@/components/PointsRecords";
+import { PointsRecords2 } from "@/components/PointsRecords2";
 
 export default function PointsPage() {
 	const { t } = useTranslation();
@@ -17,23 +18,25 @@ export default function PointsPage() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 20;
 	const { address } = useAuthStore();
-	const { price } = useBalanceContext();
 
-	// 获取积分记录列表
-	const { data: pointsListData, isLoading } = useQuery({
-		queryKey: ['pointsList', currentPage, address],
+	const { data: pointsListData, isLoading, isFetching } = useQuery({
+		queryKey: ['pointsList', address, currentPage, pageSize],
 		queryFn: async () => {
-			if (!address) return null;
 			const result = await getPointsList({
-				"miner": address,
-				"page": currentPage.toString(),
-				"page_size": pageSize.toString(),
+				user: address,
+				page: currentPage,
+				limit: pageSize
 			});
 			return result?.data;
 		},
-		refetchInterval: 30000,
 		enabled: !!address,
+		refetchInterval: 10000,
+		refetchIntervalInBackground: true,
+		staleTime: 5000, // 5秒内不会重新请求
 	});
+
+	// 只在初次加载或分页变化时显示loading，不在后台刷新时显示
+	const showLoading = isLoading && !pointsListData;
 
 	if (!ready) {
 		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
@@ -44,9 +47,39 @@ export default function PointsPage() {
 	return (
 		<DefaultLayout>
 			<section className="flex flex-col items-center justify-center w-full px-[14px] max-w-[600px] mx-auto">
-				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">{t('Points.title')}</div>
-				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">{t('Points.subtitle')}</div>
-
+				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">起源矿池</div>
+				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">
+					投入后未中奖的用户将获得 <span className="text-[#EFC462]">起源</span> 奖励 <br />
+					每轮固定发放 <span className="text-[#fff]">200</span> <span className="text-[#EFC462]">起源</span> 奖励 <br />
+					母矿奖池每轮累积 <span className="text-[#fff]">40</span> <span className="text-[#EFC462]">起源</span>，母矿开奖后一次性发放
+				</div>
+				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[48px] mb-[8px] flex items-center px-[16px]">
+					<div className="flex items-center w-full">
+						<PointsIcon className="w-[24px] h-[24px]" />
+						<div className="flex items-center flex-1">
+							<div className="text-[16px] text-[#fff] mx-[4px]">起源</div>
+							<div className="text-[12px] text-[#4A4B4E]">${pointsListData?.user_points?.total_points ? BigNumber(pointsListData?.user_points?.total_points).dp(2).toString() : '0.00'}</div>
+						</div>
+						<CopyIcon className="cursor-pointer" />
+					</div>
+				</div>
+				<div className="w-full grid grid-cols-2 gap-2 mb-[32px]">
+					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
+						<div className="flex items-center gap-[4px] font-semibold">
+							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
+							<div className="text-[16px] text-[#fff]">{(28000000).toLocaleString()}</div>
+						</div>
+						<div className="text-[#868789] text-[12px]">累计发放</div>
+					</div>
+					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
+						<div className="flex items-center gap-[4px] font-semibold">
+							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
+							<div className="text-[16px] text-[#fff]">{(28000000).toLocaleString()}</div>
+						</div>
+						<div className="text-[#868789] text-[12px]">当前母矿奖池</div>
+					</div>
+				</div>
+				<div className="text-[20px] text-[#fff] w-full mb-[12px]">我的奖励</div>
 				{/* My Points Card */}
 				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[88px] mb-[12px] flex items-center px-[16px]">
 					<div className="flex items-center gap-[12px]">
@@ -57,74 +90,20 @@ export default function PointsPage() {
 						</div>
 					</div>
 				</div>
-				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.recordsDescription')}<span className="text-[#fff]">{pointsListData?.system_total_points ? BigNumber(pointsListData.system_total_points).dp(2).toFormat() : '0'}</span></div>
+				<div className="w-full text-[12px] text-[#868789] mb-[24px]">已累计领取：<span className="text-[#fff]">{pointsListData?.system_total_points ? BigNumber(pointsListData.system_total_points).dp(2).toFormat() : '0'} 起源</span></div>
+
 				{/* Records Section */}
-				<div className="w-full">
-					<div className="text-[20px] font-semibold text-[#fff] mb-[8px]">{t('Points.records')}</div>
+				<PointsRecords
+					data={pointsListData?.list}
+					isLoading={isLoading}
+				/>
 
-					{/* Table Header */}
-					<div className="grid gap-[8px] border-b border-dashed border-[#25262A] h-[38px] items-center" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-						<div className="text-[12px] text-[#868789]">{t('Points.time')}</div>
-						<div className="text-[12px] text-[#868789] text-center">{t('Points.inputAmount')}</div>
-						{/* <div className="text-[12px] text-[#868789]">USD</div> */}
-						<div className="text-[12px] text-[#868789] text-right">{t('Points.earnPoint')}</div>
-					</div>
-
-					{/* Table Rows */}
-					<div className="">
-						{isLoading ? (
-							<div className="flex h-[300px] items-center justify-center text-[14px] text-[#868789]">
-								<div className="flex flex-col items-center gap-[12px]">
-									<img src="/images/loading.gif" alt="Loading" className="w-[40px] h-[40px]" />
-								</div>
-							</div>
-						) : pointsListData?.list?.length > 0 ? (
-							pointsListData.list.map((record: any, index: any) => (
-								<div key={index} className="grid gap-[8px] h-[38px] items-center" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
-									{/* 时间列 - 较宽 */}
-									<div className="text-[12px] text-[#fff] truncate">{record?.timestamp ? new Date(record.timestamp * 1000).toLocaleString() : '-'}</div>
-									{/* 投入金额列 */}
-									{/* <div className="text-[12px] text-[#fff] truncate">{record?.bet_amount ? BigNumber(ethers.formatUnits(BigInt(record?.bet_amount), 8)).dp(6, BigNumber.ROUND_DOWN).toString() + ' BNB' : '-'}</div> */}
-									{/* USD价值列 */}
-									<div className="text-[12px] text-[#fff] truncate text-center">{record?.bet_amount && price ? '$' + BigNumber(ethers.formatUnits(BigInt(record.bet_amount), 8)).multipliedBy(price).dp(2).toString() : '-'}</div>
-									{/* 积分列 - 右对齐 */}
-									<div className="text-[12px] text-[#fff] text-right">{record?.points_reward ? BigNumber(record.points_reward).dp(2).toString() : '0'}</div>
-								</div>
-							))
-						) : (
-							<div className="flex h-[300px] items-center justify-center text-[14px] text-[#868789]">
-								<div className="flex flex-col items-center gap-[12px]">
-									<img src="/images/nothing.png" alt="No data" className="w-[80px] h-[80px] opacity-50" />
-									<span>{t('Explore.noRecordsFound')}</span>
-								</div>
-							</div>
-						)}
-					</div>
-
-					{/* Pagination */}
-					{Math.ceil((pointsListData?.total || 0) / pageSize) > 1 && (
-						<div className="flex justify-center gap-[8px] mt-[16px] mb-[20px] w-full">
-							<div
-								className={`w-[32px] h-[32px] rounded-full border border-[#25262A] flex items-center justify-center cursor-pointer hover:bg-[#25262A] transition-colors ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-								onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-							>
-								<svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-[#868789]">
-									<path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-								</svg>
-							</div>
-							<div className="flex items-center px-3 text-[12px] text-[#868789]">
-								{currentPage} / {Math.ceil((pointsListData?.total || 0) / pageSize)}
-							</div>
-							<div
-								className={`w-[32px] h-[32px] rounded-full border border-[#25262A] flex items-center justify-center cursor-pointer hover:bg-[#25262A] transition-colors ${currentPage >= Math.ceil((pointsListData?.total || 0) / pageSize) ? 'opacity-50 cursor-not-allowed' : ''}`}
-								onClick={() => currentPage < Math.ceil((pointsListData?.total || 0) / pageSize) && setCurrentPage(currentPage + 1)}
-							>
-								<svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-[#868789]">
-									<path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-								</svg>
-							</div>
-						</div>
-					)}
+				{/* Second Records Section */}
+				<div className="mt-[32px] w-full">
+					<PointsRecords2
+						data={pointsListData?.list}
+						isLoading={isLoading}
+					/>
 				</div>
 			</section>
 		</DefaultLayout>
