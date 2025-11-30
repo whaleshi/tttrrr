@@ -88,7 +88,7 @@ export default function PointsPage() {
 				</div>
 				<div className="text-[20px] text-[#fff] w-full mb-[12px]">{t('Points.myRewards')}</div>
 				{/* My Points Card */}
-				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[88px] mb-[12px] flex items-center px-[16px]">
+				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[88px] mb-[12px] flex items-center px-[16px] justify-between">
 					<div className="flex items-center gap-[12px]">
 						<PointsIcon className="w-[40px] h-[40px]" />
 						<div>
@@ -96,6 +96,16 @@ export default function PointsPage() {
 							<div className="text-[24px] font-bold text-[#fff]">{pointsListData?.user_points?.total_points ? BigNumber(pointsListData?.user_points?.total_points).dp(2).toString() : '0.00'}</div>
 						</div>
 					</div>
+					<button 
+						className={`px-[20px] py-[8px] rounded-[20px] text-[14px] font-medium transition-colors ${
+							pointsListData?.user_points?.total_points && BigNumber(pointsListData.user_points.total_points).gt(0)
+								? 'bg-[#fff] text-[#000] hover:bg-[#f0f0f0]'
+								: 'bg-[#3A3B3F] text-[#868789] cursor-not-allowed'
+						}`}
+						disabled={!pointsListData?.user_points?.total_points || BigNumber(pointsListData.user_points.total_points).lte(0)}
+					>
+						{t('Points.claim')}
+					</button>
 				</div>
 				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.totalClaimed')}：<span className="text-[#fff]">{pointsListData?.system_total_points ? BigNumber(pointsListData.system_total_points).dp(2).toFormat() : '0'} {t('Points.origin')}</span></div>
 
