@@ -62,14 +62,14 @@ export const PointsRecords = ({ }: PointsRecordsProps) => {
 
 	return (
 		<div className="w-full">
-			<div className="text-[20px] font-semibold text-[#fff] mb-[8px]">起源币中奖记录</div>
-			<div className="text-[12px] text-[#868789] mb-[12px]">失败用户奖励起源币，50% 概率 1 人获得，50% 概率根据失败投入数量按占比瓜分奖励</div>
+			<div className="text-[20px] font-semibold text-[#fff] mb-[8px]">{t('Points.originWinRecord')}</div>
+			<div className="text-[12px] text-[#868789] mb-[12px]">{t('Points.originWinDescription')}</div>
 
 			{/* Table Header */}
 			<div className="grid gap-[8px] border-b border-dashed border-[#25262A] h-[38px] items-center" style={{ gridTemplateColumns: '1.5fr 1.5fr 1fr 1fr' }}>
 				<div className="text-[12px] text-[#868789]">{t('Points.time')}</div>
 				<div className="text-[12px] text-[#868789]">{t('Points.inputAmount')}</div>
-				<div className="text-[12px] text-[#868789]">轮次</div>
+				<div className="text-[12px] text-[#868789]">{t('Points.round')}</div>
 				<div className="text-[12px] text-[#868789] text-right">{t('Points.earnPoint')}</div>
 			</div>
 

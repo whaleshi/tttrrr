@@ -2,7 +2,7 @@ import { AccorIcon, BackIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useEffect, useState } from "react";
 import { Accordion, AccordionItem } from "@heroui/react";
-import { useTranslation } from "react-i18next";
+import { useTranslation, Trans } from "react-i18next";
 import { usePrivy } from "@privy-io/react-auth";
 
 export default function AboutPage() {
@@ -21,12 +21,29 @@ export default function AboutPage() {
 				<div className="text-[28px] font-bold text-[#fff] w-full pt-[24px]">{t('About.title')}</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[2px] pb-[24px] custom-dashed-border-bottom mb-[24px]">{t('About.subtitle')}</div>
 				<div className="text-[20px] font-bold text-[#fff] w-full">{t('About.summaryTitle')}</div>
-				<div className="text-[14px] text-[#868789] mt-[16px] w-full"><span className="text-[#fff]">ORI</span> {t('About.summaryContent')}</div>
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">
+					<Trans
+						i18nKey="About.summaryDescription"
+						components={[
+							<span className="text-[#fff]" />,
+							<span className="text-[#fff]" />,
+							<span className="text-[#fff]" />
+						]}
+					/>
+				</div>
 				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.introTitle')}</div>
 				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.introContent1')}</div>
-				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.introContent2')}<br />
-					<span className="text-[#fff]">{t('About.valueLeakageTitle')}</span><br />
-					{t('About.valueLeakageContent')}
+				<div className="text-[14px] text-[#868789] mt-[16px] w-full">
+					<Trans
+						i18nKey="About.introContent2Detail"
+						components={[
+							<span className="text-[#fff]" />,
+							<br />,
+							<span className="text-[#fff]" />,
+							<br />,
+							<span className="text-[#fff]" />
+						]}
+					/>
 				</div>
 				<div className="text-[14px] text-[#868789] mt-[16px] w-full">
 					{t('About.consequenceContent')}
@@ -61,32 +78,109 @@ export default function AboutPage() {
 					</div>
 				</div>
 				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.conclusionLabel')}</div>
-				<div className="text-[14px] text-[#868789] mt-[8px] w-full">{t('About.conclusionContent')}</div>
+				<div className="text-[14px] text-[#868789] mt-[8px] w-full">
+					<Trans
+						i18nKey="About.conclusionContent"
+						components={[
+							<span className="text-[#fff]" />
+						]}
+					/>
+				</div>
 				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.oriPhilosophyTitle')}</div>
 				<div className="text-[14px] text-[#868789] mt-[16px] w-full">{t('About.oriInsight')}</div>
 				<div className="text-[14px] text-[#fff] mt-[8px] w-full">{t('About.oriQuestion')}</div>
-				<div className="text-[14px] text-[#868789] mt-[8px] w-full">ORI的答案是：<span className="text-[#EFC462]">{t('About.oriAnswer')}</span></div>
+				<div className="text-[14px] text-[#868789] mt-[8px] w-full">
+					<Trans
+						i18nKey="About.oriAnswer"
+						components={[
+							<span className="text-[#EFC462]" />
+						]}
+					/>
+				</div>
 				<div className="text-[14px] text-[#868789] mt-[16px] w-full">
 					{t('About.oriMechanismIntro')}
-					<div className="mt-[8px]">{t('About.oriMechanism1')}</div>
-					<div className="mt-[8px]">{t('About.oriMechanism2')}</div>
-					<div className="mt-[8px]">{t('About.oriMechanism3')}</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.oriMechanism1"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.oriMechanism2"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.oriMechanism3"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
 				</div>
 				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.coreMechanismTitle')}</div>
 				<div className="text-[16px] text-[#fff] w-full mt-[16px]">{t('About.zeroPremine')}</div>
 				<div className="text-[14px] text-[#868789] w-full">
-					<div className="mt-[8px]">{t('About.zeropreminePoint1')}</div>
-					<div className="mt-[8px]">{t('About.zeropreminePoint2')}</div>
-					<div className="mt-[8px]">{t('About.zeropreminePoint3')}</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.zeropreminePoint1"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.zeropreminePoint2"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.zeropreminePoint3"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
 				</div>
 				<div className="text-[16px] text-[#fff] w-full mt-[16px]">{t('About.decentralizedMining')}</div>
 				<div className="text-[14px] text-[#868789] w-full">
-					<div className="mt-[8px]">{t('About.decentralizedPoint1')}</div>
-					<div className="mt-[8px]">{t('About.decentralizedPoint2')}</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.decentralizedPoint1"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
+					<div className="mt-[8px]">
+						<Trans
+							i18nKey="About.decentralizedPoint2"
+							components={[
+								<span className="text-[#fff]" />
+							]}
+						/>
+					</div>
 				</div>
 				<div className="text-[16px] text-[#fff] w-full mt-[16px]">{t('About.reverseEngine')}</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[8px]">{t('About.traditionalPow')}</div>
-				<div className="text-[14px] text-[#fff] w-full mt-[8px]"><span className="text-[#EFC462]">{t('About.oriModel')}</span></div>
+				<div className="text-[14px] text-[#fff] w-full mt-[8px]">
+					<Trans
+						i18nKey="About.oriModel"
+						components={[
+							<span className="text-[#EFC462]" />
+						]}
+					/>
+				</div>
 				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.economicModelTitle')}</div>
 				<div className="w-full mt-[16px] border border-[#25262A] rounded-[8px] overflow-hidden">
 					<div className="grid bg-[#191B1F]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
@@ -110,26 +204,55 @@ export default function AboutPage() {
 					<div className="grid border-t border-[#25262A]" style={{ gridTemplateColumns: '1fr 1.5fr 1.5fr' }}>
 						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.system')}</div>
 						<div className="py-[6px] border-r border-[#25262A] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.systemAction')}</div>
-						<div className="py-[6px] text-[14px] text-[#EF4444] px-[12px] flex items-center">{t('About.systemReward')}</div>
+						<div className="py-[6px] text-[14px] text-[#fff] px-[12px] flex items-center">{t('About.systemReward')}</div>
 					</div>
 				</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[16px]">{t('About.economicResult')}</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[8px]">{t('About.economicResultContent')}</div>
 				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.visionTitle')}</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[16px]">
-					{t('About.visionContent')}
+					<Trans
+						i18nKey="About.visionContent"
+						components={[
+							<span className="text-[#fff]" />,
+							<br />,
+							<br />
+						]}
+					/>
 				</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[8px]">
-					<span className="text-[#EFC462]">{t('About.visionSummary')}</span>
+					<Trans
+						i18nKey="About.visionSummary"
+						components={[
+							<span className="text-[#EFC462]" />
+						]}
+					/>
 				</div>
 				<div className="text-[20px] font-bold text-[#fff] w-full mt-[32px]">{t('About.conclusionTitle')}</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[16px]">
-					{t('About.conclusionContent1')}
+					<Trans
+						i18nKey="About.conclusionContent1"
+						components={[
+							<br />,
+							<br />,
+							<span className="text-[#fff]" />
+						]}
+					/>
 				</div>
 				<div className="text-[14px] text-[#868789] w-full mt-[32px] mb-[100px]">
-					{t('About.finalMessage')}
+					<Trans
+						i18nKey="About.finalMessage"
+						components={[
+							<span className="text-[#fff]" />,
+							<br />,
+							<span className="text-[#fff]" />,
+							<br />,
+							<br />,
+						]}
+					/>
 				</div>
 			</section>
 		</DefaultLayout>
 	);
 }
+

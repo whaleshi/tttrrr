@@ -24,3 +24,5 @@ export const getPrice = (params) => post(getApiBaseUrl() + "/ori/query/chain_ass
 export const buryEventList = (params) => post(getApiBaseUrl() + "/ori/bury_event/list", params);
 
 export const userAssetEvents = (params) => post(getApiBaseUrl() + "/ori/activity/user_asset_events", params);
+
+export const getOriginInfo = (params) => post(getApiBaseUrl() + "/ori/activity/origin_info", params);
