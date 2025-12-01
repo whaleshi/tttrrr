@@ -2,31 +2,26 @@ import { useState, useEffect } from 'react';
 import _bignumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { useTranslation } from "react-i18next";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { userAssetEvents } from '@/service/api';
 import { useAuthStore } from '@/stores/auth';
 
 const BigNumber = _bignumber;
 
 interface AssetEvent {
-	timestamp?: number;
-	bet_amount?: string;
-	points_reward?: string;
-	round_id?: number;
+	event_time?: number;
+	amount?: string;
+	param_1?: string;
+	param_2?: number;
 }
 
-interface PointsRecordsProps {
-	// 保留原有的props但不使用，保证接口兼容性
-	data?: any[];
-	isLoading?: boolean;
-}
-
-export const PointsRecords2 = ({ }: PointsRecordsProps) => {
+export const PointsRecords2 = () => {
 	const { t } = useTranslation();
 	const [hasData, setHasData] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
-	const pageSize = 20;
+	const pageSize = 10;
 	const { address } = useAuthStore();
+	const queryClient = useQueryClient();
 
 	// 使用 userAssetEvents 接口获取数据
 	const { data: assetEventsData, isLoading } = useQuery({
@@ -54,6 +49,29 @@ export const PointsRecords2 = ({ }: PointsRecordsProps) => {
 			setHasData(false);
 		}
 	}, [assetEventsData?.list]);
+
+	// 预加载下一页数据
+	useEffect(() => {
+		if (assetEventsData?.total) {
+			const totalPages = Math.ceil(assetEventsData.total / pageSize);
+			const nextPage = currentPage + 1;
+
+			if (nextPage <= totalPages) {
+				queryClient.prefetchQuery({
+					queryKey: ['userAssetEvents', address, nextPage, pageSize],
+					queryFn: async () => {
+						const result = await userAssetEvents({
+							event_type: '310002',
+							user_addr: address,
+							page: nextPage.toString(),
+							page_size: pageSize.toString(),
+						});
+						return result?.data;
+					},
+				});
+			}
+		}
+	}, [currentPage, assetEventsData?.total, queryClient, pageSize, address]);
 
 	// 只在没有数据且正在加载时显示loading
 	const shouldShowLoading = isLoading && !hasData;
@@ -84,12 +102,12 @@ export const PointsRecords2 = ({ }: PointsRecordsProps) => {
 						<div key={index} className="grid gap-[8px] h-[38px] items-center" style={{ gridTemplateColumns: '1.5fr 1.5fr 1fr 1fr' }}>
 							{/* 时间列 */}
 							<div className="text-[12px] text-[#fff] truncate">
-								{record?.timestamp ? new Date(record.timestamp * 1000).toLocaleString() : '-'}
+								{record?.event_time ? new Date(record.event_time * 1000).toLocaleString() : '-'}
 							</div>
 							{/* 投入金额列 */}
 							<div className="text-[12px] text-[#fff] truncate">
-								{record?.bet_amount ?
-									BigNumber(ethers.formatUnits(BigInt(record.bet_amount), 8))
+								{record?.param_2 ?
+									BigNumber(ethers.formatUnits(BigInt(record.param_2), 8))
 										.dp(6, BigNumber.ROUND_DOWN)
 										.toString() + ' BNB'
 									: '-'
@@ -97,12 +115,12 @@ export const PointsRecords2 = ({ }: PointsRecordsProps) => {
 							</div>
 							{/* 轮次列 */}
 							<div className="text-[12px] text-[#fff] truncate">
-								{record?.round_id ? `#${record.round_id}` : '-'}
+								{record?.param_1 ? `#${record.param_1}` : '-'}
 							</div>
 							{/* 积分列 - 右对齐 */}
 							<div className="text-[12px] text-[#fff] text-right">
-								{record?.points_reward ?
-									BigNumber(record.points_reward).dp(2).toString()
+								{record?.amount ?
+									BigNumber(ethers.formatUnits(BigInt(record.amount), 8)).dp(2, BigNumber.ROUND_DOWN).toString()
 									: '0'
 								}
 							</div>
@@ -118,9 +136,9 @@ export const PointsRecords2 = ({ }: PointsRecordsProps) => {
 				)}
 			</div>
 
-			{/* Pagination */}
+			{/* Navigation Arrows */}
 			{Math.ceil((assetEventsData?.total || 0) / pageSize) > 1 && (
-				<div className="flex justify-center gap-[8px] mt-[16px] mb-[20px] w-full">
+				<div className="flex justify-end gap-[8px] mt-[16px] mb-[20px] w-full">
 					<div
 						className={`w-[32px] h-[32px] rounded-full border border-[#25262A] flex items-center justify-center cursor-pointer hover:bg-[#25262A] transition-colors ${currentPage <= 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
 						onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}

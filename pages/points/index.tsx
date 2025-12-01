@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getOriginInfo } from '@/service/api';
 import { useState } from 'react';
 import _bignumber from 'bignumber.js';
+import { ethers } from 'ethers';
 import { useAuthStore } from '@/stores/auth';
 import { useTranslation, Trans } from "react-i18next";
 import { usePrivy } from "@privy-io/react-auth";
@@ -19,7 +20,7 @@ export default function PointsPage() {
 	const pageSize = 20;
 	const { address } = useAuthStore();
 
-	const { data: pointsListData, isLoading, isFetching } = useQuery({
+	const { data: originInfoData, isLoading, isFetching } = useQuery({
 		queryKey: ['originInfo', address],
 		queryFn: async () => {
 			const result = await getOriginInfo({
@@ -32,9 +33,6 @@ export default function PointsPage() {
 		refetchIntervalInBackground: true,
 		staleTime: 5000, // 5秒内不会重新请求
 	});
-
-	// 只在初次加载或分页变化时显示loading，不在后台刷新时显示
-	const showLoading = isLoading && !pointsListData;
 
 	if (!ready) {
 		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
@@ -65,7 +63,7 @@ export default function PointsPage() {
 						<PointsIcon className="w-[24px] h-[24px]" />
 						<div className="flex items-center flex-1">
 							<div className="text-[16px] text-[#fff] mx-[4px]">{t('Points.origin')}</div>
-							<div className="text-[12px] text-[#4A4B4E]">${pointsListData?.user_points?.total_points ? BigNumber(pointsListData?.user_points?.total_points).dp(2).toString() : '0.00'}</div>
+							<div className="text-[12px] text-[#4A4B4E]">${originInfoData?.chain_asset_config?.price ? BigNumber(originInfoData?.chain_asset_config?.price).dp(2).toString() : '0.00'}</div>
 						</div>
 						<CopyIcon className="cursor-pointer" />
 					</div>
@@ -74,14 +72,28 @@ export default function PointsPage() {
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
 							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
-							<div className="text-[16px] text-[#fff]">{(28000000).toLocaleString()}</div>
+							<div className="text-[16px] text-[#fff]">{originInfoData?.global?.total_amount ? (() => {
+								const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.global.total_amount), 8)).dp(6, BigNumber.ROUND_DOWN);
+								if (formatted.gte(1)) {
+									const num = formatted.toNumber();
+									return num % 1 === 0 ? num.toLocaleString() : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+								}
+								return formatted.toString();
+							})() : '0'}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">{t('Points.totalDistributed')}</div>
 					</div>
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
 							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
-							<div className="text-[16px] text-[#fff]">{(28000000).toLocaleString()}</div>
+							<div className="text-[16px] text-[#fff]">{originInfoData?.global?.current_mother_reward ? (() => {
+								const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.global.current_mother_reward), 8)).dp(6, BigNumber.ROUND_DOWN);
+								if (formatted.gte(1)) {
+									const num = formatted.toNumber();
+									return num % 1 === 0 ? num.toLocaleString() : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+								}
+								return formatted.toString();
+							})() : '0'}</div>
 						</div>
 						<div className="text-[#868789] text-[12px]">{t('Points.currentMotherLodePool')}</div>
 					</div>
@@ -93,34 +105,41 @@ export default function PointsPage() {
 						<PointsIcon className="w-[40px] h-[40px]" />
 						<div>
 							<div className="text-[12px] text-[#868789] mb-[4px]">{t('Points.claimableReward')}</div>
-							<div className="text-[24px] font-bold text-[#fff]">{pointsListData?.user_points?.total_points ? BigNumber(pointsListData?.user_points?.total_points).dp(2).toString() : '0.00'}</div>
+							<div className="text-[24px] font-bold text-[#fff]">{originInfoData?.user?.amount ? (() => {
+								const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).dp(6, BigNumber.ROUND_DOWN);
+								if (formatted.gte(1)) {
+									const num = formatted.toNumber();
+									return num % 1 === 0 ? num.toLocaleString() : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+								}
+								return formatted.toString();
+							})() : '0'}</div>
 						</div>
 					</div>
-					<button 
-						className={`px-[20px] py-[8px] rounded-[20px] text-[14px] font-medium transition-colors ${
-							pointsListData?.user_points?.total_points && BigNumber(pointsListData.user_points.total_points).gt(0)
-								? 'bg-[#fff] text-[#000] hover:bg-[#f0f0f0]'
-								: 'bg-[#3A3B3F] text-[#868789] cursor-not-allowed'
-						}`}
-						disabled={!pointsListData?.user_points?.total_points || BigNumber(pointsListData.user_points.total_points).lte(0)}
+					<button
+						className={`px-[20px] py-[8px] rounded-[20px] text-[14px] font-medium transition-colors ${originInfoData?.user?.amount && BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).gt(0)
+							? 'bg-[#fff] text-[#000] hover:bg-[#f0f0f0]'
+							: 'bg-[#3A3B3F] text-[#868789] cursor-not-allowed'
+							}`}
+						disabled={!originInfoData?.user?.amount || BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).lte(0)}
 					>
 						{t('Points.claim')}
 					</button>
 				</div>
-				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.totalClaimed')}：<span className="text-[#fff]">{pointsListData?.system_total_points ? BigNumber(pointsListData.system_total_points).dp(2).toFormat() : '0'} {t('Points.origin')}</span></div>
+				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.totalClaimed')}：<span className="text-[#fff]">{originInfoData?.user?.accumulated_amount ? (() => {
+					const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.user.accumulated_amount), 8)).dp(6, BigNumber.ROUND_DOWN);
+					if (formatted.gte(1)) {
+						const num = formatted.toNumber();
+						return num % 1 === 0 ? num.toLocaleString() : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+					}
+					return formatted.toString();
+				})() : '0'} {t('Points.origin')}</span></div>
 
 				{/* Records Section */}
-				<PointsRecords
-					data={pointsListData?.list}
-					isLoading={isLoading}
-				/>
+				<PointsRecords />
 
 				{/* Second Records Section */}
-				<div className="mt-[32px] w-full">
-					<PointsRecords2
-						data={pointsListData?.list}
-						isLoading={isLoading}
-					/>
+				<div className="my-[32px] w-full">
+					<PointsRecords2 />
 				</div>
 			</section>
 		</DefaultLayout>
