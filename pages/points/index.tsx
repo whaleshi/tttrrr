@@ -166,7 +166,7 @@ export default function PointsPage() {
 						]}
 					/>
 				</div>
-				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[48px] mb-[8px] flex items-center px-[16px]">
+				<div className="w-full border-[2px] border-[#25262A] rounded-[8px] h-[48px] mb-[8px] flex items-center px-[16px]">
 					<div className="flex items-center w-full">
 						<PointsIcon className="w-[24px] h-[24px]" />
 						<div className="flex items-center flex-1">
@@ -208,7 +208,7 @@ export default function PointsPage() {
 				</div>
 				<div className="text-[20px] text-[#fff] w-full mb-[12px]">{t('Points.myRewards')}</div>
 				{/* My Points Card */}
-				<div className="w-full border-[2px] border-[#25262A] rounded-[16px] h-[88px] mb-[12px] flex items-center px-[16px] justify-between">
+				<div className="w-full border-[2px] border-[#25262A] rounded-[8px] h-[88px] mb-[12px] flex items-center px-[16px] justify-between">
 					<div className="flex items-center gap-[12px]">
 						<PointsIcon className="w-[40px] h-[40px]" />
 						<div>
