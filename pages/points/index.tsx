@@ -36,10 +36,9 @@ export default function PointsPage() {
 			});
 			return result?.data;
 		},
-		enabled: !!address,
-		refetchInterval: 10000,
+		refetchInterval: 5000,
 		refetchIntervalInBackground: true,
-		staleTime: 5000, // 5秒内不会重新请求
+		staleTime: 3000, // 5秒内不会重新请求
 	});
 
 	// Claim functionality
