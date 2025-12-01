@@ -6,19 +6,29 @@ import _bignumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { useAuthStore } from '@/stores/auth';
 import { useTranslation, Trans } from "react-i18next";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 const BigNumber = _bignumber;
 import { PointsRecords } from "@/components/PointsRecords";
 import { PointsRecords2 } from "@/components/PointsRecords2";
 import useClipboard from '@/hooks/useCopyToClipboard';
+import { CONTRACT_CONFIG } from "@/config/chains";
+import AssetManagerABI from "@/constant/AssetManager.json";
+import { customToast, customToastPersistent, dismissToast } from "@/components/customToast";
+import { useState } from 'react';
+import { Button } from "@heroui/react";
 
 export default function PointsPage() {
 	const { t } = useTranslation();
 	const { ready } = usePrivy();
-	const { address } = useAuthStore();
+	const { wallets } = useWallets();
+	const { address, isLoggedIn } = useAuthStore();
 	const { copy } = useClipboard();
+	const [isClaiming, setIsClaiming] = useState(false);
 
-	const { data: originInfoData } = useQuery({
+	const isConnected = ready && isLoggedIn && !!address;
+	const wallet = address ? wallets.find((w) => w.address?.toLowerCase() === address.toLowerCase()) : null;
+
+	const { data: originInfoData, refetch: refetchOriginData } = useQuery({
 		queryKey: ['originInfo', address],
 		queryFn: async () => {
 			const result = await getOriginInfo({
@@ -31,6 +41,101 @@ export default function PointsPage() {
 		refetchIntervalInBackground: true,
 		staleTime: 5000, // 5秒内不会重新请求
 	});
+
+	// Claim functionality
+	const handleClaim = async () => {
+		if (!wallet || !isConnected) {
+			return;
+		}
+
+		// Check if user has claimable amount
+		const userAmount = originInfoData?.user?.amount;
+		if (!userAmount || BigNumber(ethers.formatUnits(BigInt(userAmount), 8)).lte(0)) {
+			return;
+		}
+
+		setIsClaiming(true);
+		let loadingToastId: any = null;
+
+		try {
+			const ethereumProvider = await wallet.getEthereumProvider();
+			const provider = new ethers.BrowserProvider(ethereumProvider);
+			const signer = await provider.getSigner();
+
+			loadingToastId = customToastPersistent({
+				title: t('Common.waitingForSignature'),
+				type: 'loading'
+			});
+
+			// Create contract instance
+			const assetManagerContract = new ethers.Contract(
+				CONTRACT_CONFIG.CLAIM_CONTRACT,
+				AssetManagerABI.abi,
+				signer
+			);
+
+			// Generate order_id (you might want to get this from API or generate uniquely)
+			const orderId = Date.now().toString();
+			const amount = ethers.parseUnits((originInfoData?.ori_config?.limit_amount || 0).toString(), 10).toString();
+			// Prepare transaction parameters
+			const txParams = [
+				orderId, // order_id
+				'claim', // command
+				'', // extra_info
+				ethers.ZeroAddress, // token address
+				amount
+			];
+			console.log('Transaction parameters:', txParams);
+			// Estimate gas first
+			const gasEstimate = await assetManagerContract.deposit.estimateGas(...txParams, { value: amount });
+			console.log('Estimated gas:', gasEstimate.toString());
+
+			// Add 20% buffer to gas estimate
+			const gasLimit = gasEstimate * BigInt(120) / BigInt(100);
+
+			// Call the deposit function for claim
+			const claimTx = await assetManagerContract.deposit(...txParams, {
+				value: amount,
+				gasLimit: gasLimit
+			});
+
+			// Close loading toast
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: t('Common.transactionConfirmed'),
+				description: <span onClick={() => window.open(`https://bscscan.com/tx/${claimTx.hash}`, '_blank')} className="cursor-pointer hover:underline">{t('Common.viewOnBscscan')}</span>,
+				type: 'success'
+			});
+
+			// Wait for transaction confirmation
+			try {
+				const receipt = await claimTx.wait();
+				console.log('Claim transaction confirmed:', receipt);
+				// Refetch data after confirmation
+				refetchOriginData();
+			} catch (waitError) {
+				console.error('Claim transaction confirmation failed:', waitError);
+				// Still refetch data even if wait fails, the transaction might have been successful
+				refetchOriginData();
+			}
+
+		} catch (error) {
+			if (loadingToastId) {
+				dismissToast(loadingToastId);
+			}
+
+			customToast({
+				title: t('Common.transactionFailed'),
+				description: <span onClick={() => handleClaim()} className="cursor-pointer hover:underline">{t('Common.pleaseTryAgain')}</span>,
+				type: 'error'
+			});
+		} finally {
+			setIsClaiming(false);
+		}
+	};
 
 	if (!ready) {
 		return <div className="flex items-center justify-center h-screen w-screen bg-[#0D0F13]">
@@ -119,15 +224,17 @@ export default function PointsPage() {
 							})() : '0'}</div>
 						</div>
 					</div>
-					<button
+					<Button
 						className={`px-[20px] py-[8px] rounded-[20px] text-[14px] font-medium transition-colors ${originInfoData?.user?.amount && BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).gt(0)
 							? 'bg-[#fff] text-[#000] hover:bg-[#f0f0f0]'
 							: 'bg-[#3A3B3F] text-[#868789] cursor-not-allowed'
 							}`}
-						disabled={!originInfoData?.user?.amount || BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).lte(0)}
+						isDisabled={!originInfoData?.user?.amount || BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).lte(0) || isClaiming}
+						isLoading={isClaiming}
+						onPress={handleClaim}
 					>
 						{t('Points.claim')}
-					</button>
+					</Button>
 				</div>
 				<div className="w-full text-[12px] text-[#868789] mb-[24px]">{t('Points.totalClaimed')}：<span className="text-[#fff]">{originInfoData?.user?.accumulated_amount ? (() => {
 					const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.user.accumulated_amount), 8)).dp(6, BigNumber.ROUND_DOWN);

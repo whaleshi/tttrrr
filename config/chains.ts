@@ -18,6 +18,7 @@ export const CHAINS_CONFIG = {
             readOreContract: "0x08C32aE774a6d81155E72BE4fFB924A774FAA5fA",
             oreContract: "0xdd97752B0208167Eab24DA081e7c10c0E31229fa",
             ori: "0x0A700052EbF92DC0798C353437c84A6f76E80E2f",
+            claimContract: "0xb1D5F44E94Ab9428E6217c3517355c173F3544D0",
         },
         [56]: {
             name: "BNB Smart Chain",
@@ -27,6 +28,7 @@ export const CHAINS_CONFIG = {
             readOreContract: "0x2e611CCBc67B007a894b4276De89663df442fE56",
             oreContract: "",
             ori: "",
+            claimContract: "",
         },
     },
 } as const;
@@ -40,6 +42,7 @@ export const CONTRACT_CONFIG = {
     // 工厂合约地址 - 用于创建新代币
     READ_ORE_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].readOreContract,
     ORE_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].oreContract,
+    CLAIM_CONTRACT: CHAINS_CONFIG.CHAIN_CONFIG[DEFAULT_CHAIN_ID as keyof typeof CHAINS_CONFIG.CHAIN_CONFIG].claimContract,
 } as const;
 
 // Mint/Refund 相关配置
