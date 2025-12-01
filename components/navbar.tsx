@@ -124,7 +124,7 @@ export const Navbar = () => {
 				<div className="text-[16px] hidden lg:flex items-center gap-[16px] pl-[24px] font-semibold">
 					{[
 						{ href: '/', label: t('Header.home') },
-						{ href: '/points', label: t('Header.points') },
+						{ href: '/points', label: "起源" },
 						{ href: '/stake', label: t('Header.stake') },
 						{ href: '/explore', label: t('Header.explore') },
 						{ href: '/about', label: t('Header.about') }
