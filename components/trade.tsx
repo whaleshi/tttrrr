@@ -60,9 +60,9 @@ export const Trade = ({ selectedCells = [], roundInfo, roundId }: TradeProps) =>
 
 
 	const buyAmounts = [
-		{ label: "0.2", value: 0.2 },
-		{ label: "0.5", value: 0.5 },
-		{ label: "1", value: 1 }
+		{ label: "0.02", value: 0.02 },
+		{ label: "0.05", value: 0.05 },
+		{ label: "0.1", value: 0.1 }
 	];
 
 	const handleAmountSelect = (amount: { label: string; value: number }) => {

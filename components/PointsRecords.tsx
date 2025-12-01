@@ -86,7 +86,7 @@ export const PointsRecords = () => {
 				<div className="text-[12px] text-[#868789]">{t('Points.time')}</div>
 				<div className="text-[12px] text-[#868789]">{t('Points.inputAmount')}</div>
 				<div className="text-[12px] text-[#868789]">{t('Points.round')}</div>
-				<div className="text-[12px] text-[#868789] text-right">{t('Points.earnPoint')}</div>
+				<div className="text-[12px] text-[#868789] text-right">{t('Points.earnOrigin')}</div>
 			</div>
 
 			{/* Table Rows */}

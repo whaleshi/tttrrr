@@ -80,6 +80,7 @@
         "inputAmount": "投入金额",
         "round": "轮次",
         "earnPoint": "获得积分",
+        "earnOrigin": "获得起源币",
         "noRecordsFound": "未找到记录。",
         "previousPage": "上一页",
         "nextPage": "下一页"
