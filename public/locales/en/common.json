@@ -61,7 +61,7 @@
         "title": "Points",
         "subtitle": "Every 10 minutes, 1000 points will be distributed according to the proportion of the investment amount of users who did not win",
         "originPool": "起源 Pool",
-        "originPoolDescription": "Users who don't win after participating will receive <0>起源</0> rewards <1></1>Fixed distribution of <2>200</2> <3>起源</3> rewards per round <4></4>MotherLode pool accumulates <5>40</5> <6>起源</6> per round, distributed once after MotherLode draw",
+        "originPoolDescription": "Users who don't win after participating will receive <0>起源</0> rewards <1></1>Fixed distribution of <2>{{rewardAmount}}</2> <3>起源</3> rewards per round <4></4>MotherLode pool accumulates <5>{{motherLodeAmount}}</5> <6>起源</6> per round, distributed once after MotherLode draw",
         "origin": "起源",
         "totalDistributed": "Total Distributed",
         "currentMotherLodePool": "Current MotherLode Pool",

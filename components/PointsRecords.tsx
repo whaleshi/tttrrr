@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import _bignumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { useTranslation } from "react-i18next";
-import { useBalanceContext } from "@/providers/balanceProvider";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { userAssetEvents } from '@/service/api';
 import { useAuthStore } from '@/stores/auth';
@@ -18,7 +17,6 @@ interface AssetEvent {
 
 export const PointsRecords = () => {
 	const { t } = useTranslation();
-	const { price } = useBalanceContext();
 	const [hasData, setHasData] = useState(false);
 	const [currentPage, setCurrentPage] = useState(1);
 	const pageSize = 10;
@@ -75,7 +73,6 @@ export const PointsRecords = () => {
 		}
 	}, [currentPage, assetEventsData?.total, queryClient, pageSize, address]);
 
-	console.log(assetEventsData)
 	// 只在没有数据且正在加载时显示loading
 	const shouldShowLoading = isLoading && !hasData;
 

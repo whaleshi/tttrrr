@@ -61,7 +61,7 @@
         "title": "积分",
         "subtitle": "每10分钟，将根据未中奖用户的投资金额比例分配1000积分",
         "originPool": "起源矿池",
-        "originPoolDescription": "投入后未中奖的用户将获得 <0>起源</0> 奖励 <1></1>每轮固定发放 <2>200</2> <3>起源</3> 奖励 <4></4>母矿奖池每轮累积 <5>40</5> <6>起源</6>，母矿开奖后一次性发放",
+        "originPoolDescription": "投入后未中奖的用户将获得 <0>起源</0> 奖励 <1></1>每轮固定发放 <2>{{rewardAmount}}</2> <3>起源</3> 奖励 <4></4>母矿奖池每轮累积 <5>{{motherLodeAmount}}</5> <6>起源</6>，母矿开奖后一次性发放",
         "origin": "起源",
         "totalDistributed": "累计发放",
         "currentMotherLodePool": "当前母矿奖池",

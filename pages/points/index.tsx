@@ -2,25 +2,23 @@ import { CopyIcon, PointsIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useQuery } from '@tanstack/react-query';
 import { getOriginInfo } from '@/service/api';
-import { useState } from 'react';
 import _bignumber from 'bignumber.js';
 import { ethers } from 'ethers';
 import { useAuthStore } from '@/stores/auth';
 import { useTranslation, Trans } from "react-i18next";
 import { usePrivy } from "@privy-io/react-auth";
 const BigNumber = _bignumber;
-import { Image } from "@heroui/react";
 import { PointsRecords } from "@/components/PointsRecords";
 import { PointsRecords2 } from "@/components/PointsRecords2";
+import useClipboard from '@/hooks/useCopyToClipboard';
 
 export default function PointsPage() {
 	const { t } = useTranslation();
 	const { ready } = usePrivy();
-	const [currentPage, setCurrentPage] = useState(1);
-	const pageSize = 20;
 	const { address } = useAuthStore();
+	const { copy } = useClipboard();
 
-	const { data: originInfoData, isLoading, isFetching } = useQuery({
+	const { data: originInfoData } = useQuery({
 		queryKey: ['originInfo', address],
 		queryFn: async () => {
 			const result = await getOriginInfo({
@@ -47,14 +45,20 @@ export default function PointsPage() {
 				<div className="text-[14px] text-[#868789] w-full mt-[2px] mb-[24px]">
 					<Trans
 						i18nKey="Points.originPoolDescription"
+						values={{
+							rewardAmount: originInfoData?.ori_config?.mining ?
+								BigNumber(ethers.formatUnits(BigInt(originInfoData.ori_config.mining), 8)).dp(6, BigNumber.ROUND_DOWN).toString() : '200',
+							motherLodeAmount: originInfoData?.ori_config?.motherlodes ?
+								BigNumber(ethers.formatUnits(BigInt(originInfoData.ori_config.motherlodes), 8)).dp(6, BigNumber.ROUND_DOWN).toString() : '40'
+						}}
 						components={[
-							<span className="text-[#EFC462]" />,
+							<span className="text-[#EFC462]"></span>,
 							<br />,
-							<span className="text-[#fff]" />,
-							<span className="text-[#EFC462]" />,
+							<span className="text-[#fff]"></span>,
+							<span className="text-[#EFC462]"></span>,
 							<br />,
-							<span className="text-[#fff]" />,
-							<span className="text-[#EFC462]" />
+							<span className="text-[#fff]"></span>,
+							<span className="text-[#EFC462]"></span>
 						]}
 					/>
 				</div>
@@ -65,13 +69,13 @@ export default function PointsPage() {
 							<div className="text-[16px] text-[#fff] mx-[4px]">{t('Points.origin')}</div>
 							<div className="text-[12px] text-[#4A4B4E]">${originInfoData?.chain_asset_config?.price ? BigNumber(originInfoData?.chain_asset_config?.price).dp(2).toString() : '0.00'}</div>
 						</div>
-						<CopyIcon className="cursor-pointer" />
+						<CopyIcon className="cursor-pointer" onClick={() => copy(originInfoData?.ori_config?.mint_address)} />
 					</div>
 				</div>
 				<div className="w-full grid grid-cols-2 gap-2 mb-[32px]">
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
-							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
+							<PointsIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{originInfoData?.global?.total_amount ? (() => {
 								const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.global.total_amount), 8)).dp(6, BigNumber.ROUND_DOWN);
 								if (formatted.gte(1)) {
@@ -85,7 +89,7 @@ export default function PointsPage() {
 					</div>
 					<div className="bg-[#191B1F] border-[1px] border-[#25262A] rounded-[8px] backdrop-blur-[8px] h-[60px] flex flex-col items-center justify-center">
 						<div className="flex items-center gap-[4px] font-semibold">
-							<Image src="/images/logo.png" alt="logo" className="w-[16px] h-[16px] shrink-0" disableSkeleton disableAnimation radius="none" />
+							<PointsIcon className="w-[16px] h-[16px]" />
 							<div className="text-[16px] text-[#fff]">{originInfoData?.global?.current_mother_reward ? (() => {
 								const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.global.current_mother_reward), 8)).dp(6, BigNumber.ROUND_DOWN);
 								if (formatted.gte(1)) {
