@@ -1,4 +1,4 @@
-import { CopyIcon, PointsIcon } from "@/components/icons";
+import { BianIcon, PointsIcon } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useQuery } from '@tanstack/react-query';
 import { getOriginInfo } from '@/service/api';
@@ -173,7 +173,7 @@ export default function PointsPage() {
 							<div className="text-[16px] text-[#fff] mx-[4px]">{t('Points.origin')}</div>
 							<div className="text-[12px] text-[#4A4B4E]">${originInfoData?.chain_asset_config?.price ? BigNumber(originInfoData?.chain_asset_config?.price).dp(2).toString() : '0.00'}</div>
 						</div>
-						<CopyIcon className="cursor-pointer" onClick={() => copy(originInfoData?.ori_config?.mint_address)} />
+						<BianIcon className="cursor-pointer" onClick={() => { window.open(`https://web3.binance.com/token/bsc/${originInfoData?.ori_config?.mint_address}`, '_blank'); }} />
 					</div>
 				</div>
 				<div className="w-full grid grid-cols-2 gap-2 mb-[32px]">
