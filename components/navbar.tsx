@@ -10,7 +10,7 @@ import { shortenAddress, useIsMobile } from "@/utils";
 import { useTranslation } from 'react-i18next';
 import { useBalanceContext } from "@/providers/balanceProvider";
 
-import { CloseIcon, LogoTextIcon, WalletIcon, LangIcon } from "@/components/icons";
+import { CloseIcon, LogoTextIcon, WalletIcon, LangIcon, XIcon, TgIcon } from "@/components/icons";
 import { WalletBox } from "./wallet";
 import { siteConfig } from "@/config/site";
 import { DEFAULT_CHAIN_CONFIG } from "@/config/chains";
@@ -139,7 +139,7 @@ export const Navbar = () => {
 					))}
 				</div>
 
-				<NavbarContent justify="end" className="gap-[12px]">
+				<NavbarContent justify="end" className="gap-[8px]">
 					<Button
 						className="h-[36px] bg-[#0D0F13] px-[12px] text-[13px] text-[#fff] rounded-[18px] border-[1px] border-[#25262A] gap-[4px] hidden lg:flex min-h-[36px]"
 						variant="flat"
@@ -165,6 +165,8 @@ export const Navbar = () => {
 							{t('Header.connectWallet')}
 						</Button>
 					}
+					<XIcon className="cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { window.open(siteConfig.links.x, '_blank'); }} />
+					<TgIcon className="cursor-pointer hover:opacity-80 transition-opacity hidden lg:block" onClick={() => { window.open(siteConfig.links.tg, '_blank'); }} />
 					<LangIcon
 						lang={lang as 'zh' | 'en'}
 						className="cursor-pointer hover:opacity-80 transition-opacity"

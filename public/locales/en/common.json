@@ -83,7 +83,11 @@
         "earnOrigin": "Earn 起源",
         "noRecordsFound": "No records found.",
         "previousPage": "Previous page",
-        "nextPage": "Next page"
+        "nextPage": "Next page",
+        "unrefinedOri": "Unrefined 起源",
+        "unrefinedOriDesc": "起源 you have mined and may claim. This 起源 will incur a 10% refining fee when claimed, paid out to other miners who have held onto their mined 起源 for longer.",
+        "refinedOri": "Refined 起源",
+        "refinedOriDesc": "起源 you have earned from refining fees and may claim. This 起源 is not subject to any fee when claimed."
     },
     "Stake": {
         "title": "Stake",

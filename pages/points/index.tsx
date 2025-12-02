@@ -1,4 +1,4 @@
-import { BianIcon, PointsIcon } from "@/components/icons";
+import { BianIcon, PointsIcon, InfoIcon, PointsIcons } from "@/components/icons";
 import DefaultLayout from "@/layouts/default";
 import { useQuery } from '@tanstack/react-query';
 import { getOriginInfo } from '@/service/api';
@@ -10,19 +10,17 @@ import { usePrivy, useWallets } from "@privy-io/react-auth";
 const BigNumber = _bignumber;
 import { PointsRecords } from "@/components/PointsRecords";
 import { PointsRecords2 } from "@/components/PointsRecords2";
-import useClipboard from '@/hooks/useCopyToClipboard';
 import { CONTRACT_CONFIG } from "@/config/chains";
 import AssetManagerABI from "@/constant/AssetManager.json";
 import { customToast, customToastPersistent, dismissToast } from "@/components/customToast";
 import { useState } from 'react';
-import { Button } from "@heroui/react";
+import { Button, Popover, PopoverTrigger, PopoverContent } from "@heroui/react";
 
 export default function PointsPage() {
 	const { t } = useTranslation();
 	const { ready } = usePrivy();
 	const { wallets } = useWallets();
 	const { address, isLoggedIn } = useAuthStore();
-	const { copy } = useClipboard();
 	const [isClaiming, setIsClaiming] = useState(false);
 
 	const isConnected = ready && isLoggedIn && !!address;
@@ -166,7 +164,7 @@ export default function PointsPage() {
 						]}
 					/>
 				</div>
-				<div className="w-full border-[2px] border-[#25262A] rounded-[8px] h-[48px] mb-[8px] flex items-center px-[16px]">
+				<div className="w-full border-[1px] border-[#25262A] rounded-[8px] h-[48px] mb-[8px] flex items-center px-[16px]">
 					<div className="flex items-center w-full">
 						<PointsIcon className="w-[24px] h-[24px]" />
 						<div className="flex items-center flex-1">
@@ -208,25 +206,66 @@ export default function PointsPage() {
 				</div>
 				<div className="text-[20px] text-[#fff] w-full mb-[12px]">{t('Points.myRewards')}</div>
 				{/* My Points Card */}
-				<div className="w-full border-[2px] border-[#25262A] rounded-[8px] h-[88px] mb-[12px] flex items-center px-[16px] justify-between">
-					<div className="flex items-center gap-[12px]">
-						<PointsIcon className="w-[40px] h-[40px]" />
-						<div>
-							<div className="text-[12px] text-[#868789] mb-[4px]">{t('Points.claimableReward')}</div>
-							<div className="text-[24px] font-bold text-[#fff]">{originInfoData?.user?.amount ? (() => {
+				<div className="w-full border-[1px] border-[#25262A] rounded-[8px] py-[16px] px-[12px] mb-[12px]">
+					<div className="flex items-center justify-between mb-[12px]">
+						<div className="flex items-center gap-[8px]">
+							<span className="text-[13px] text-[#868789]">{t('Points.unrefinedOri')}</span>
+							<Popover placement="top" showArrow={true}>
+								<PopoverTrigger>
+									<div><InfoIcon className="cursor-pointer w-[12px] h-[12px]" /></div>
+								</PopoverTrigger>
+								<PopoverContent>
+									<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">
+										{t('Points.unrefinedOriDesc')}
+									</div>
+								</PopoverContent>
+							</Popover>
+						</div>
+						<div className="text-[13px] font-bold text-[#fff] flex items-center gap-[4px]">
+							<PointsIcons className="w-[16px] h-[16px]" />
+							{originInfoData?.user?.amount ? (() => {
 								const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).dp(6, BigNumber.ROUND_DOWN);
 								if (formatted.gte(1)) {
 									const num = formatted.toNumber();
 									return num % 1 === 0 ? num.toLocaleString() : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 								}
 								return formatted.toString();
-							})() : '0'}</div>
+							})() : '0'}
 						</div>
 					</div>
+
+					<div className="flex items-center justify-between mb-[16px]">
+						<div className="flex items-center gap-[8px]">
+							<span className="text-[13px] text-[#868789]">{t('Points.refinedOri')}</span>
+							<Popover placement="top" showArrow={true}>
+								<PopoverTrigger>
+									<div><InfoIcon className="cursor-pointer w-[12px] h-[12px]" /></div>
+								</PopoverTrigger>
+								<PopoverContent>
+									<div className="max-w-[270px] text-[12px] text-[#E6E6E6]">
+										{t('Points.refinedOriDesc')}
+									</div>
+								</PopoverContent>
+							</Popover>
+						</div>
+						<div className="text-[13px] font-bold text-[#fff] flex items-center gap-[4px]">
+							<PointsIcon className="w-[16px] h-[16px]" />
+							{originInfoData?.user?.native_amount ? (() => {
+								const formatted = BigNumber(ethers.formatUnits(BigInt(originInfoData.user.native_amount), 8)).dp(6, BigNumber.ROUND_DOWN);
+								if (formatted.gte(1)) {
+									const num = formatted.toNumber();
+									return num % 1 === 0 ? num.toLocaleString() : num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+								}
+								return formatted.toString();
+							})() : '0'}
+						</div>
+					</div>
+
+					{/* Claim Button */}
 					<Button
-						className={`px-[20px] py-[8px] rounded-[20px] text-[14px] font-medium transition-colors ${originInfoData?.user?.amount && BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).gt(0)
-							? 'bg-[#fff] text-[#000] hover:bg-[#f0f0f0]'
-							: 'bg-[#3A3B3F] text-[#868789] cursor-not-allowed'
+						className={`w-full h-[44px] rounded-[22px] text-[16px] font-medium ${originInfoData?.user?.amount && BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).gt(0)
+							? 'bg-transparent border-[1px] border-[#EFC462] text-[#EFC462]'
+							: 'bg-[transparent] border-[1px] border-[#36383B] text-[#868789] cursor-not-allowed'
 							}`}
 						isDisabled={!originInfoData?.user?.amount || BigNumber(ethers.formatUnits(BigInt(originInfoData.user.amount), 8)).lte(0) || isClaiming}
 						isLoading={isClaiming}

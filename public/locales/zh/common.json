@@ -83,7 +83,11 @@
         "earnOrigin": "获得起源币",
         "noRecordsFound": "未找到记录。",
         "previousPage": "上一页",
-        "nextPage": "下一页"
+        "nextPage": "下一页",
+        "unrefinedOri": "未精炼 起源",
+        "unrefinedOriDesc": "您挖掘的可领取的 起源。领取时将收取 10% 的精炼费，支付给持有已挖掘 起源 更长时间的其他矿工。",
+        "refinedOri": "精炼 起源",
+        "refinedOriDesc": "您从精炼费中赚取的可领取的 起源"
     },
     "Stake": {
         "title": "质押",
