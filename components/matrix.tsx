@@ -34,7 +34,7 @@ export default function Matrix({ selectedCells, setSelectedCells, cellAmounts, w
 			});
 			return result?.data;
 		},
-		refetchInterval: 3000, // 1秒一次
+		refetchInterval: 2000, // 2秒一次
 		enabled: !!roundId // 只在 roundId 存在时启用
 	});
 	// const { data: roundInfoData } = useQuery({

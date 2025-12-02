@@ -87,7 +87,7 @@
         "unrefinedOri": "未精炼 起源",
         "unrefinedOriDesc": "您挖掘的可领取的 起源。领取时将收取 10% 的精炼费，支付给持有已挖掘 起源 更长时间的其他矿工。",
         "refinedOri": "精炼 起源",
-        "refinedOriDesc": "您从精炼费中赚取的可领取的 起源"
+        "refinedOriDesc": "您从精炼费中赚取的可领取的 起源。"
     },
     "Stake": {
         "title": "质押",
@@ -228,7 +228,7 @@
         "unrefinedOri": "未精炼 ORI",
         "unrefinedOriDesc": "您挖掘的可领取的 ORI。领取时将收取 10% 的精炼费，支付给持有已挖掘 ORI 更长时间的其他矿工。",
         "refinedOri": "精炼 ORI",
-        "refinedOriDesc": "您从精炼费中赚取的可领取的 ORI",
+        "refinedOriDesc": "您从精炼费中赚取的可领取的 ORI。",
         "claim": "领取",
         "claiming": "领取中...",
         "claimOnlyBNB": "仅领取 BNB",
