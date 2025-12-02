@@ -15,6 +15,8 @@ import { WagmiProvider } from 'wagmi';
 import { config } from '@/wagmiConfig';
 
 import { fontSans } from "@/config/fonts";
+import { Navbar } from "@/components/navbar";
+import Footer from "@/components/footer";
 import "@/styles/globals.css";
 import "nprogress/nprogress.css";
 import "@/i18n"
@@ -115,7 +117,13 @@ export default function App({ Component, pageProps }: AppProps) {
 											}}
 										/>
 										<NextThemesProvider attribute="class" defaultTheme="dark">
-											<Component {...pageProps} />
+											<div className="relative flex flex-col h-screen bg-[#0D0F13] page-transition">
+												<Navbar />
+												<main className="mx-auto w-full flex-grow pt-[56px] md:pt-[64px] pb-[70px] lg:pb-0">
+													<Component {...pageProps} />
+												</main>
+												<Footer />
+											</div>
 										</NextThemesProvider>
 									</HeroUIProvider>
 								</BalanceProvider>
